@@ -1,5 +1,5 @@
-import base64
-
+import numpy as np
+import cv2
 from dash import Dash, html, dcc, Input, Output, State, callback_context, no_update
 
 from .data_loader import (
@@ -13,11 +13,7 @@ from .data_loader import (
     DEFAULT_ON,
 )
 from .scene_builder import build_3d_figure
-
-
-def encode_image(path: str) -> str:
-    with open(path, "rb") as f:
-        return "data:image/jpeg;base64," + base64.b64encode(f.read()).decode()
+from .image_stitcher import PanoramaStitcher, encode_panorama
 
 
 def create_app(
@@ -40,6 +36,9 @@ def create_app(
     else:
         raise ValueError("At least one of --gt or --tracker must be provided")
 
+    FRONT_CAMS = ["CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT"]
+    REAR_CAMS = ["CAM_BACK_LEFT", "CAM_BACK", "CAM_BACK_RIGHT"]
+
     if sample_tokens is None and gt_data is None:
         scene = nusc_loader.nusc.scene[0]
         sample_token = scene["first_sample_token"]
@@ -51,6 +50,14 @@ def create_app(
                 sample_token = sample["next"]
             else:
                 break
+
+    cals = nusc_loader.get_camera_calibrations(sample_tokens[0])
+    front_stitcher = PanoramaStitcher(
+        [cals[c] for c in FRONT_CAMS], center_yaw=0.0,
+    )
+    rear_stitcher = PanoramaStitcher(
+        [cals[c] for c in REAR_CAMS], center_yaw=np.pi, mirror=True,
+    )
 
     app = Dash(__name__)
 
@@ -230,22 +237,58 @@ def create_app(
                         },
                         children=[
                             html.Div(
-                                id="camera-panel-front",
                                 style={
-                                    "flex": "1",
-                                    "display": "grid",
-                                    "gridTemplateColumns": "repeat(3, 1fr)",
-                                    "gap": "4px",
+                                    "backgroundColor": "#16213e",
+                                    "borderRadius": "4px",
+                                    "padding": "4px",
                                 },
+                                children=[
+                                    html.Div(
+                                        "FRONT",
+                                        style={
+                                            "fontSize": "11px",
+                                            "fontWeight": "600",
+                                            "color": "#00d4ff",
+                                            "marginBottom": "2px",
+                                            "textAlign": "center",
+                                        },
+                                    ),
+                                    html.Img(
+                                        id="pano-front",
+                                        style={
+                                            "width": "100%",
+                                            "borderRadius": "2px",
+                                            "display": "block",
+                                        },
+                                    ),
+                                ],
                             ),
                             html.Div(
-                                id="camera-panel-rear",
                                 style={
-                                    "flex": "1",
-                                    "display": "grid",
-                                    "gridTemplateColumns": "repeat(3, 1fr)",
-                                    "gap": "4px",
+                                    "backgroundColor": "#16213e",
+                                    "borderRadius": "4px",
+                                    "padding": "4px",
                                 },
+                                children=[
+                                    html.Div(
+                                        "REAR",
+                                        style={
+                                            "fontSize": "11px",
+                                            "fontWeight": "600",
+                                            "color": "#00d4ff",
+                                            "marginBottom": "2px",
+                                            "textAlign": "center",
+                                        },
+                                    ),
+                                    html.Img(
+                                        id="pano-rear",
+                                        style={
+                                            "width": "100%",
+                                            "borderRadius": "2px",
+                                            "display": "block",
+                                        },
+                                    ),
+                                ],
                             ),
                         ],
                     ),
@@ -306,8 +349,8 @@ def create_app(
 
     @app.callback(
         Output("scene-3d", "figure"),
-        Output("camera-panel-front", "children"),
-        Output("camera-panel-rear", "children"),
+        Output("pano-front", "src"),
+        Output("pano-rear", "src"),
         Output("frame-info", "children"),
         Input("store-frame", "data"),
         Input("check-layers", "value"),
@@ -369,37 +412,11 @@ def create_app(
         fig = build_3d_figure(points, gt_boxes_ego, tracker_boxes_ego)
 
         cam_paths = nusc_loader.get_camera_paths(sample_token)
-        front_cams = ["CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT"]
-        rear_cams = ["CAM_BACK_LEFT", "CAM_BACK", "CAM_BACK_RIGHT"]
+        front_imgs = [cv2.imread(cam_paths[c]) for c in FRONT_CAMS]
+        rear_imgs = [cv2.imread(cam_paths[c]) for c in REAR_CAMS]
 
-        def make_cam_div(cam_name):
-            short_name = cam_name.replace("CAM_", "").replace("_", " ")
-            return html.Div(
-                style={
-                    "textAlign": "center",
-                    "backgroundColor": "#16213e",
-                    "borderRadius": "4px",
-                    "padding": "4px",
-                },
-                children=[
-                    html.Div(
-                        short_name,
-                        style={
-                            "fontSize": "11px",
-                            "fontWeight": "600",
-                            "color": "#00d4ff",
-                            "marginBottom": "2px",
-                        },
-                    ),
-                    html.Img(
-                        src=encode_image(cam_paths[cam_name]),
-                        style={"width": "100%", "borderRadius": "2px"},
-                    ),
-                ],
-            )
-
-        front_children = [make_cam_div(c) for c in front_cams]
-        rear_children = [make_cam_div(c) for c in rear_cams]
+        front_src = encode_panorama(front_stitcher.stitch(front_imgs))
+        rear_src = encode_panorama(rear_stitcher.stitch(rear_imgs))
 
         timestamp = ""
         if gt_data and frame_idx < len(gt_data):
@@ -409,7 +426,7 @@ def create_app(
 
         info_text = f"Frame {frame_idx}/{num_frames - 1}  |  Objects: {total_objects}  |  Token: {sample_token[:8]}...  |  TS: {timestamp}"
 
-        return fig, front_children, rear_children, info_text
+        return fig, front_src, rear_src, info_text
 
     return app
 
