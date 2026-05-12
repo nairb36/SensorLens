@@ -25,14 +25,14 @@ def build_box_corners(translation: np.ndarray, size: list, yaw: float) -> np.nda
     hw, hl, hh = w / 2, l / 2, h / 2
 
     corners = np.array([
-        [-hw, -hl, -hh],
-        [ hw, -hl, -hh],
-        [ hw,  hl, -hh],
-        [-hw,  hl, -hh],
-        [-hw, -hl,  hh],
-        [ hw, -hl,  hh],
-        [ hw,  hl,  hh],
-        [-hw,  hl,  hh],
+        [-hl, -hw, -hh],
+        [ hl, -hw, -hh],
+        [ hl,  hw, -hh],
+        [-hl,  hw, -hh],
+        [-hl, -hw,  hh],
+        [ hl, -hw,  hh],
+        [ hl,  hw,  hh],
+        [-hl,  hw,  hh],
     ])
 
     cos_y, sin_y = np.cos(yaw), np.sin(yaw)
@@ -153,8 +153,8 @@ def build_ego_car() -> list:
     for name in order:
         y_val, ring = sections[name]
         start = len(all_verts)
-        for x, z in ring:
-            all_verts.append((x, y_val, z))
+        for lateral, z in ring:
+            all_verts.append((y_val, lateral, z))
         section_indices[name] = (start, len(ring))
 
     verts = np.array(all_verts)
@@ -223,7 +223,7 @@ def build_ego_car() -> list:
 
     ax, ay, az = [], [], []
     arrow_z = 1.35
-    arrow = [(0, 3.4), (-0.5, 2.7), (0, 2.9), (0.5, 2.7), (0, 3.4)]
+    arrow = [(3.4, 0), (2.7, -0.5), (2.9, 0), (2.7, 0.5), (3.4, 0)]
     for k in range(len(arrow) - 1):
         ax.extend([arrow[k][0], arrow[k + 1][0], None])
         ay.extend([arrow[k][1], arrow[k + 1][1], None])
@@ -286,7 +286,7 @@ def build_3d_figure(
             aspectratio=dict(x=1, y=1, z=0.15),
             camera=dict(
                 eye=dict(x=0, y=0, z=2.0),
-                up=dict(x=0, y=1, z=0),
+                up=dict(x=1, y=0, z=0),
                 center=dict(x=0, y=0, z=0),
             ),
             bgcolor="#1a1a2e",
