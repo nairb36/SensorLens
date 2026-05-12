@@ -1,3 +1,6 @@
+import functools
+from pathlib import Path
+
 import numpy as np
 import plotly.graph_objects as go
 
@@ -118,112 +121,92 @@ def build_point_cloud_trace(
     )
 
 
-def _quad(a, b, c, d):
-    return [(a, b, c), (a, c, d)]
+def _parse_mtl(path: Path) -> dict[str, str]:
+    materials: dict[str, str] = {}
+    current = None
+    with open(path) as f:
+        for line in f:
+            if line.startswith("newmtl "):
+                current = line.split(None, 1)[1].strip()
+            elif line.startswith("Kd ") and current:
+                r, g, b = (float(x) for x in line.split()[1:4])
+                # Blender linear → sRGB approximation for display
+                sr, sg, sb = (int(min(x ** 0.45, 1.0) * 255) for x in (r, g, b))
+                materials[current] = f"#{sr:02x}{sg:02x}{sb:02x}"
+    return materials
+
+
+@functools.lru_cache(maxsize=1)
+def _load_ego_obj() -> tuple[np.ndarray, list[list[int]], list[str]]:
+    assets = Path(__file__).parent / "assets"
+    obj_path = assets / "NormalCar2.obj"
+    mtl_path = assets / "NormalCar2.mtl"
+
+    mtl_colors = _parse_mtl(mtl_path) if mtl_path.exists() else {}
+
+    raw_verts: list[list[float]] = []
+    faces: list[list[int]] = []
+    face_colors: list[str] = []
+    current_color = "#758ca3"
+
+    with open(obj_path) as f:
+        for line in f:
+            if line.startswith("v "):
+                parts = line.split()
+                raw_verts.append([float(parts[1]), float(parts[2]), float(parts[3])])
+            elif line.startswith("usemtl "):
+                mat_name = line.split(None, 1)[1].strip()
+                current_color = mtl_colors.get(mat_name, "#758ca3")
+            elif line.startswith("f "):
+                idxs = [int(p.split("/")[0]) - 1 for p in line.split()[1:]]
+                if len(idxs) == 3:
+                    faces.append(idxs)
+                    face_colors.append(current_color)
+                else:
+                    for i in range(1, len(idxs) - 1):
+                        faces.append([idxs[0], idxs[i], idxs[i + 1]])
+                        face_colors.append(current_color)
+
+    v = np.array(raw_verts)
+    # OBJ from Blender (X=right, Y=up, Z=back) → nuScenes (X=fwd, Y=left, Z=up)
+    remapped = np.column_stack([v[:, 2], -v[:, 0], v[:, 1]])
+
+    remapped[:, 0] -= remapped[:, 0].mean()
+    remapped[:, 1] -= remapped[:, 1].mean()
+    remapped[:, 2] -= remapped[:, 2].min()
+
+    scale = 4.5 / remapped[:, 0].ptp()
+    remapped *= scale
+
+    remapped[:, 0] -= remapped[:, 0].mean()
+    remapped[:, 1] -= remapped[:, 1].mean()
+
+    return remapped, faces, face_colors
 
 
 def build_ego_car() -> list:
-    hw = 0.95
-    # y-forward cross-sections, each is a closed ring of (x, z) at a given y
-    # Defines: undercarriage, rear bumper, rear body, rear window base,
-    #          roof rear, roof front, windshield base, hood, front bumper, front tip
-    sections = {
-        "under_rear":    (-2.30, [(-hw, -0.30), ( hw, -0.30), ( hw, -0.30), (-hw, -0.30)]),
-        "rear_bumper":   (-2.30, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.50), (-hw,  0.50)]),
-        "rear_body":     (-1.80, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.70), (-hw,  0.70)]),
-        "trunk_top":     (-1.40, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.70), (-hw,  0.70)]),
-        "rear_win_base": (-1.00, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.72), (-hw,  0.72)]),
-        "roof_rear":     (-0.60, [(-hw,  0.00), ( hw,  0.00), ( hw,  1.30), (-hw,  1.30)]),
-        "roof_front":    ( 0.80, [(-hw,  0.00), ( hw,  0.00), ( hw,  1.30), (-hw,  1.30)]),
-        "wind_base":     ( 1.40, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.72), (-hw,  0.72)]),
-        "hood_rear":     ( 1.60, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.70), (-hw,  0.70)]),
-        "hood_front":    ( 2.40, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.68), (-hw,  0.68)]),
-        "front_bumper":  ( 2.60, [(-0.85, 0.00), (0.85, 0.00), (0.85, 0.50), (-0.85, 0.50)]),
-        "front_tip":     ( 2.80, [(-0.60, 0.10), (0.60, 0.10), (0.60, 0.40), (-0.60, 0.40)]),
-    }
-
-    order = [
-        "rear_bumper", "rear_body", "trunk_top", "rear_win_base",
-        "roof_rear", "roof_front", "wind_base", "hood_rear",
-        "hood_front", "front_bumper", "front_tip",
-    ]
-
-    all_verts = []
-    section_indices = {}
-    for name in order:
-        y_val, ring = sections[name]
-        start = len(all_verts)
-        for lateral, z in ring:
-            all_verts.append((y_val, lateral, z))
-        section_indices[name] = (start, len(ring))
-
-    verts = np.array(all_verts)
-    faces = []
-
-    for idx in range(len(order) - 1):
-        s1_start, s1_n = section_indices[order[idx]]
-        s2_start, s2_n = section_indices[order[idx + 1]]
-        n_pts = min(s1_n, s2_n)
-        for j in range(n_pts):
-            j_next = (j + 1) % n_pts
-            a = s1_start + j
-            b = s1_start + j_next
-            c = s2_start + j_next
-            d = s2_start + j
-            faces.extend(_quad(a, b, c, d))
-
-    first_start, first_n = section_indices[order[0]]
-    for j in range(1, first_n - 1):
-        faces.append((first_start, first_start + j, first_start + j + 1))
-    last_start, last_n = section_indices[order[-1]]
-    for j in range(1, last_n - 1):
-        faces.append((last_start, last_start + j, last_start + j + 1))
-
-    i_idx = [f[0] for f in faces]
-    j_idx = [f[1] for f in faces]
-    k_idx = [f[2] for f in faces]
+    verts, faces, face_colors = _load_ego_obj()
 
     body_mesh = go.Mesh3d(
         x=verts[:, 0], y=verts[:, 1], z=verts[:, 2],
-        i=i_idx, j=j_idx, k=k_idx,
-        color="#2a3a5c",
-        opacity=0.6,
+        i=[f[0] for f in faces],
+        j=[f[1] for f in faces],
+        k=[f[2] for f in faces],
+        facecolor=face_colors,
+        opacity=0.85,
         hoverinfo="skip",
         showlegend=False,
         flatshading=True,
     )
 
-    edge_pairs = []
-    for idx in range(len(order)):
-        s_start, s_n = section_indices[order[idx]]
-        for j in range(s_n):
-            j_next = (j + 1) % s_n
-            edge_pairs.append((s_start + j, s_start + j_next))
-    for idx in range(len(order) - 1):
-        s1_start, s1_n = section_indices[order[idx]]
-        s2_start, s2_n = section_indices[order[idx + 1]]
-        n_pts = min(s1_n, s2_n)
-        for j in range(n_pts):
-            edge_pairs.append((s1_start + j, s2_start + j))
-
-    xs, ys, zs = [], [], []
-    for a, b in edge_pairs:
-        xs.extend([verts[a, 0], verts[b, 0], None])
-        ys.extend([verts[a, 1], verts[b, 1], None])
-        zs.extend([verts[a, 2], verts[b, 2], None])
-
-    wireframe = go.Scatter3d(
-        x=xs, y=ys, z=zs,
-        mode="lines",
-        line=dict(color="rgba(180,200,255,0.35)", width=1.5),
-        hoverinfo="text",
-        hovertext="Ego Vehicle",
-        showlegend=False,
-    )
-
+    front_x = verts[:, 0].max()
+    arrow_z = verts[:, 2].max() + 0.2
+    arrow = [
+        (front_x + 0.8, 0), (front_x + 0.1, -0.5),
+        (front_x + 0.3, 0), (front_x + 0.1, 0.5),
+        (front_x + 0.8, 0),
+    ]
     ax, ay, az = [], [], []
-    arrow_z = 1.35
-    arrow = [(3.4, 0), (2.7, -0.5), (2.9, 0), (2.7, 0.5), (3.4, 0)]
     for k in range(len(arrow) - 1):
         ax.extend([arrow[k][0], arrow[k + 1][0], None])
         ay.extend([arrow[k][1], arrow[k + 1][1], None])
@@ -237,7 +220,7 @@ def build_ego_car() -> list:
         showlegend=False,
     )
 
-    return [body_mesh, wireframe, direction]
+    return [body_mesh, direction]
 
 
 def build_3d_figure(
