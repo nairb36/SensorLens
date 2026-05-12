@@ -12,8 +12,20 @@ from .data_loader import (
     load_tracker_json,
     global_to_ego,
     shorten_category,
+    CATEGORY_GROUPS,
+    CATEGORY_TO_GROUP,
+    DEFAULT_ON,
 )
 from .scene_builder import build_3d_figure
+
+
+def _make_cat_toggle_callback(group_name):
+    def toggle(n_clicks, categories):
+        new_cats = dict(categories)
+        new_cats[group_name] = not new_cats[group_name]
+        active = new_cats[group_name]
+        return _toggle_style(active), group_name, new_cats
+    return toggle
 
 
 def encode_image(path: str) -> str:
@@ -156,8 +168,30 @@ def create_app(
             html.Div(
                 style={
                     "display": "flex",
+                    "alignItems": "center",
                     "gap": "8px",
-                    "height": "calc(100vh - 120px)",
+                    "marginBottom": "8px",
+                    "padding": "6px 16px",
+                    "backgroundColor": "#16213e",
+                    "borderRadius": "8px",
+                },
+                children=[
+                    html.Span("Categories:", style={"fontSize": "12px", "color": "#888", "marginRight": "4px"}),
+                    *[
+                        html.Button(
+                            group,
+                            id=f"btn-cat-{i}",
+                            style=_toggle_style(group in DEFAULT_ON),
+                        )
+                        for i, group in enumerate(CATEGORY_GROUPS)
+                    ],
+                ],
+            ),
+            html.Div(
+                style={
+                    "display": "flex",
+                    "gap": "8px",
+                    "height": "calc(100vh - 160px)",
                 },
                 children=[
                     html.Div(
@@ -209,9 +243,25 @@ def create_app(
             dcc.Store(id="store-gt-on", data=True if gt_data else False),
             dcc.Store(id="store-tracker-on", data=True if tracker_data else False),
             dcc.Store(id="store-playing", data=False),
+            dcc.Store(
+                id="store-categories",
+                data={group: (group in DEFAULT_ON) for group in CATEGORY_GROUPS},
+            ),
             dcc.Interval(id="play-interval", interval=500, disabled=True),
         ],
     )
+
+    cat_group_names = list(CATEGORY_GROUPS.keys())
+
+    for i, group in enumerate(cat_group_names):
+        app.callback(
+            Output(f"btn-cat-{i}", "style"),
+            Output(f"btn-cat-{i}", "children"),
+            Output("store-categories", "data", allow_duplicate=True),
+            Input(f"btn-cat-{i}", "n_clicks"),
+            State("store-categories", "data"),
+            prevent_initial_call=True,
+        )(_make_cat_toggle_callback(group))
 
     @app.callback(
         Output("store-gt-on", "data"),
@@ -298,8 +348,9 @@ def create_app(
         Input("store-frame", "data"),
         Input("store-gt-on", "data"),
         Input("store-tracker-on", "data"),
+        Input("store-categories", "data"),
     )
-    def render_frame(frame_idx, gt_on, tracker_on):
+    def render_frame(frame_idx, gt_on, tracker_on, active_categories):
         if frame_idx is None or frame_idx < 0 or frame_idx >= len(sample_tokens):
             return no_update, no_update, no_update, no_update
 
@@ -307,6 +358,12 @@ def create_app(
 
         ego_pose = nusc_loader.get_ego_pose(sample_token)
         points = nusc_loader.get_lidar_points_ego(sample_token)
+
+        active_groups = {g for g, on in active_categories.items() if on}
+
+        def category_visible(cat_name):
+            group = CATEGORY_TO_GROUP.get(cat_name)
+            return group is not None and group in active_groups
 
         gt_boxes_ego = None
         tracker_boxes_ego = None
@@ -316,6 +373,8 @@ def create_app(
             frame = gt_data[frame_idx]
             gt_boxes_ego = []
             for det in frame.get("detections", []):
+                if not category_visible(det["category_name"]):
+                    continue
                 pos, yaw = global_to_ego(det["translation"], det["yaw"], ego_pose)
                 gt_boxes_ego.append({
                     "translation": pos.tolist(),
@@ -330,6 +389,8 @@ def create_app(
             frame = tracker_data[frame_idx]
             tracker_boxes_ego = []
             for trk in frame.get("tracks", []):
+                if not category_visible(trk["category_name"]):
+                    continue
                 pos, yaw = global_to_ego(trk["translation"], trk["yaw"], ego_pose)
                 tracker_boxes_ego.append({
                     "translation": pos.tolist(),

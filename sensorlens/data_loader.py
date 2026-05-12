@@ -67,6 +67,37 @@ def load_tracker_json(path: str) -> list[dict]:
         return json.load(f)
 
 
+CATEGORY_GROUPS = {
+    "Pedestrians": [
+        "human.pedestrian.adult",
+        "human.pedestrian.child",
+        "human.pedestrian.construction_worker",
+        "human.pedestrian.personal_mobility",
+        "human.pedestrian.police_officer",
+        "human.pedestrian.stroller",
+        "human.pedestrian.wheelchair",
+    ],
+    "Cars": ["vehicle.car"],
+    "Trucks & Buses": ["vehicle.truck", "vehicle.bus.bendy", "vehicle.bus.rigid", "vehicle.construction"],
+    "Two-Wheelers": ["vehicle.motorcycle", "vehicle.bicycle"],
+    "Static Objects": [
+        "movable_object.barrier",
+        "movable_object.trafficcone",
+        "movable_object.debris",
+        "movable_object.pushable_pullable",
+        "static_object.bicycle_rack",
+        "vehicle.trailer",
+    ],
+}
+
+CATEGORY_TO_GROUP = {}
+for group, cats in CATEGORY_GROUPS.items():
+    for cat in cats:
+        CATEGORY_TO_GROUP[cat] = group
+
+DEFAULT_ON = {"Pedestrians", "Cars", "Trucks & Buses", "Two-Wheelers"}
+
+
 def shorten_category(name: str) -> str:
     parts = name.split(".")
     if len(parts) >= 2:
