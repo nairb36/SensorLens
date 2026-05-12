@@ -186,7 +186,7 @@ def build_3d_figure(
         ),
         paper_bgcolor="#0f0f23",
         margin=dict(l=0, r=0, t=0, b=0),
-        height=600,
+        autosize=True,
         uirevision="constant",
     )
 

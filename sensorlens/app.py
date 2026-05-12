@@ -154,27 +154,56 @@ def create_app(
                 ],
             ),
             html.Div(
-                style={"borderRadius": "8px", "overflow": "hidden"},
+                style={
+                    "display": "flex",
+                    "gap": "8px",
+                    "height": "calc(100vh - 120px)",
+                },
                 children=[
-                    dcc.Graph(
-                        id="scene-3d",
-                        config={
-                            "displayModeBar": True,
-                            "scrollZoom": True,
-                            "displaylogo": False,
+                    html.Div(
+                        style={"flex": "1", "minWidth": "0", "borderRadius": "8px", "overflow": "hidden"},
+                        children=[
+                            dcc.Graph(
+                                id="scene-3d",
+                                config={
+                                    "displayModeBar": True,
+                                    "scrollZoom": True,
+                                    "displaylogo": False,
+                                },
+                                style={"height": "100%"},
+                            ),
+                        ],
+                    ),
+                    html.Div(
+                        style={
+                            "flex": "1",
+                            "minWidth": "0",
+                            "display": "flex",
+                            "flexDirection": "column",
+                            "gap": "4px",
                         },
-                        style={"height": "600px"},
+                        children=[
+                            html.Div(
+                                id="camera-panel-front",
+                                style={
+                                    "flex": "1",
+                                    "display": "grid",
+                                    "gridTemplateColumns": "repeat(3, 1fr)",
+                                    "gap": "4px",
+                                },
+                            ),
+                            html.Div(
+                                id="camera-panel-rear",
+                                style={
+                                    "flex": "1",
+                                    "display": "grid",
+                                    "gridTemplateColumns": "repeat(3, 1fr)",
+                                    "gap": "4px",
+                                },
+                            ),
+                        ],
                     ),
                 ],
-            ),
-            html.Div(
-                id="camera-panel",
-                style={
-                    "display": "grid",
-                    "gridTemplateColumns": "repeat(6, 1fr)",
-                    "gap": "4px",
-                    "marginTop": "8px",
-                },
             ),
             dcc.Store(id="store-frame", data=0),
             dcc.Store(id="store-gt-on", data=True if gt_data else False),
@@ -263,7 +292,8 @@ def create_app(
 
     @app.callback(
         Output("scene-3d", "figure"),
-        Output("camera-panel", "children"),
+        Output("camera-panel-front", "children"),
+        Output("camera-panel-rear", "children"),
         Output("frame-info", "children"),
         Input("store-frame", "data"),
         Input("store-gt-on", "data"),
@@ -271,7 +301,7 @@ def create_app(
     )
     def render_frame(frame_idx, gt_on, tracker_on):
         if frame_idx is None or frame_idx < 0 or frame_idx >= len(sample_tokens):
-            return no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update
 
         sample_token = sample_tokens[frame_idx]
 
@@ -313,34 +343,37 @@ def create_app(
         fig = build_3d_figure(points, gt_boxes_ego, tracker_boxes_ego)
 
         cam_paths = nusc_loader.get_camera_paths(sample_token)
-        cam_children = []
-        for cam_name, cam_path in cam_paths.items():
+        front_cams = ["CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT"]
+        rear_cams = ["CAM_BACK_LEFT", "CAM_BACK", "CAM_BACK_RIGHT"]
+
+        def make_cam_div(cam_name):
             short_name = cam_name.replace("CAM_", "").replace("_", " ")
-            cam_children.append(
-                html.Div(
-                    style={
-                        "textAlign": "center",
-                        "backgroundColor": "#16213e",
-                        "borderRadius": "4px",
-                        "padding": "4px",
-                    },
-                    children=[
-                        html.Div(
-                            short_name,
-                            style={
-                                "fontSize": "11px",
-                                "fontWeight": "600",
-                                "color": "#00d4ff",
-                                "marginBottom": "2px",
-                            },
-                        ),
-                        html.Img(
-                            src=encode_image(cam_path),
-                            style={"width": "100%", "borderRadius": "2px"},
-                        ),
-                    ],
-                )
+            return html.Div(
+                style={
+                    "textAlign": "center",
+                    "backgroundColor": "#16213e",
+                    "borderRadius": "4px",
+                    "padding": "4px",
+                },
+                children=[
+                    html.Div(
+                        short_name,
+                        style={
+                            "fontSize": "11px",
+                            "fontWeight": "600",
+                            "color": "#00d4ff",
+                            "marginBottom": "2px",
+                        },
+                    ),
+                    html.Img(
+                        src=encode_image(cam_paths[cam_name]),
+                        style={"width": "100%", "borderRadius": "2px"},
+                    ),
+                ],
             )
+
+        front_children = [make_cam_div(c) for c in front_cams]
+        rear_children = [make_cam_div(c) for c in rear_cams]
 
         timestamp = ""
         if gt_data and frame_idx < len(gt_data):
@@ -350,7 +383,7 @@ def create_app(
 
         info_text = f"Frame {frame_idx}/{num_frames - 1}  |  Objects: {total_objects}  |  Token: {sample_token[:8]}...  |  TS: {timestamp}"
 
-        return fig, cam_children, info_text
+        return fig, front_children, rear_children, info_text
 
     return app
 
