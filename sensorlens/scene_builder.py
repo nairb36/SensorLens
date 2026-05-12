@@ -118,19 +118,126 @@ def build_point_cloud_trace(
     )
 
 
-def build_ego_marker() -> go.Scatter3d:
-    size = 1.5
-    xs = [0, size, 0, -size, 0, 0]
-    ys = [size, 0, -size, 0, 0, 0]
-    zs = [0, 0, 0, 0, -1, 1]
-    return go.Scatter3d(
+def _quad(a, b, c, d):
+    return [(a, b, c), (a, c, d)]
+
+
+def build_ego_car() -> list:
+    hw = 0.95
+    # y-forward cross-sections, each is a closed ring of (x, z) at a given y
+    # Defines: undercarriage, rear bumper, rear body, rear window base,
+    #          roof rear, roof front, windshield base, hood, front bumper, front tip
+    sections = {
+        "under_rear":    (-2.30, [(-hw, -0.30), ( hw, -0.30), ( hw, -0.30), (-hw, -0.30)]),
+        "rear_bumper":   (-2.30, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.50), (-hw,  0.50)]),
+        "rear_body":     (-1.80, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.70), (-hw,  0.70)]),
+        "trunk_top":     (-1.40, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.70), (-hw,  0.70)]),
+        "rear_win_base": (-1.00, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.72), (-hw,  0.72)]),
+        "roof_rear":     (-0.60, [(-hw,  0.00), ( hw,  0.00), ( hw,  1.30), (-hw,  1.30)]),
+        "roof_front":    ( 0.80, [(-hw,  0.00), ( hw,  0.00), ( hw,  1.30), (-hw,  1.30)]),
+        "wind_base":     ( 1.40, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.72), (-hw,  0.72)]),
+        "hood_rear":     ( 1.60, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.70), (-hw,  0.70)]),
+        "hood_front":    ( 2.40, [(-hw,  0.00), ( hw,  0.00), ( hw,  0.68), (-hw,  0.68)]),
+        "front_bumper":  ( 2.60, [(-0.85, 0.00), (0.85, 0.00), (0.85, 0.50), (-0.85, 0.50)]),
+        "front_tip":     ( 2.80, [(-0.60, 0.10), (0.60, 0.10), (0.60, 0.40), (-0.60, 0.40)]),
+    }
+
+    order = [
+        "rear_bumper", "rear_body", "trunk_top", "rear_win_base",
+        "roof_rear", "roof_front", "wind_base", "hood_rear",
+        "hood_front", "front_bumper", "front_tip",
+    ]
+
+    all_verts = []
+    section_indices = {}
+    for name in order:
+        y_val, ring = sections[name]
+        start = len(all_verts)
+        for x, z in ring:
+            all_verts.append((x, y_val, z))
+        section_indices[name] = (start, len(ring))
+
+    verts = np.array(all_verts)
+    faces = []
+
+    for idx in range(len(order) - 1):
+        s1_start, s1_n = section_indices[order[idx]]
+        s2_start, s2_n = section_indices[order[idx + 1]]
+        n_pts = min(s1_n, s2_n)
+        for j in range(n_pts):
+            j_next = (j + 1) % n_pts
+            a = s1_start + j
+            b = s1_start + j_next
+            c = s2_start + j_next
+            d = s2_start + j
+            faces.extend(_quad(a, b, c, d))
+
+    first_start, first_n = section_indices[order[0]]
+    for j in range(1, first_n - 1):
+        faces.append((first_start, first_start + j, first_start + j + 1))
+    last_start, last_n = section_indices[order[-1]]
+    for j in range(1, last_n - 1):
+        faces.append((last_start, last_start + j, last_start + j + 1))
+
+    i_idx = [f[0] for f in faces]
+    j_idx = [f[1] for f in faces]
+    k_idx = [f[2] for f in faces]
+
+    body_mesh = go.Mesh3d(
+        x=verts[:, 0], y=verts[:, 1], z=verts[:, 2],
+        i=i_idx, j=j_idx, k=k_idx,
+        color="#2a3a5c",
+        opacity=0.6,
+        hoverinfo="skip",
+        showlegend=False,
+        flatshading=True,
+    )
+
+    edge_pairs = []
+    for idx in range(len(order)):
+        s_start, s_n = section_indices[order[idx]]
+        for j in range(s_n):
+            j_next = (j + 1) % s_n
+            edge_pairs.append((s_start + j, s_start + j_next))
+    for idx in range(len(order) - 1):
+        s1_start, s1_n = section_indices[order[idx]]
+        s2_start, s2_n = section_indices[order[idx + 1]]
+        n_pts = min(s1_n, s2_n)
+        for j in range(n_pts):
+            edge_pairs.append((s1_start + j, s2_start + j))
+
+    xs, ys, zs = [], [], []
+    for a, b in edge_pairs:
+        xs.extend([verts[a, 0], verts[b, 0], None])
+        ys.extend([verts[a, 1], verts[b, 1], None])
+        zs.extend([verts[a, 2], verts[b, 2], None])
+
+    wireframe = go.Scatter3d(
         x=xs, y=ys, z=zs,
-        mode="markers",
-        marker=dict(size=6, color="white", symbol="diamond"),
+        mode="lines",
+        line=dict(color="rgba(180,200,255,0.35)", width=1.5),
         hoverinfo="text",
         hovertext="Ego Vehicle",
         showlegend=False,
     )
+
+    ax, ay, az = [], [], []
+    arrow_z = 1.35
+    arrow = [(0, 3.4), (-0.5, 2.7), (0, 2.9), (0.5, 2.7), (0, 3.4)]
+    for k in range(len(arrow) - 1):
+        ax.extend([arrow[k][0], arrow[k + 1][0], None])
+        ay.extend([arrow[k][1], arrow[k + 1][1], None])
+        az.extend([arrow_z, arrow_z, None])
+
+    direction = go.Scatter3d(
+        x=ax, y=ay, z=az,
+        mode="lines",
+        line=dict(color="rgba(0,212,255,0.7)", width=3),
+        hoverinfo="skip",
+        showlegend=False,
+    )
+
+    return [body_mesh, wireframe, direction]
 
 
 def build_3d_figure(
@@ -143,7 +250,7 @@ def build_3d_figure(
     fig = go.Figure()
 
     fig.add_trace(build_point_cloud_trace(points))
-    fig.add_trace(build_ego_marker())
+    fig.add_traces(build_ego_car())
 
     if gt_boxes:
         for box in gt_boxes:

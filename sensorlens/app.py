@@ -1,10 +1,6 @@
 import base64
-import time
-from pathlib import Path
 
-import numpy as np
 from dash import Dash, html, dcc, Input, Output, State, callback_context, no_update
-import plotly.graph_objects as go
 
 from .data_loader import (
     NuScenesLoader,
@@ -17,15 +13,6 @@ from .data_loader import (
     DEFAULT_ON,
 )
 from .scene_builder import build_3d_figure
-
-
-def _make_cat_toggle_callback(group_name):
-    def toggle(n_clicks, categories):
-        new_cats = dict(categories)
-        new_cats[group_name] = not new_cats[group_name]
-        active = new_cats[group_name]
-        return _toggle_style(active), group_name, new_cats
-    return toggle
 
 
 def encode_image(path: str) -> str:
@@ -66,6 +53,30 @@ def create_app(
                 break
 
     app = Dash(__name__)
+
+    layer_options = [
+        {
+            "label": html.Span("Ground Truth", style={"color": "#999" if gt_data else "#555"}),
+            "value": "gt",
+            "disabled": not bool(gt_data),
+        },
+        {
+            "label": html.Span("Tracker", style={"color": "#999" if tracker_data else "#555"}),
+            "value": "tracker",
+            "disabled": not bool(tracker_data),
+        },
+    ]
+    layer_defaults = []
+    if gt_data:
+        layer_defaults.append("gt")
+    if tracker_data:
+        layer_defaults.append("tracker")
+
+    cat_options = [
+        {"label": html.Span(g, style={"color": "#999"}), "value": g}
+        for g in CATEGORY_GROUPS
+    ]
+    cat_defaults = [g for g in CATEGORY_GROUPS if g in DEFAULT_ON]
 
     app.layout = html.Div(
         style={
@@ -110,18 +121,9 @@ def create_app(
                     "borderRadius": "8px",
                 },
                 children=[
-                    html.Button(
-                        "Prev", id="btn-prev",
-                        style=_button_style(),
-                    ),
-                    html.Button(
-                        "Play", id="btn-play",
-                        style=_button_style("#1abc9c"),
-                    ),
-                    html.Button(
-                        "Next", id="btn-next",
-                        style=_button_style(),
-                    ),
+                    html.Button("Prev", id="btn-prev", style=_button_style()),
+                    html.Button("Play", id="btn-play", style=_button_style("#1abc9c")),
+                    html.Button("Next", id="btn-next", style=_button_style()),
                     html.Div(
                         style={"flex": "1", "margin": "0 12px"},
                         children=[
@@ -139,63 +141,23 @@ def create_app(
                             ),
                         ],
                     ),
-                    *(
-                        [html.Button(
-                            "GT: ON", id="btn-gt",
-                            style=_toggle_style(True),
-                        )]
-                        if gt_data
-                        else [html.Button(
-                            "GT: N/A", id="btn-gt",
-                            style=_toggle_style(False),
-                            disabled=True,
-                        )]
-                    ),
-                    *(
-                        [html.Button(
-                            "Tracker: ON", id="btn-tracker",
-                            style=_toggle_style(True),
-                        )]
-                        if tracker_data
-                        else [html.Button(
-                            "Tracker: N/A", id="btn-tracker",
-                            style=_toggle_style(False),
-                            disabled=True,
-                        )]
-                    ),
-                ],
-            ),
-            html.Div(
-                style={
-                    "display": "flex",
-                    "alignItems": "center",
-                    "gap": "8px",
-                    "marginBottom": "8px",
-                    "padding": "6px 16px",
-                    "backgroundColor": "#16213e",
-                    "borderRadius": "8px",
-                },
-                children=[
-                    html.Span("Categories:", style={"fontSize": "12px", "color": "#888", "marginRight": "4px"}),
-                    *[
-                        html.Button(
-                            group,
-                            id=f"btn-cat-{i}",
-                            style=_toggle_style(group in DEFAULT_ON),
-                        )
-                        for i, group in enumerate(CATEGORY_GROUPS)
-                    ],
                 ],
             ),
             html.Div(
                 style={
                     "display": "flex",
                     "gap": "8px",
-                    "height": "calc(100vh - 160px)",
+                    "height": "calc(100vh - 130px)",
                 },
                 children=[
                     html.Div(
-                        style={"flex": "1", "minWidth": "0", "borderRadius": "8px", "overflow": "hidden"},
+                        style={
+                            "flex": "1",
+                            "minWidth": "0",
+                            "borderRadius": "8px",
+                            "overflow": "hidden",
+                            "position": "relative",
+                        },
                         children=[
                             dcc.Graph(
                                 id="scene-3d",
@@ -205,6 +167,56 @@ def create_app(
                                     "displaylogo": False,
                                 },
                                 style={"height": "100%"},
+                            ),
+                            html.Div(
+                                style={
+                                    "position": "absolute",
+                                    "top": "10px",
+                                    "left": "10px",
+                                    "backgroundColor": "rgba(15, 15, 35, 0.85)",
+                                    "borderRadius": "6px",
+                                    "padding": "10px 14px",
+                                    "zIndex": "10",
+                                    "backdropFilter": "blur(4px)",
+                                    "border": "1px solid rgba(255,255,255,0.06)",
+                                },
+                                children=[
+                                    html.Div(
+                                        "Layers",
+                                        style={
+                                            "fontSize": "10px",
+                                            "color": "#666",
+                                            "textTransform": "uppercase",
+                                            "letterSpacing": "1px",
+                                            "marginBottom": "6px",
+                                        },
+                                    ),
+                                    dcc.Checklist(
+                                        id="check-layers",
+                                        options=layer_options,
+                                        value=layer_defaults,
+                                    ),
+                                    html.Hr(style={
+                                        "border": "none",
+                                        "borderTop": "1px solid rgba(255,255,255,0.08)",
+                                        "margin": "8px 0",
+                                    }),
+                                    html.Div(
+                                        "Categories",
+                                        style={
+                                            "fontSize": "10px",
+                                            "color": "#666",
+                                            "textTransform": "uppercase",
+                                            "letterSpacing": "1px",
+                                            "marginBottom": "6px",
+                                        },
+                                    ),
+                                    dcc.Checklist(
+                                        id="check-categories",
+                                        options=cat_options,
+                                        value=cat_defaults,
+                                    ),
+                                ],
                             ),
                         ],
                     ),
@@ -240,58 +252,10 @@ def create_app(
                 ],
             ),
             dcc.Store(id="store-frame", data=0),
-            dcc.Store(id="store-gt-on", data=True if gt_data else False),
-            dcc.Store(id="store-tracker-on", data=True if tracker_data else False),
             dcc.Store(id="store-playing", data=False),
-            dcc.Store(
-                id="store-categories",
-                data={group: (group in DEFAULT_ON) for group in CATEGORY_GROUPS},
-            ),
             dcc.Interval(id="play-interval", interval=500, disabled=True),
         ],
     )
-
-    cat_group_names = list(CATEGORY_GROUPS.keys())
-
-    for i, group in enumerate(cat_group_names):
-        app.callback(
-            Output(f"btn-cat-{i}", "style"),
-            Output(f"btn-cat-{i}", "children"),
-            Output("store-categories", "data", allow_duplicate=True),
-            Input(f"btn-cat-{i}", "n_clicks"),
-            State("store-categories", "data"),
-            prevent_initial_call=True,
-        )(_make_cat_toggle_callback(group))
-
-    @app.callback(
-        Output("store-gt-on", "data"),
-        Output("btn-gt", "children"),
-        Output("btn-gt", "style"),
-        Input("btn-gt", "n_clicks"),
-        State("store-gt-on", "data"),
-        prevent_initial_call=True,
-    )
-    def toggle_gt(n_clicks, current):
-        if not gt_data:
-            return no_update, no_update, no_update
-        new_val = not current
-        label = "GT: ON" if new_val else "GT: OFF"
-        return new_val, label, _toggle_style(new_val)
-
-    @app.callback(
-        Output("store-tracker-on", "data"),
-        Output("btn-tracker", "children"),
-        Output("btn-tracker", "style"),
-        Input("btn-tracker", "n_clicks"),
-        State("store-tracker-on", "data"),
-        prevent_initial_call=True,
-    )
-    def toggle_tracker(n_clicks, current):
-        if not tracker_data:
-            return no_update, no_update, no_update
-        new_val = not current
-        label = "Tracker: ON" if new_val else "Tracker: OFF"
-        return new_val, label, _toggle_style(new_val)
 
     @app.callback(
         Output("store-playing", "data"),
@@ -346,20 +310,21 @@ def create_app(
         Output("camera-panel-rear", "children"),
         Output("frame-info", "children"),
         Input("store-frame", "data"),
-        Input("store-gt-on", "data"),
-        Input("store-tracker-on", "data"),
-        Input("store-categories", "data"),
+        Input("check-layers", "value"),
+        Input("check-categories", "value"),
     )
-    def render_frame(frame_idx, gt_on, tracker_on, active_categories):
+    def render_frame(frame_idx, active_layers, active_categories):
         if frame_idx is None or frame_idx < 0 or frame_idx >= len(sample_tokens):
             return no_update, no_update, no_update, no_update
+
+        gt_on = "gt" in (active_layers or [])
+        tracker_on = "tracker" in (active_layers or [])
+        active_groups = set(active_categories or [])
 
         sample_token = sample_tokens[frame_idx]
 
         ego_pose = nusc_loader.get_ego_pose(sample_token)
         points = nusc_loader.get_lidar_points_ego(sample_token)
-
-        active_groups = {g for g, on in active_categories.items() if on}
 
         def category_visible(cat_name):
             group = CATEGORY_TO_GROUP.get(cat_name)
@@ -459,27 +424,4 @@ def _button_style(bg="#2c3e50"):
         "cursor": "pointer",
         "fontSize": "13px",
         "fontWeight": "600",
-    }
-
-
-def _toggle_style(active: bool):
-    if active:
-        return {
-            "backgroundColor": "#27ae60",
-            "color": "white",
-            "border": "none",
-            "padding": "8px 14px",
-            "borderRadius": "4px",
-            "cursor": "pointer",
-            "fontSize": "13px",
-            "fontWeight": "600",
-        }
-    return {
-        "backgroundColor": "#555",
-        "color": "#aaa",
-        "border": "none",
-        "padding": "8px 14px",
-        "borderRadius": "4px",
-        "cursor": "pointer",
-        "fontSize": "13px",
     }
