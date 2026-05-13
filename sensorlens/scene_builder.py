@@ -175,7 +175,7 @@ def _load_ego_obj() -> tuple[np.ndarray, list[list[int]], list[str]]:
     remapped[:, 1] -= remapped[:, 1].mean()
     remapped[:, 2] -= remapped[:, 2].min()
 
-    scale = 4.5 / remapped[:, 0].ptp()
+    scale = 4.5 / np.ptp(remapped[:, 0])
     remapped *= scale
 
     remapped[:, 0] -= remapped[:, 0].mean()
