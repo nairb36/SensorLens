@@ -45,7 +45,7 @@ Requires the nuScenes dataset (mini or full) at the path specified by `--dataroo
 ## Usage
 
 ```bash
-python run.py \
+python3 run.py \
   --gt ../Project_MOT/results/gt/scene_0000.json \
   --tracker ../Project_MOT/results/tracking/results_20260511_233838.json
 ```
