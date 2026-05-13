@@ -278,7 +278,14 @@ def build_3d_figure(
                 box["yaw"],
             )
             track_id = box.get("id", 0)
-            label = f'T{track_id} {box["label"]}'
+            hover_lines = [f'T{track_id} {box["label"]}']
+            if box.get("age") != "":
+                hover_lines.append(f'age: {box["age"]}')
+            if box.get("hits") != "":
+                hover_lines.append(f'hits: {box["hits"]}')
+            if box.get("misses") != "":
+                hover_lines.append(f'misses: {box["misses"]}')
+            label = "<br>".join(hover_lines)
             color = get_identity_color(track_id)
             fig.add_traces(build_wireframe_traces(corners, color, label, tag=str(track_id)))
 
