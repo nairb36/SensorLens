@@ -116,6 +116,19 @@ def build_solid_box_traces(
     )]
 
 
+def build_center_trace(
+    translation: np.ndarray, color: str, label: str
+) -> go.Scatter3d:
+    return go.Scatter3d(
+        x=[translation[0]], y=[translation[1]], z=[translation[2]],
+        mode="markers",
+        marker=dict(size=6, color=color, symbol="circle"),
+        hoverinfo="text",
+        hovertext=label,
+        showlegend=False,
+    )
+
+
 def build_point_cloud_trace(
     points: np.ndarray, max_points: int = 50000
 ) -> go.Scatter3d:
@@ -251,7 +264,11 @@ def build_3d_figure(
     tracker_boxes: list[dict] | None = None,
     x_range: float = 80.0,
     y_range: float = 80.0,
+    gt_viz: set | None = None,
+    trk_viz: set | None = None,
 ) -> go.Figure:
+    gt_viz = gt_viz or set()
+    trk_viz = trk_viz or set()
     fig = go.Figure()
 
     fig.add_trace(build_point_cloud_trace(points))
@@ -259,24 +276,20 @@ def build_3d_figure(
 
     if gt_boxes:
         for box in gt_boxes:
-            corners = build_box_corners(
-                np.array(box["translation"]),
-                box["size"],
-                box["yaw"],
-            )
+            translation = np.array(box["translation"])
             identity = box.get("instance_token", "")
             short_id = identity[-6:] if len(identity) > 6 else identity
             label = f'GT {box["label"]} ({short_id})'
             color = get_identity_color(identity)
-            fig.add_traces(build_solid_box_traces(corners, color, label))
+            if "bbox" in gt_viz:
+                corners = build_box_corners(translation, box["size"], box["yaw"])
+                fig.add_traces(build_solid_box_traces(corners, color, label))
+            if "center" in gt_viz:
+                fig.add_trace(build_center_trace(translation, color, label))
 
     if tracker_boxes:
         for box in tracker_boxes:
-            corners = build_box_corners(
-                np.array(box["translation"]),
-                box["size"],
-                box["yaw"],
-            )
+            translation = np.array(box["translation"])
             track_id = box.get("id", 0)
             hover_lines = [f'T{track_id} {box["label"]}']
             if box.get("age") != "":
@@ -287,7 +300,11 @@ def build_3d_figure(
                 hover_lines.append(f'misses: {box["misses"]}')
             label = "<br>".join(hover_lines)
             color = get_identity_color(track_id)
-            fig.add_traces(build_wireframe_traces(corners, color, label, tag=str(track_id)))
+            if "bbox" in trk_viz:
+                corners = build_box_corners(translation, box["size"], box["yaw"])
+                fig.add_traces(build_wireframe_traces(corners, color, label, tag=str(track_id)))
+            if "center" in trk_viz:
+                fig.add_trace(build_center_trace(translation, color, label))
 
     fig.update_layout(
         scene=dict(

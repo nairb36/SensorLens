@@ -54,23 +54,16 @@ def create_app(
 
     app = Dash(__name__)
 
-    layer_options = [
-        {
-            "label": html.Span("Ground Truth", style={"color": "#999" if gt_data else "#555"}),
-            "value": "gt",
-            "disabled": not bool(gt_data),
-        },
-        {
-            "label": html.Span("Tracker", style={"color": "#999" if tracker_data else "#555"}),
-            "value": "tracker",
-            "disabled": not bool(tracker_data),
-        },
+    gt_viz_options = [
+        {"label": html.Span("bbox", style={"color": "#999"}), "value": "bbox"},
+        {"label": html.Span("center", style={"color": "#999"}), "value": "center"},
     ]
-    layer_defaults = []
-    if gt_data:
-        layer_defaults.append("gt")
-    if tracker_data:
-        layer_defaults.append("tracker")
+    trk_viz_options = [
+        {"label": html.Span("bbox", style={"color": "#999"}), "value": "bbox"},
+        {"label": html.Span("center", style={"color": "#999"}), "value": "center"},
+    ]
+    gt_viz_defaults = ["bbox"] if gt_data else []
+    trk_viz_defaults = ["bbox"] if tracker_data else []
 
     cat_options = [
         {"label": html.Span(g, style={"color": "#999"}), "value": g}
@@ -182,19 +175,35 @@ def create_app(
                                 },
                                 children=[
                                     html.Div(
-                                        "Layers",
+                                        "Detections",
                                         style={
                                             "fontSize": "10px",
-                                            "color": "#666",
+                                            "color": "#666" if gt_data else "#444",
                                             "textTransform": "uppercase",
                                             "letterSpacing": "1px",
-                                            "marginBottom": "6px",
+                                            "marginBottom": "4px",
                                         },
                                     ),
                                     dcc.Checklist(
-                                        id="check-layers",
-                                        options=layer_options,
-                                        value=layer_defaults,
+                                        id="check-gt-viz",
+                                        options=gt_viz_options,
+                                        value=gt_viz_defaults,
+                                    ),
+                                    html.Div(style={"height": "6px"}),
+                                    html.Div(
+                                        "Tracks",
+                                        style={
+                                            "fontSize": "10px",
+                                            "color": "#666" if tracker_data else "#444",
+                                            "textTransform": "uppercase",
+                                            "letterSpacing": "1px",
+                                            "marginBottom": "4px",
+                                        },
+                                    ),
+                                    dcc.Checklist(
+                                        id="check-trk-viz",
+                                        options=trk_viz_options,
+                                        value=trk_viz_defaults,
                                     ),
                                     html.Hr(style={
                                         "border": "none",
@@ -310,15 +319,16 @@ def create_app(
         Output("camera-panel-rear", "children"),
         Output("frame-info", "children"),
         Input("store-frame", "data"),
-        Input("check-layers", "value"),
+        Input("check-gt-viz", "value"),
+        Input("check-trk-viz", "value"),
         Input("check-categories", "value"),
     )
-    def render_frame(frame_idx, active_layers, active_categories):
+    def render_frame(frame_idx, gt_viz, trk_viz, active_categories):
         if frame_idx is None or frame_idx < 0 or frame_idx >= len(sample_tokens):
             return no_update, no_update, no_update, no_update
 
-        gt_on = "gt" in (active_layers or [])
-        tracker_on = "tracker" in (active_layers or [])
+        gt_viz = set(gt_viz or [])
+        trk_viz = set(trk_viz or [])
         active_groups = set(active_categories or [])
 
         sample_token = sample_tokens[frame_idx]
@@ -334,7 +344,7 @@ def create_app(
         tracker_boxes_ego = None
         total_objects = 0
 
-        if gt_on and gt_data and frame_idx < len(gt_data):
+        if gt_viz and gt_data and frame_idx < len(gt_data):
             frame = gt_data[frame_idx]
             gt_boxes_ego = []
             for det in frame.get("detections", []):
@@ -350,7 +360,7 @@ def create_app(
                 })
             total_objects += len(gt_boxes_ego)
 
-        if tracker_on and tracker_data and frame_idx < len(tracker_data):
+        if trk_viz and tracker_data and frame_idx < len(tracker_data):
             frame = tracker_data[frame_idx]
             tracker_boxes_ego = []
             for trk in frame.get("tracks", []):
@@ -369,7 +379,8 @@ def create_app(
                 })
             total_objects += len(tracker_boxes_ego)
 
-        fig = build_3d_figure(points, gt_boxes_ego, tracker_boxes_ego)
+        fig = build_3d_figure(points, gt_boxes_ego, tracker_boxes_ego,
+                              gt_viz=gt_viz, trk_viz=trk_viz)
 
         cam_paths = nusc_loader.get_camera_paths(sample_token)
         front_cams = ["CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT"]
