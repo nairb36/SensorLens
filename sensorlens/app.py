@@ -363,6 +363,9 @@ def create_app(
                     "yaw": yaw,
                     "label": shorten_category(trk["category_name"]),
                     "id": trk.get("id", 0),
+                    "age": trk.get("age", ""),
+                    "hits": trk.get("hits", ""),
+                    "misses": trk.get("consecutive_misses", ""),
                 })
             total_objects += len(tracker_boxes_ego)
 
