@@ -99,9 +99,6 @@ def build_point_cloud_trace(
         points = points[idx]
 
     z_vals = points[:, 2]
-    z_min, z_max = z_vals.min(), z_vals.max()
-    if z_max - z_min < 0.01:
-        z_max = z_min + 1.0
 
     return go.Scatter3d(
         x=points[:, 0],
@@ -112,8 +109,8 @@ def build_point_cloud_trace(
             size=1.2,
             color=z_vals,
             colorscale="Turbo",
-            cmin=z_min,
-            cmax=z_max,
+            cmin=-3.0,
+            cmax=8.0,
             opacity=0.6,
         ),
         hoverinfo="skip",
