@@ -46,6 +46,24 @@ class NuScenesLoader:
             paths[cam] = str(Path(self.nusc.dataroot) / cam_data["filename"])
         return paths
 
+    def get_camera_calibrations(self, sample_token: str) -> dict[str, dict]:
+        sample = self.get_sample(sample_token)
+        cals = {}
+        for cam in [
+            "CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT",
+            "CAM_BACK_LEFT", "CAM_BACK", "CAM_BACK_RIGHT",
+        ]:
+            sd = self.nusc.get("sample_data", sample["data"][cam])
+            cs = self.nusc.get("calibrated_sensor", sd["calibrated_sensor_token"])
+            cals[cam] = {
+                "intrinsic": cs["camera_intrinsic"],
+                "rotation": cs["rotation"],
+                "translation": cs["translation"],
+                "width": sd["width"],
+                "height": sd["height"],
+            }
+        return cals
+
 
 def global_to_ego(translation: list, yaw: float, ego_pose: dict) -> tuple[np.ndarray, float]:
     ego_trans = np.array(ego_pose["translation"])
