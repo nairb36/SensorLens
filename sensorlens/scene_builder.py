@@ -228,7 +228,7 @@ def build_ego_car() -> list:
         j=[f[1] for f in faces],
         k=[f[2] for f in faces],
         facecolor=face_colors,
-        opacity=0.85,
+        opacity=1.0,
         hoverinfo="skip",
         showlegend=False,
         flatshading=True,
