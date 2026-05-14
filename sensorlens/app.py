@@ -1,6 +1,12 @@
+import logging
+import re
+from pathlib import Path
+
 import numpy as np
 import cv2
 from dash import Dash, html, dcc, Input, Output, State, callback_context, no_update
+
+logger = logging.getLogger(__name__)
 
 from .data_loader import (
     NuScenesLoader,
@@ -16,6 +22,12 @@ from .scene_builder import build_3d_figure
 from .image_stitcher import PanoramaStitcher, encode_panorama
 
 
+def _extract_scene_prefix(filepath: str) -> str | None:
+    name = Path(filepath).stem
+    m = re.match(r"(scene_\d+)", name)
+    return m.group(1) if m else None
+
+
 def create_app(
     dataroot: str,
     version: str,
@@ -26,6 +38,22 @@ def create_app(
 
     gt_data = load_gt_json(gt_path) if gt_path else None
     tracker_data = load_tracker_json(tracker_path) if tracker_path else None
+
+    scene_mismatch = False
+    if gt_path and tracker_path:
+        gt_prefix = _extract_scene_prefix(gt_path)
+        trk_prefix = _extract_scene_prefix(tracker_path)
+        if gt_prefix and trk_prefix and gt_prefix != trk_prefix:
+            scene_mismatch = True
+            logger.warning(
+                "Scene mismatch: GT file is %s (scene %s) but tracker file is %s (scene %s)",
+                Path(gt_path).name, gt_prefix, Path(tracker_path).name, trk_prefix,
+            )
+        elif gt_prefix and not trk_prefix:
+            logger.warning(
+                "Tracker file %s has no scene prefix — cannot verify it matches GT scene %s",
+                Path(tracker_path).name, gt_prefix,
+            )
 
     if gt_data:
         num_frames = len(gt_data)
@@ -87,6 +115,20 @@ def create_app(
             "padding": "12px",
         },
         children=[
+            html.Div(
+                "WARNING: GT and tracker files are from different scenes — results may not be comparable.",
+                style={
+                    "backgroundColor": "#8b0000",
+                    "color": "#fff",
+                    "padding": "8px 16px",
+                    "borderRadius": "6px",
+                    "marginBottom": "8px",
+                    "fontSize": "13px",
+                    "fontWeight": "600",
+                    "textAlign": "center",
+                    "display": "block" if scene_mismatch else "none",
+                },
+            ),
             html.Div(
                 style={
                     "display": "flex",
