@@ -302,7 +302,8 @@ def build_3d_figure(
             color = get_identity_color(track_id)
             if "bbox" in trk_viz:
                 corners = build_box_corners(translation, box["size"], box["yaw"])
-                fig.add_traces(build_wireframe_traces(corners, color, label, tag=str(track_id)))
+                tag = f'{box["label"]}·{track_id}'
+                fig.add_traces(build_wireframe_traces(corners, color, label, tag=tag))
             if "center" in trk_viz:
                 fig.add_trace(build_center_trace(translation, color, label))
 
