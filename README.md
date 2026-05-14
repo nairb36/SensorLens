@@ -2,7 +2,7 @@
 
 Interactive 3D visualization tool for multi-object tracking on nuScenes data. Built for visual debugging and comparison of tracker output against ground-truth annotations.
 
-![SensorLens UI](sensorlens/assets/SensorLens_May12.jpeg)
+![SensorLens Demo](sensorlens/assets/MOT_viz.gif)
 
 ## Features
 
