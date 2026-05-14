@@ -57,38 +57,76 @@ BOX_EDGES = [
 ]
 
 
-def build_box_traces(
-    corners: np.ndarray, color: str, label: str, show_label: bool = True
+BOX_FACES_I = [0, 0, 4, 4, 0, 0, 1, 1, 0, 0, 2, 2]
+BOX_FACES_J = [1, 2, 5, 6, 1, 5, 2, 6, 3, 7, 3, 7]
+BOX_FACES_K = [2, 3, 6, 7, 5, 4, 6, 5, 7, 4, 7, 6]
+
+
+def _hex_to_rgba(hex_color: str, opacity: float) -> str:
+    h = hex_color.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    return f"rgba({r},{g},{b},{opacity})"
+
+
+def build_wireframe_traces(
+    corners: np.ndarray, color: str, label: str, tag: str = ""
 ) -> list[go.Scatter3d]:
-    traces = []
     xs, ys, zs = [], [], []
     for i, j in BOX_EDGES:
         xs.extend([corners[i, 0], corners[j, 0], None])
         ys.extend([corners[i, 1], corners[j, 1], None])
         zs.extend([corners[i, 2], corners[j, 2], None])
 
-    traces.append(go.Scatter3d(
+    traces = [go.Scatter3d(
         x=xs, y=ys, z=zs,
         mode="lines",
         line=dict(color=color, width=3),
         hoverinfo="text",
         hovertext=label,
         showlegend=False,
-    ))
+    )]
 
-    if show_label:
-        center = corners.mean(axis=0)
+    if tag:
         top_z = corners[:, 2].max() + 0.3
+        center = corners.mean(axis=0)
         traces.append(go.Scatter3d(
             x=[center[0]], y=[center[1]], z=[top_z],
             mode="text",
-            text=[label],
-            textfont=dict(size=10, color=color),
+            text=[tag],
+            textfont=dict(size=9, color=color),
             hoverinfo="skip",
             showlegend=False,
         ))
 
     return traces
+
+
+def build_solid_box_traces(
+    corners: np.ndarray, color: str, label: str
+) -> list:
+    fill_color = _hex_to_rgba(color, 0.25)
+    return [go.Mesh3d(
+        x=corners[:, 0], y=corners[:, 1], z=corners[:, 2],
+        i=BOX_FACES_I, j=BOX_FACES_J, k=BOX_FACES_K,
+        color=fill_color,
+        flatshading=True,
+        hoverinfo="text",
+        hovertext=label,
+        showlegend=False,
+    )]
+
+
+def build_center_trace(
+    translation: np.ndarray, color: str, label: str
+) -> go.Scatter3d:
+    return go.Scatter3d(
+        x=[translation[0]], y=[translation[1]], z=[translation[2]],
+        mode="markers",
+        marker=dict(size=6, color=color, symbol="circle"),
+        hoverinfo="text",
+        hovertext=label,
+        showlegend=False,
+    )
 
 
 def build_point_cloud_trace(
@@ -99,9 +137,6 @@ def build_point_cloud_trace(
         points = points[idx]
 
     z_vals = points[:, 2]
-    z_min, z_max = z_vals.min(), z_vals.max()
-    if z_max - z_min < 0.01:
-        z_max = z_min + 1.0
 
     return go.Scatter3d(
         x=points[:, 0],
@@ -112,8 +147,8 @@ def build_point_cloud_trace(
             size=1.2,
             color=z_vals,
             colorscale="Turbo",
-            cmin=z_min,
-            cmax=z_max,
+            cmin=-3.0,
+            cmax=8.0,
             opacity=0.6,
         ),
         hoverinfo="skip",
@@ -175,7 +210,7 @@ def _load_ego_obj() -> tuple[np.ndarray, list[list[int]], list[str]]:
     remapped[:, 1] -= remapped[:, 1].mean()
     remapped[:, 2] -= remapped[:, 2].min()
 
-    scale = 4.5 / remapped[:, 0].ptp()
+    scale = 4.5 / np.ptp(remapped[:, 0])
     remapped *= scale
 
     remapped[:, 0] -= remapped[:, 0].mean()
@@ -229,7 +264,11 @@ def build_3d_figure(
     tracker_boxes: list[dict] | None = None,
     x_range: float = 80.0,
     y_range: float = 80.0,
+    gt_viz: set | None = None,
+    trk_viz: set | None = None,
 ) -> go.Figure:
+    gt_viz = gt_viz or set()
+    trk_viz = trk_viz or set()
     fig = go.Figure()
 
     fig.add_trace(build_point_cloud_trace(points))
@@ -237,28 +276,35 @@ def build_3d_figure(
 
     if gt_boxes:
         for box in gt_boxes:
-            corners = build_box_corners(
-                np.array(box["translation"]),
-                box["size"],
-                box["yaw"],
-            )
+            translation = np.array(box["translation"])
             identity = box.get("instance_token", "")
             short_id = identity[-6:] if len(identity) > 6 else identity
-            label = f'{box["label"]} ({short_id})'
+            label = f'GT {box["label"]} ({short_id})'
             color = get_identity_color(identity)
-            fig.add_traces(build_box_traces(corners, color, label))
+            if "bbox" in gt_viz:
+                corners = build_box_corners(translation, box["size"], box["yaw"])
+                fig.add_traces(build_solid_box_traces(corners, color, label))
+            if "center" in gt_viz:
+                fig.add_trace(build_center_trace(translation, color, label))
 
     if tracker_boxes:
         for box in tracker_boxes:
-            corners = build_box_corners(
-                np.array(box["translation"]),
-                box["size"],
-                box["yaw"],
-            )
+            translation = np.array(box["translation"])
             track_id = box.get("id", 0)
-            label = f'{box["label"]} T{track_id}'
+            hover_lines = [f'T{track_id} {box["label"]}']
+            if box.get("age") != "":
+                hover_lines.append(f'age: {box["age"]}')
+            if box.get("hits") != "":
+                hover_lines.append(f'hits: {box["hits"]}')
+            if box.get("misses") != "":
+                hover_lines.append(f'misses: {box["misses"]}')
+            label = "<br>".join(hover_lines)
             color = get_identity_color(track_id)
-            fig.add_traces(build_box_traces(corners, color, label))
+            if "bbox" in trk_viz:
+                corners = build_box_corners(translation, box["size"], box["yaw"])
+                fig.add_traces(build_wireframe_traces(corners, color, label, tag=str(track_id)))
+            if "center" in trk_viz:
+                fig.add_trace(build_center_trace(translation, color, label))
 
     fig.update_layout(
         scene=dict(
