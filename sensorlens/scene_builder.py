@@ -266,13 +266,16 @@ def build_3d_figure(
     y_range: float = 80.0,
     gt_viz: set | None = None,
     trk_viz: set | None = None,
+    show_ego_car: bool = True,
 ) -> go.Figure:
     gt_viz = gt_viz or set()
     trk_viz = trk_viz or set()
     fig = go.Figure()
 
-    fig.add_trace(build_point_cloud_trace(points))
-    fig.add_traces(build_ego_car())
+    if len(points) > 0:
+        fig.add_trace(build_point_cloud_trace(points))
+    if show_ego_car:
+        fig.add_traces(build_ego_car())
 
     if gt_boxes:
         for box in gt_boxes:

@@ -27,6 +27,7 @@ FRONT_CAMS = ["CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT"]
 REAR_CAMS = ["CAM_BACK_LEFT", "CAM_BACK", "CAM_BACK_RIGHT"]
 
 _server_state = {
+    "mode": None,  # "nuscenes", "waymo", "custom"
     "nusc_loader": None,
     "gt_data": None,
     "tracker_data": None,
@@ -35,6 +36,7 @@ _server_state = {
     "front_stitcher": None,
     "rear_stitcher": None,
     "scene_mismatch": False,
+    "origin_offset": None,  # fixed centroid from frame 0 for custom mode
 }
 
 
@@ -42,6 +44,8 @@ def _extract_scene_prefix(name: str) -> str | None:
     stem = Path(name).stem
     m = re.match(r"(scene_\d+)", stem)
     return m.group(1) if m else None
+
+
 
 
 def _config_layout():
@@ -90,32 +94,42 @@ def _config_layout():
                     _config_label("Dataset Type"),
                     dcc.Dropdown(
                         id="config-dataset-type",
-                        options=[{"label": "NuScenes", "value": "nuscenes"}],
+                        options=[
+                            {"label": "NuScenes", "value": "nuscenes"},
+                            {"label": "Waymo Open Dataset", "value": "waymo"},
+                            {"label": "Custom (bounding boxes only)", "value": "custom"},
+                        ],
                         value="nuscenes",
                         clearable=False,
                         style={"marginBottom": "16px"},
                     ),
-                    # Dataroot
-                    _config_label("Dataroot Path"),
-                    dcc.Input(
-                        id="config-dataroot",
-                        type="text",
-                        placeholder="/path/to/nuscenes",
-                        className="config-input",
-                        style=_input_style(),
-                    ),
-                    # Version
-                    _config_label("Version"),
-                    dcc.Dropdown(
-                        id="config-version",
-                        options=[
-                            {"label": "v1.0-mini", "value": "v1.0-mini"},
-                            {"label": "v1.0-trainval", "value": "v1.0-trainval"},
-                            {"label": "v1.0-test", "value": "v1.0-test"},
+                    # Dataset-specific fields (hidden/shown dynamically)
+                    html.Div(
+                        id="config-dataset-fields",
+                        children=[
+                            # Dataroot
+                            _config_label("Dataroot Path"),
+                            dcc.Input(
+                                id="config-dataroot",
+                                type="text",
+                                placeholder="/path/to/nuscenes",
+                                className="config-input",
+                                style=_input_style(),
+                            ),
+                            # Version
+                            _config_label("Version"),
+                            dcc.Dropdown(
+                                id="config-version",
+                                options=[
+                                    {"label": "v1.0-mini", "value": "v1.0-mini"},
+                                    {"label": "v1.0-trainval", "value": "v1.0-trainval"},
+                                    {"label": "v1.0-test", "value": "v1.0-test"},
+                                ],
+                                value="v1.0-mini",
+                                clearable=False,
+                                style={"marginBottom": "16px"},
+                            ),
                         ],
-                        value="v1.0-mini",
-                        clearable=False,
-                        style={"marginBottom": "16px"},
                     ),
                     # GT file
                     _config_label("GT Detections (JSON)"),
@@ -236,6 +250,8 @@ def _viz_layout():
     tracker_data = s["tracker_data"]
     num_frames = s["num_frames"]
     scene_mismatch = s["scene_mismatch"]
+    mode = s["mode"]
+    show_panos = mode != "custom"
 
     gt_viz_options = [
         {"label": html.Span("bbox", style={"color": "#999"}), "value": "bbox"},
@@ -253,6 +269,163 @@ def _viz_layout():
         for g in CATEGORY_GROUPS
     ]
     cat_defaults = [g for g in CATEGORY_GROUPS if g in DEFAULT_ON]
+
+    # 3D panel
+    scene_panel = html.Div(
+        style={
+            "flex": "1",
+            "minWidth": "0",
+            "borderRadius": "8px",
+            "overflow": "hidden",
+            "position": "relative",
+        },
+        children=[
+            dcc.Graph(
+                id="scene-3d",
+                config={
+                    "displayModeBar": True,
+                    "scrollZoom": True,
+                    "displaylogo": False,
+                },
+                style={"height": "100%"},
+            ),
+            html.Div(
+                style={
+                    "position": "absolute",
+                    "top": "10px",
+                    "left": "10px",
+                    "backgroundColor": "rgba(15, 15, 35, 0.85)",
+                    "borderRadius": "6px",
+                    "padding": "10px 14px",
+                    "zIndex": "10",
+                    "backdropFilter": "blur(4px)",
+                    "border": "1px solid rgba(255,255,255,0.06)",
+                },
+                children=[
+                    html.Div(
+                        "Detections",
+                        style={
+                            "fontSize": "10px",
+                            "color": "#666" if gt_data else "#444",
+                            "textTransform": "uppercase",
+                            "letterSpacing": "1px",
+                            "marginBottom": "4px",
+                        },
+                    ),
+                    dcc.Checklist(
+                        id="check-gt-viz",
+                        options=gt_viz_options,
+                        value=gt_viz_defaults,
+                    ),
+                    html.Div(style={"height": "6px"}),
+                    html.Div(
+                        "Tracks",
+                        style={
+                            "fontSize": "10px",
+                            "color": "#666" if tracker_data else "#444",
+                            "textTransform": "uppercase",
+                            "letterSpacing": "1px",
+                            "marginBottom": "4px",
+                        },
+                    ),
+                    dcc.Checklist(
+                        id="check-trk-viz",
+                        options=trk_viz_options,
+                        value=trk_viz_defaults,
+                    ),
+                    html.Hr(style={
+                        "border": "none",
+                        "borderTop": "1px solid rgba(255,255,255,0.08)",
+                        "margin": "8px 0",
+                    }),
+                    html.Div(
+                        "Categories",
+                        style={
+                            "fontSize": "10px",
+                            "color": "#666",
+                            "textTransform": "uppercase",
+                            "letterSpacing": "1px",
+                            "marginBottom": "6px",
+                        },
+                    ),
+                    dcc.Checklist(
+                        id="check-categories",
+                        options=cat_options,
+                        value=cat_defaults,
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    # Panorama panel (only for NuScenes/Waymo)
+    pano_panel = html.Div(
+        style={
+            "flex": "1",
+            "minWidth": "0",
+            "display": "flex" if show_panos else "none",
+            "flexDirection": "column",
+            "gap": "4px",
+        },
+        children=[
+            html.Div(
+                style={
+                    "backgroundColor": "#16213e",
+                    "borderRadius": "4px",
+                    "padding": "4px",
+                },
+                children=[
+                    html.Div(
+                        "FRONT",
+                        style={
+                            "fontSize": "11px",
+                            "fontWeight": "600",
+                            "color": "#00d4ff",
+                            "marginBottom": "2px",
+                            "textAlign": "center",
+                        },
+                    ),
+                    html.Img(
+                        id="pano-front",
+                        style={
+                            "width": "100%",
+                            "borderRadius": "2px",
+                            "display": "block",
+                        },
+                    ),
+                ],
+            ),
+            html.Div(
+                style={
+                    "backgroundColor": "#16213e",
+                    "borderRadius": "4px",
+                    "padding": "4px",
+                },
+                children=[
+                    html.Div(
+                        "REAR",
+                        style={
+                            "fontSize": "11px",
+                            "fontWeight": "600",
+                            "color": "#00d4ff",
+                            "marginBottom": "2px",
+                            "textAlign": "center",
+                        },
+                    ),
+                    html.Img(
+                        id="pano-rear",
+                        style={
+                            "width": "100%",
+                            "borderRadius": "2px",
+                            "display": "block",
+                        },
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    main_children = [scene_panel, pano_panel]
 
     return html.Div(
         style={
@@ -339,159 +512,7 @@ def _viz_layout():
                     "gap": "8px",
                     "height": "calc(100vh - 130px)",
                 },
-                children=[
-                    html.Div(
-                        style={
-                            "flex": "1",
-                            "minWidth": "0",
-                            "borderRadius": "8px",
-                            "overflow": "hidden",
-                            "position": "relative",
-                        },
-                        children=[
-                            dcc.Graph(
-                                id="scene-3d",
-                                config={
-                                    "displayModeBar": True,
-                                    "scrollZoom": True,
-                                    "displaylogo": False,
-                                },
-                                style={"height": "100%"},
-                            ),
-                            html.Div(
-                                style={
-                                    "position": "absolute",
-                                    "top": "10px",
-                                    "left": "10px",
-                                    "backgroundColor": "rgba(15, 15, 35, 0.85)",
-                                    "borderRadius": "6px",
-                                    "padding": "10px 14px",
-                                    "zIndex": "10",
-                                    "backdropFilter": "blur(4px)",
-                                    "border": "1px solid rgba(255,255,255,0.06)",
-                                },
-                                children=[
-                                    html.Div(
-                                        "Detections",
-                                        style={
-                                            "fontSize": "10px",
-                                            "color": "#666" if gt_data else "#444",
-                                            "textTransform": "uppercase",
-                                            "letterSpacing": "1px",
-                                            "marginBottom": "4px",
-                                        },
-                                    ),
-                                    dcc.Checklist(
-                                        id="check-gt-viz",
-                                        options=gt_viz_options,
-                                        value=gt_viz_defaults,
-                                    ),
-                                    html.Div(style={"height": "6px"}),
-                                    html.Div(
-                                        "Tracks",
-                                        style={
-                                            "fontSize": "10px",
-                                            "color": "#666" if tracker_data else "#444",
-                                            "textTransform": "uppercase",
-                                            "letterSpacing": "1px",
-                                            "marginBottom": "4px",
-                                        },
-                                    ),
-                                    dcc.Checklist(
-                                        id="check-trk-viz",
-                                        options=trk_viz_options,
-                                        value=trk_viz_defaults,
-                                    ),
-                                    html.Hr(style={
-                                        "border": "none",
-                                        "borderTop": "1px solid rgba(255,255,255,0.08)",
-                                        "margin": "8px 0",
-                                    }),
-                                    html.Div(
-                                        "Categories",
-                                        style={
-                                            "fontSize": "10px",
-                                            "color": "#666",
-                                            "textTransform": "uppercase",
-                                            "letterSpacing": "1px",
-                                            "marginBottom": "6px",
-                                        },
-                                    ),
-                                    dcc.Checklist(
-                                        id="check-categories",
-                                        options=cat_options,
-                                        value=cat_defaults,
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                    html.Div(
-                        style={
-                            "flex": "1",
-                            "minWidth": "0",
-                            "display": "flex",
-                            "flexDirection": "column",
-                            "gap": "4px",
-                        },
-                        children=[
-                            html.Div(
-                                style={
-                                    "backgroundColor": "#16213e",
-                                    "borderRadius": "4px",
-                                    "padding": "4px",
-                                },
-                                children=[
-                                    html.Div(
-                                        "FRONT",
-                                        style={
-                                            "fontSize": "11px",
-                                            "fontWeight": "600",
-                                            "color": "#00d4ff",
-                                            "marginBottom": "2px",
-                                            "textAlign": "center",
-                                        },
-                                    ),
-                                    html.Img(
-                                        id="pano-front",
-                                        style={
-                                            "width": "100%",
-                                            "borderRadius": "2px",
-                                            "display": "block",
-                                        },
-                                    ),
-                                ],
-                            ),
-                            html.Div(
-                                style={
-                                    "backgroundColor": "#16213e",
-                                    "borderRadius": "4px",
-                                    "padding": "4px",
-                                },
-                                children=[
-                                    html.Div(
-                                        "REAR",
-                                        style={
-                                            "fontSize": "11px",
-                                            "fontWeight": "600",
-                                            "color": "#00d4ff",
-                                            "marginBottom": "2px",
-                                            "textAlign": "center",
-                                        },
-                                    ),
-                                    html.Img(
-                                        id="pano-rear",
-                                        style={
-                                            "width": "100%",
-                                            "borderRadius": "2px",
-                                            "display": "block",
-                                        },
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
-                ],
+                children=main_children,
             ),
             dcc.Store(id="store-frame", data=0),
             dcc.Store(id="store-playing", data=False),
@@ -518,6 +539,16 @@ def create_app() -> Dash:
             return _viz_layout()
         return _config_layout()
 
+    # -- Show/hide dataset fields based on type --
+    @app.callback(
+        Output("config-dataset-fields", "style"),
+        Input("config-dataset-type", "value"),
+    )
+    def toggle_dataset_fields(dataset_type):
+        if dataset_type == "custom":
+            return {"display": "none"}
+        return {"display": "block"}
+
     # -- Show uploaded filenames --
     @app.callback(
         Output("config-gt-filename", "children"),
@@ -540,6 +571,7 @@ def create_app() -> Dash:
         Output("app-phase", "data"),
         Output("config-error-msg", "children"),
         Input("btn-launch", "n_clicks"),
+        State("config-dataset-type", "value"),
         State("config-dataroot", "value"),
         State("config-version", "value"),
         State("config-gt-upload", "contents"),
@@ -550,14 +582,18 @@ def create_app() -> Dash:
         State("config-trk-path", "value"),
         prevent_initial_call=True,
     )
-    def launch(n_clicks, dataroot, version, gt_upload, gt_upload_name,
+    def launch(n_clicks, dataset_type, dataroot, version, gt_upload, gt_upload_name,
                gt_path, trk_upload, trk_upload_name, trk_path):
-        if not dataroot or not dataroot.strip():
-            return no_update, "Please enter a dataroot path."
-        dataroot = dataroot.strip()
-        if not Path(dataroot).is_dir():
-            return no_update, f"Dataroot not found: {dataroot}"
 
+        # Validate dataroot for non-custom modes
+        if dataset_type != "custom":
+            if not dataroot or not dataroot.strip():
+                return no_update, "Please enter a dataroot path."
+            dataroot = dataroot.strip()
+            if not Path(dataroot).is_dir():
+                return no_update, f"Dataroot not found: {dataroot}"
+
+        # Must have at least one data file
         has_gt = bool(gt_upload) or bool(gt_path and gt_path.strip())
         has_trk = bool(trk_upload) or bool(trk_path and trk_path.strip())
         if not has_gt and not has_trk:
@@ -607,45 +643,71 @@ def create_app() -> Dash:
                     gt_name, gt_prefix, trk_name, trk_prefix,
                 )
 
-        # Initialize NuScenes
-        try:
-            nusc_loader = NuScenesLoader(dataroot, version)
-        except Exception as e:
-            return no_update, f"Error loading NuScenes: {e}"
-
         # Determine frames
         if gt_data:
             num_frames = len(gt_data)
-            sample_tokens = [f["sample_token"] for f in gt_data]
+            sample_tokens = [f.get("sample_token", f"frame_{i}") for i, f in enumerate(gt_data)]
         elif tracker_data:
             num_frames = len(tracker_data)
-            sample_tokens = None
+            sample_tokens = [f.get("sample_token", f"frame_{i}") for i, f in enumerate(tracker_data)]
         else:
             return no_update, "No data loaded."
 
-        if sample_tokens is None:
-            scene = nusc_loader.nusc.scene[0]
-            sample_token = scene["first_sample_token"]
-            sample_tokens = []
-            for _ in range(num_frames):
-                sample_tokens.append(sample_token)
-                sample = nusc_loader.get_sample(sample_token)
-                if sample["next"]:
-                    sample_token = sample["next"]
-                else:
-                    break
+        # Mode-specific initialization
+        nusc_loader = None
+        front_stitcher = None
+        rear_stitcher = None
 
-        # Build stitchers
-        cals = nusc_loader.get_camera_calibrations(sample_tokens[0])
-        front_stitcher = PanoramaStitcher(
-            [cals[c] for c in FRONT_CAMS], center_yaw=0.0,
-        )
-        rear_stitcher = PanoramaStitcher(
-            [cals[c] for c in REAR_CAMS], center_yaw=np.pi, mirror=True,
-        )
+        if dataset_type == "custom":
+            # No NuScenes needed — boxes assumed in ego frame
+            pass
+        elif dataset_type == "waymo":
+            return no_update, "Waymo Open Dataset support coming soon."
+        else:
+            # NuScenes
+            try:
+                nusc_loader = NuScenesLoader(dataroot, version)
+            except Exception as e:
+                return no_update, f"Error loading NuScenes: {e}"
+
+            # If tracker-only with no sample_tokens from data, walk the scene
+            if gt_data is None and tracker_data:
+                scene = nusc_loader.nusc.scene[0]
+                sample_token = scene["first_sample_token"]
+                sample_tokens = []
+                for _ in range(num_frames):
+                    sample_tokens.append(sample_token)
+                    sample = nusc_loader.get_sample(sample_token)
+                    if sample["next"]:
+                        sample_token = sample["next"]
+                    else:
+                        break
+
+            # Build stitchers
+            cals = nusc_loader.get_camera_calibrations(sample_tokens[0])
+            front_stitcher = PanoramaStitcher(
+                [cals[c] for c in FRONT_CAMS], center_yaw=0.0,
+            )
+            rear_stitcher = PanoramaStitcher(
+                [cals[c] for c in REAR_CAMS], center_yaw=np.pi, mirror=True,
+            )
+
+        # Compute fixed origin offset for custom mode (centroid of frame 0)
+        origin_offset = np.zeros(3)
+        if dataset_type == "custom":
+            translations = []
+            if gt_data:
+                for det in gt_data[0].get("detections", []):
+                    translations.append(det["translation"])
+            if tracker_data:
+                for trk in tracker_data[0].get("tracks", []):
+                    translations.append(trk["translation"])
+            if translations:
+                origin_offset = np.mean(translations, axis=0)
 
         # Populate server state
         _server_state.update({
+            "mode": dataset_type,
             "nusc_loader": nusc_loader,
             "gt_data": gt_data,
             "tracker_data": tracker_data,
@@ -654,6 +716,7 @@ def create_app() -> Dash:
             "front_stitcher": front_stitcher,
             "rear_stitcher": rear_stitcher,
             "scene_mismatch": scene_mismatch,
+            "origin_offset": origin_offset,
         })
 
         return "viz", ""
@@ -683,7 +746,7 @@ def create_app() -> Dash:
         prevent_initial_call=True,
     )
     def update_frame(prev_clicks, next_clicks, slider_val, n_intervals, current_frame, playing):
-        if _server_state["nusc_loader"] is None:
+        if _server_state["num_frames"] == 0:
             return no_update, no_update
 
         num_frames = _server_state["num_frames"]
@@ -722,9 +785,10 @@ def create_app() -> Dash:
     )
     def render_frame(frame_idx, gt_viz, trk_viz, active_categories):
         s = _server_state
-        if s["nusc_loader"] is None:
+        if s["num_frames"] == 0:
             return no_update, no_update, no_update, no_update
 
+        mode = s["mode"]
         nusc_loader = s["nusc_loader"]
         gt_data = s["gt_data"]
         tracker_data = s["tracker_data"]
@@ -733,21 +797,25 @@ def create_app() -> Dash:
         front_stitcher = s["front_stitcher"]
         rear_stitcher = s["rear_stitcher"]
 
-        if frame_idx is None or frame_idx < 0 or frame_idx >= len(sample_tokens):
+        if frame_idx is None or frame_idx < 0 or frame_idx >= num_frames:
             return no_update, no_update, no_update, no_update
 
         gt_viz = set(gt_viz or [])
         trk_viz = set(trk_viz or [])
         active_groups = set(active_categories or [])
 
-        sample_token = sample_tokens[frame_idx]
-
-        ego_pose = nusc_loader.get_ego_pose(sample_token)
-        points = nusc_loader.get_lidar_points_ego(sample_token)
-
         def category_visible(cat_name):
             group = CATEGORY_TO_GROUP.get(cat_name)
             return group is not None and group in active_groups
+
+        # Get point cloud and ego pose (NuScenes) or empty (custom)
+        if mode == "custom":
+            points = np.empty((0, 3), dtype=np.float32)
+            origin_offset = s["origin_offset"]
+        else:
+            sample_token = sample_tokens[frame_idx]
+            ego_pose = nusc_loader.get_ego_pose(sample_token)
+            points = nusc_loader.get_lidar_points_ego(sample_token)
 
         gt_boxes_ego = None
         tracker_boxes_ego = None
@@ -759,9 +827,14 @@ def create_app() -> Dash:
             for det in frame.get("detections", []):
                 if not category_visible(det["category_name"]):
                     continue
-                pos, yaw = global_to_ego(det["translation"], det["yaw"], ego_pose)
+                if mode == "custom":
+                    pos = (np.array(det["translation"]) - origin_offset).tolist()
+                    yaw = det["yaw"]
+                else:
+                    pos, yaw = global_to_ego(det["translation"], det["yaw"], ego_pose)
+                    pos = pos.tolist()
                 gt_boxes_ego.append({
-                    "translation": pos.tolist(),
+                    "translation": pos,
                     "size": det["size"],
                     "yaw": yaw,
                     "label": shorten_category(det["category_name"]),
@@ -775,9 +848,14 @@ def create_app() -> Dash:
             for trk in frame.get("tracks", []):
                 if not category_visible(trk["category_name"]):
                     continue
-                pos, yaw = global_to_ego(trk["translation"], trk["yaw"], ego_pose)
+                if mode == "custom":
+                    pos = (np.array(trk["translation"]) - origin_offset).tolist()
+                    yaw = trk["yaw"]
+                else:
+                    pos, yaw = global_to_ego(trk["translation"], trk["yaw"], ego_pose)
+                    pos = pos.tolist()
                 tracker_boxes_ego.append({
-                    "translation": pos.tolist(),
+                    "translation": pos,
                     "size": trk["size"],
                     "yaw": yaw,
                     "label": shorten_category(trk["category_name"]),
@@ -789,22 +867,33 @@ def create_app() -> Dash:
             total_objects += len(tracker_boxes_ego)
 
         fig = build_3d_figure(points, gt_boxes_ego, tracker_boxes_ego,
-                              gt_viz=gt_viz, trk_viz=trk_viz)
+                              gt_viz=gt_viz, trk_viz=trk_viz,
+                              show_ego_car=(mode != "custom"))
 
-        cam_paths = nusc_loader.get_camera_paths(sample_token)
-        front_imgs = [cv2.imread(cam_paths[c]) for c in FRONT_CAMS]
-        rear_imgs = [cv2.imread(cam_paths[c]) for c in REAR_CAMS]
+        # Panoramas (NuScenes only)
+        front_src = ""
+        rear_src = ""
+        if mode != "custom" and nusc_loader and front_stitcher and rear_stitcher:
+            sample_token = sample_tokens[frame_idx]
+            cam_paths = nusc_loader.get_camera_paths(sample_token)
+            front_imgs = [cv2.imread(cam_paths[c]) for c in FRONT_CAMS]
+            rear_imgs = [cv2.imread(cam_paths[c]) for c in REAR_CAMS]
+            front_src = encode_panorama(front_stitcher.stitch(front_imgs))
+            rear_src = encode_panorama(rear_stitcher.stitch(rear_imgs))
 
-        front_src = encode_panorama(front_stitcher.stitch(front_imgs))
-        rear_src = encode_panorama(rear_stitcher.stitch(rear_imgs))
-
+        # Frame info
         timestamp = ""
         if gt_data and frame_idx < len(gt_data):
             timestamp = str(gt_data[frame_idx].get("timestamp", ""))
         elif tracker_data and frame_idx < len(tracker_data):
             timestamp = str(tracker_data[frame_idx].get("timestamp", ""))
 
-        info_text = f"Frame {frame_idx}/{num_frames - 1}  |  Objects: {total_objects}  |  Token: {sample_token[:8]}...  |  TS: {timestamp}"
+        token_str = sample_tokens[frame_idx][:8] if sample_tokens else ""
+        info_text = f"Frame {frame_idx}/{num_frames - 1}  |  Objects: {total_objects}"
+        if token_str and not token_str.startswith("frame_"):
+            info_text += f"  |  Token: {token_str}..."
+        if timestamp:
+            info_text += f"  |  TS: {timestamp}"
 
         return fig, front_src, rear_src, info_text
 
