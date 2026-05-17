@@ -1,3 +1,5 @@
+import base64
+import json
 import logging
 import re
 from pathlib import Path
@@ -21,73 +23,219 @@ from .data_loader import (
 from .scene_builder import build_3d_figure
 from .image_stitcher import PanoramaStitcher, encode_panorama
 
+FRONT_CAMS = ["CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT"]
+REAR_CAMS = ["CAM_BACK_LEFT", "CAM_BACK", "CAM_BACK_RIGHT"]
 
-def _extract_scene_prefix(filepath: str) -> str | None:
-    name = Path(filepath).stem
-    m = re.match(r"(scene_\d+)", name)
+_server_state = {
+    "nusc_loader": None,
+    "gt_data": None,
+    "tracker_data": None,
+    "sample_tokens": None,
+    "num_frames": 0,
+    "front_stitcher": None,
+    "rear_stitcher": None,
+    "scene_mismatch": False,
+}
+
+
+def _extract_scene_prefix(name: str) -> str | None:
+    stem = Path(name).stem
+    m = re.match(r"(scene_\d+)", stem)
     return m.group(1) if m else None
 
 
-def create_app(
-    dataroot: str,
-    version: str,
-    gt_path: str | None = None,
-    tracker_path: str | None = None,
-) -> Dash:
-    nusc_loader = NuScenesLoader(dataroot, version)
-
-    gt_data = load_gt_json(gt_path) if gt_path else None
-    tracker_data = load_tracker_json(tracker_path) if tracker_path else None
-
-    scene_mismatch = False
-    if gt_path and tracker_path:
-        gt_prefix = _extract_scene_prefix(gt_path)
-        trk_prefix = _extract_scene_prefix(tracker_path)
-        if gt_prefix and trk_prefix and gt_prefix != trk_prefix:
-            scene_mismatch = True
-            logger.warning(
-                "Scene mismatch: GT file is %s (scene %s) but tracker file is %s (scene %s)",
-                Path(gt_path).name, gt_prefix, Path(tracker_path).name, trk_prefix,
-            )
-        elif gt_prefix and not trk_prefix:
-            logger.warning(
-                "Tracker file %s has no scene prefix — cannot verify it matches GT scene %s",
-                Path(tracker_path).name, gt_prefix,
-            )
-
-    if gt_data:
-        num_frames = len(gt_data)
-        sample_tokens = [f["sample_token"] for f in gt_data]
-    elif tracker_data:
-        num_frames = len(tracker_data)
-        sample_tokens = None
-    else:
-        raise ValueError("At least one of --gt or --tracker must be provided")
-
-    FRONT_CAMS = ["CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT"]
-    REAR_CAMS = ["CAM_BACK_LEFT", "CAM_BACK", "CAM_BACK_RIGHT"]
-
-    if sample_tokens is None and gt_data is None:
-        scene = nusc_loader.nusc.scene[0]
-        sample_token = scene["first_sample_token"]
-        sample_tokens = []
-        for _ in range(num_frames):
-            sample_tokens.append(sample_token)
-            sample = nusc_loader.get_sample(sample_token)
-            if sample["next"]:
-                sample_token = sample["next"]
-            else:
-                break
-
-    cals = nusc_loader.get_camera_calibrations(sample_tokens[0])
-    front_stitcher = PanoramaStitcher(
-        [cals[c] for c in FRONT_CAMS], center_yaw=0.0,
+def _config_layout():
+    return html.Div(
+        style={
+            "backgroundColor": "#0f0f23",
+            "minHeight": "100vh",
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "center",
+            "fontFamily": "'Segoe UI', 'Roboto', sans-serif",
+        },
+        children=[
+            html.Div(
+                className="config-card",
+                style={
+                    "backgroundColor": "#16213e",
+                    "borderRadius": "12px",
+                    "padding": "36px 40px",
+                    "width": "560px",
+                    "maxWidth": "90vw",
+                    "boxShadow": "0 8px 32px rgba(0,0,0,0.4)",
+                    "border": "1px solid rgba(255,255,255,0.06)",
+                },
+                children=[
+                    html.H1(
+                        "SensorLens",
+                        style={
+                            "color": "#00d4ff",
+                            "fontSize": "28px",
+                            "fontWeight": "700",
+                            "margin": "0 0 4px 0",
+                            "textAlign": "center",
+                        },
+                    ),
+                    html.P(
+                        "3D Multi-Object Tracking Visualizer",
+                        style={
+                            "color": "#666",
+                            "fontSize": "13px",
+                            "textAlign": "center",
+                            "margin": "0 0 28px 0",
+                        },
+                    ),
+                    # Dataset type
+                    _config_label("Dataset Type"),
+                    dcc.Dropdown(
+                        id="config-dataset-type",
+                        options=[{"label": "NuScenes", "value": "nuscenes"}],
+                        value="nuscenes",
+                        clearable=False,
+                        style={"marginBottom": "16px"},
+                    ),
+                    # Dataroot
+                    _config_label("Dataroot Path"),
+                    dcc.Input(
+                        id="config-dataroot",
+                        type="text",
+                        placeholder="/path/to/nuscenes",
+                        className="config-input",
+                        style=_input_style(),
+                    ),
+                    # Version
+                    _config_label("Version"),
+                    dcc.Dropdown(
+                        id="config-version",
+                        options=[
+                            {"label": "v1.0-mini", "value": "v1.0-mini"},
+                            {"label": "v1.0-trainval", "value": "v1.0-trainval"},
+                            {"label": "v1.0-test", "value": "v1.0-test"},
+                        ],
+                        value="v1.0-mini",
+                        clearable=False,
+                        style={"marginBottom": "16px"},
+                    ),
+                    # GT file
+                    _config_label("GT Detections (JSON)"),
+                    html.Div(
+                        style={"display": "flex", "gap": "8px", "alignItems": "stretch", "marginBottom": "4px"},
+                        children=[
+                            html.Div(
+                                style={"flex": "1"},
+                                children=[
+                                    dcc.Input(
+                                        id="config-gt-path",
+                                        type="text",
+                                        placeholder="Path to GT JSON (optional)",
+                                        className="config-input",
+                                        style=_input_style(mb="0"),
+                                    ),
+                                ],
+                            ),
+                            html.Div(
+                                style={"display": "flex", "alignItems": "center", "color": "#555", "fontSize": "12px"},
+                                children=["or"],
+                            ),
+                            dcc.Upload(
+                                id="config-gt-upload",
+                                children=html.Div("Upload", className="upload-btn"),
+                                className="upload-dropzone",
+                            ),
+                        ],
+                    ),
+                    html.Div(id="config-gt-filename", style={"fontSize": "11px", "color": "#1abc9c", "marginBottom": "16px", "minHeight": "16px"}),
+                    # Tracker file
+                    _config_label("Tracker Results (JSON)"),
+                    html.Div(
+                        style={"display": "flex", "gap": "8px", "alignItems": "stretch", "marginBottom": "4px"},
+                        children=[
+                            html.Div(
+                                style={"flex": "1"},
+                                children=[
+                                    dcc.Input(
+                                        id="config-trk-path",
+                                        type="text",
+                                        placeholder="Path to tracker JSON (optional)",
+                                        className="config-input",
+                                        style=_input_style(mb="0"),
+                                    ),
+                                ],
+                            ),
+                            html.Div(
+                                style={"display": "flex", "alignItems": "center", "color": "#555", "fontSize": "12px"},
+                                children=["or"],
+                            ),
+                            dcc.Upload(
+                                id="config-trk-upload",
+                                children=html.Div("Upload", className="upload-btn"),
+                                className="upload-dropzone",
+                            ),
+                        ],
+                    ),
+                    html.Div(id="config-trk-filename", style={"fontSize": "11px", "color": "#1abc9c", "marginBottom": "24px", "minHeight": "16px"}),
+                    # Error message
+                    html.Div(id="config-error-msg", style={
+                        "color": "#ff6b6b",
+                        "fontSize": "13px",
+                        "marginBottom": "12px",
+                        "minHeight": "20px",
+                        "textAlign": "center",
+                    }),
+                    # Launch button
+                    dcc.Loading(
+                        type="dot",
+                        color="#00d4ff",
+                        children=[
+                            html.Button(
+                                "Launch",
+                                id="btn-launch",
+                                className="launch-btn",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
-    rear_stitcher = PanoramaStitcher(
-        [cals[c] for c in REAR_CAMS], center_yaw=np.pi, mirror=True,
+
+
+def _config_label(text):
+    return html.Label(
+        text,
+        style={
+            "color": "#aaa",
+            "fontSize": "12px",
+            "fontWeight": "600",
+            "display": "block",
+            "marginBottom": "4px",
+            "textTransform": "uppercase",
+            "letterSpacing": "0.5px",
+        },
     )
 
-    app = Dash(__name__)
+
+def _input_style(mb="16px"):
+    return {
+        "width": "100%",
+        "backgroundColor": "#0f0f23",
+        "border": "1px solid rgba(255,255,255,0.1)",
+        "borderRadius": "6px",
+        "color": "#e0e0e0",
+        "padding": "8px 12px",
+        "fontSize": "13px",
+        "marginBottom": mb,
+        "boxSizing": "border-box",
+    }
+
+
+def _viz_layout():
+    s = _server_state
+    gt_data = s["gt_data"]
+    tracker_data = s["tracker_data"]
+    num_frames = s["num_frames"]
+    scene_mismatch = s["scene_mismatch"]
 
     gt_viz_options = [
         {"label": html.Span("bbox", style={"color": "#999"}), "value": "bbox"},
@@ -106,7 +254,7 @@ def create_app(
     ]
     cat_defaults = [g for g in CATEGORY_GROUPS if g in DEFAULT_ON]
 
-    app.layout = html.Div(
+    return html.Div(
         style={
             "backgroundColor": "#0f0f23",
             "color": "#e0e0e0",
@@ -351,6 +499,166 @@ def create_app(
         ],
     )
 
+
+def create_app() -> Dash:
+    app = Dash(__name__, suppress_callback_exceptions=True)
+
+    app.layout = html.Div([
+        dcc.Store(id="app-phase", data="config"),
+        html.Div(id="page-content"),
+    ])
+
+    # -- Page switching --
+    @app.callback(
+        Output("page-content", "children"),
+        Input("app-phase", "data"),
+    )
+    def switch_page(phase):
+        if phase == "viz":
+            return _viz_layout()
+        return _config_layout()
+
+    # -- Show uploaded filenames --
+    @app.callback(
+        Output("config-gt-filename", "children"),
+        Input("config-gt-upload", "filename"),
+        prevent_initial_call=True,
+    )
+    def show_gt_filename(filename):
+        return f"Uploaded: {filename}" if filename else ""
+
+    @app.callback(
+        Output("config-trk-filename", "children"),
+        Input("config-trk-upload", "filename"),
+        prevent_initial_call=True,
+    )
+    def show_trk_filename(filename):
+        return f"Uploaded: {filename}" if filename else ""
+
+    # -- Launch --
+    @app.callback(
+        Output("app-phase", "data"),
+        Output("config-error-msg", "children"),
+        Input("btn-launch", "n_clicks"),
+        State("config-dataroot", "value"),
+        State("config-version", "value"),
+        State("config-gt-upload", "contents"),
+        State("config-gt-upload", "filename"),
+        State("config-gt-path", "value"),
+        State("config-trk-upload", "contents"),
+        State("config-trk-upload", "filename"),
+        State("config-trk-path", "value"),
+        prevent_initial_call=True,
+    )
+    def launch(n_clicks, dataroot, version, gt_upload, gt_upload_name,
+               gt_path, trk_upload, trk_upload_name, trk_path):
+        if not dataroot or not dataroot.strip():
+            return no_update, "Please enter a dataroot path."
+        dataroot = dataroot.strip()
+        if not Path(dataroot).is_dir():
+            return no_update, f"Dataroot not found: {dataroot}"
+
+        has_gt = bool(gt_upload) or bool(gt_path and gt_path.strip())
+        has_trk = bool(trk_upload) or bool(trk_path and trk_path.strip())
+        if not has_gt and not has_trk:
+            return no_update, "Provide at least one of GT or Tracker file."
+
+        # Load GT
+        gt_data = None
+        gt_name = None
+        try:
+            if gt_upload:
+                gt_data = _parse_upload(gt_upload)
+                gt_name = gt_upload_name
+            elif gt_path and gt_path.strip():
+                p = gt_path.strip()
+                if not Path(p).is_file():
+                    return no_update, f"GT file not found: {p}"
+                gt_data = load_gt_json(p)
+                gt_name = Path(p).name
+        except Exception as e:
+            return no_update, f"Error loading GT: {e}"
+
+        # Load Tracker
+        tracker_data = None
+        trk_name = None
+        try:
+            if trk_upload:
+                tracker_data = _parse_upload(trk_upload)
+                trk_name = trk_upload_name
+            elif trk_path and trk_path.strip():
+                p = trk_path.strip()
+                if not Path(p).is_file():
+                    return no_update, f"Tracker file not found: {p}"
+                tracker_data = load_tracker_json(p)
+                trk_name = Path(p).name
+        except Exception as e:
+            return no_update, f"Error loading tracker: {e}"
+
+        # Scene mismatch check
+        scene_mismatch = False
+        if gt_name and trk_name:
+            gt_prefix = _extract_scene_prefix(gt_name)
+            trk_prefix = _extract_scene_prefix(trk_name)
+            if gt_prefix and trk_prefix and gt_prefix != trk_prefix:
+                scene_mismatch = True
+                logger.warning(
+                    "Scene mismatch: GT=%s (%s) vs Tracker=%s (%s)",
+                    gt_name, gt_prefix, trk_name, trk_prefix,
+                )
+
+        # Initialize NuScenes
+        try:
+            nusc_loader = NuScenesLoader(dataroot, version)
+        except Exception as e:
+            return no_update, f"Error loading NuScenes: {e}"
+
+        # Determine frames
+        if gt_data:
+            num_frames = len(gt_data)
+            sample_tokens = [f["sample_token"] for f in gt_data]
+        elif tracker_data:
+            num_frames = len(tracker_data)
+            sample_tokens = None
+        else:
+            return no_update, "No data loaded."
+
+        if sample_tokens is None:
+            scene = nusc_loader.nusc.scene[0]
+            sample_token = scene["first_sample_token"]
+            sample_tokens = []
+            for _ in range(num_frames):
+                sample_tokens.append(sample_token)
+                sample = nusc_loader.get_sample(sample_token)
+                if sample["next"]:
+                    sample_token = sample["next"]
+                else:
+                    break
+
+        # Build stitchers
+        cals = nusc_loader.get_camera_calibrations(sample_tokens[0])
+        front_stitcher = PanoramaStitcher(
+            [cals[c] for c in FRONT_CAMS], center_yaw=0.0,
+        )
+        rear_stitcher = PanoramaStitcher(
+            [cals[c] for c in REAR_CAMS], center_yaw=np.pi, mirror=True,
+        )
+
+        # Populate server state
+        _server_state.update({
+            "nusc_loader": nusc_loader,
+            "gt_data": gt_data,
+            "tracker_data": tracker_data,
+            "sample_tokens": sample_tokens,
+            "num_frames": num_frames,
+            "front_stitcher": front_stitcher,
+            "rear_stitcher": rear_stitcher,
+            "scene_mismatch": scene_mismatch,
+        })
+
+        return "viz", ""
+
+    # -- Viz callbacks --
     @app.callback(
         Output("store-playing", "data"),
         Output("play-interval", "disabled"),
@@ -375,6 +683,10 @@ def create_app(
         prevent_initial_call=True,
     )
     def update_frame(prev_clicks, next_clicks, slider_val, n_intervals, current_frame, playing):
+        if _server_state["nusc_loader"] is None:
+            return no_update, no_update
+
+        num_frames = _server_state["num_frames"]
         ctx = callback_context
         if not ctx.triggered:
             return no_update, no_update
@@ -409,6 +721,18 @@ def create_app(
         Input("check-categories", "value"),
     )
     def render_frame(frame_idx, gt_viz, trk_viz, active_categories):
+        s = _server_state
+        if s["nusc_loader"] is None:
+            return no_update, no_update, no_update, no_update
+
+        nusc_loader = s["nusc_loader"]
+        gt_data = s["gt_data"]
+        tracker_data = s["tracker_data"]
+        sample_tokens = s["sample_tokens"]
+        num_frames = s["num_frames"]
+        front_stitcher = s["front_stitcher"]
+        rear_stitcher = s["rear_stitcher"]
+
         if frame_idx is None or frame_idx < 0 or frame_idx >= len(sample_tokens):
             return no_update, no_update, no_update, no_update
 
@@ -485,6 +809,12 @@ def create_app(
         return fig, front_src, rear_src, info_text
 
     return app
+
+
+def _parse_upload(contents: str) -> list[dict]:
+    _, content_string = contents.split(",", 1)
+    decoded = base64.b64decode(content_string)
+    return json.loads(decoded)
 
 
 def _button_style(bg="#2c3e50"):
