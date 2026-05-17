@@ -461,14 +461,34 @@ def _viz_layout():
                     "borderRadius": "8px",
                 },
                 children=[
-                    html.H1(
-                        "SensorLens",
-                        style={
-                            "margin": "0",
-                            "fontSize": "24px",
-                            "fontWeight": "700",
-                            "color": "#00d4ff",
-                        },
+                    html.Div(
+                        style={"display": "flex", "alignItems": "center", "gap": "12px"},
+                        children=[
+                            html.Button(
+                                "\u2302",
+                                id="btn-home",
+                                style={
+                                    "backgroundColor": "transparent",
+                                    "border": "1px solid rgba(255,255,255,0.15)",
+                                    "borderRadius": "6px",
+                                    "color": "#00d4ff",
+                                    "fontSize": "20px",
+                                    "cursor": "pointer",
+                                    "padding": "2px 10px",
+                                    "lineHeight": "1",
+                                },
+                                title="Back to config",
+                            ),
+                            html.H1(
+                                "SensorLens",
+                                style={
+                                    "margin": "0",
+                                    "fontSize": "24px",
+                                    "fontWeight": "700",
+                                    "color": "#00d4ff",
+                                },
+                            ),
+                        ],
                     ),
                     html.Div(id="frame-info", style={"fontSize": "14px", "color": "#aaa"}),
                 ],
@@ -484,9 +504,9 @@ def _viz_layout():
                     "borderRadius": "8px",
                 },
                 children=[
-                    html.Button("Prev", id="btn-prev", style=_button_style()),
-                    html.Button("Play", id="btn-play", style=_button_style("#1abc9c")),
-                    html.Button("Next", id="btn-next", style=_button_style()),
+                    html.Button("\u23ee", id="btn-prev", style=_button_style()),
+                    html.Button("\u25b6", id="btn-play", style=_button_style("#1abc9c")),
+                    html.Button("\u23ed", id="btn-next", style=_button_style()),
                     html.Div(
                         style={"flex": "1", "margin": "0 12px"},
                         children=[
@@ -538,6 +558,15 @@ def create_app() -> Dash:
         if phase == "viz":
             return _viz_layout()
         return _config_layout()
+
+    # -- Home button: back to config --
+    @app.callback(
+        Output("app-phase", "data", allow_duplicate=True),
+        Input("btn-home", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def go_home(n_clicks):
+        return "config"
 
     # -- Show/hide dataset fields based on type --
     @app.callback(
@@ -732,7 +761,7 @@ def create_app() -> Dash:
     )
     def toggle_play(n_clicks, playing):
         new_playing = not playing
-        return new_playing, not new_playing, "Pause" if new_playing else "Play"
+        return new_playing, not new_playing, "\u23f8" if new_playing else "\u25b6"
 
     @app.callback(
         Output("store-frame", "data"),
