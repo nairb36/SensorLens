@@ -6,12 +6,26 @@ Interactive 3D visualization tool for multi-object tracking on nuScenes data. Bu
 
 ## Features
 
+### Browser-Based Configuration
+- **No CLI data arguments** — launch with `python3 run.py` and configure everything in the browser
+- **Dataset type selection** — NuScenes, Waymo Open Dataset (coming soon), or Custom (bounding boxes only)
+- **File upload or path entry** — drag-and-drop JSON files or enter filesystem paths for GT/tracker data
+- **Scene mismatch detection** — warns when GT and tracker files are from different scenes
+- **Multi-scene workflow** — home button returns to config page to load a new scene without restarting
+
 ### 3D Scene View
 - **LiDAR point cloud** rendered with height-based Turbo colormap (WebGL-accelerated via Plotly)
 - **3D wireframe bounding boxes** for ground-truth detections and/or tracker output, displayed simultaneously with distinct identity-consistent coloring
 - **3D ego vehicle model** loaded from OBJ/MTL with per-face material colors and a forward-direction indicator
 - **Category filtering** — toggle visibility of pedestrians, cars, trucks/buses, two-wheelers, and static objects independently
 - **Layer toggles** — show/hide GT and tracker overlays independently or together
+- **2D/3D view toggle** — switch between free orbit (3D) and top-down turntable (2D) modes; zoom and pan persist between frames in both modes
+
+### Custom Mode (No Dataset Required)
+- **Bounding box only rendering** — visualize GT and tracker JSONs without a NuScenes/Waymo dataset
+- **No LiDAR or camera data needed** — boxes are rendered on a clean dark background
+- **Auto-centering** — scene is centered on the first frame's object centroid
+- **Assumes ego-frame coordinates** — translations in the JSON are used directly (no global-to-ego transform)
 
 ### Camera Panoramas
 - **Stitched front panorama** from CAM_FRONT_LEFT, CAM_FRONT, and CAM_FRONT_RIGHT (~180° FOV)
@@ -20,8 +34,8 @@ Interactive 3D visualization tool for multi-object tracking on nuScenes data. Bu
 - Weighted blending in overlap regions for seamless transitions
 
 ### Playback
-- **Prev / Next** buttons for frame-by-frame stepping
-- **Play / Pause** auto-advance at ~2 FPS (nuScenes keyframe rate)
+- **⏮ / ⏭** buttons for frame-by-frame stepping
+- **▶ / ⏸** auto-advance at ~2 FPS (nuScenes keyframe rate)
 - **Frame slider** to jump to any frame
 - **Frame info bar** showing frame index, object count, sample token, and timestamp
 
@@ -31,8 +45,6 @@ Interactive 3D visualization tool for multi-object tracking on nuScenes data. Bu
 cd Project_SensorLens
 pip install -r requirements.txt
 ```
-
-Requires the nuScenes dataset (mini or full) at the path specified by `--dataroot`.
 
 ### Dependencies
 
@@ -45,38 +57,38 @@ Requires the nuScenes dataset (mini or full) at the path specified by `--dataroo
 ## Usage
 
 ```bash
-python3 run.py \
-  --gt ../Project_MOT/results/gt/scene_0000.json \
-  --tracker ../Project_MOT/results/tracking/results_20260511_233838.json
+python3 run.py
 ```
 
-Then open http://localhost:8050 in your browser.
+Then open http://localhost:8050 in your browser. The configuration page lets you:
 
-Either or both of `--gt` / `--tracker` can be provided. At least one is required.
+1. Select dataset type (NuScenes / Custom)
+2. Enter dataroot path and version (NuScenes only)
+3. Upload or enter paths for GT and/or tracker JSON files
+4. Click **Launch** to start visualization
 
 ### CLI Arguments
 
-| Argument     | Default                      | Description                     |
-|-------------|------------------------------|---------------------------------|
-| `--dataroot`| `/workspace/data/nuscenes`   | Path to nuScenes dataset        |
-| `--version` | `v1.0-mini`                  | nuScenes version string         |
-| `--gt`      | —                            | Path to GT detections JSON      |
-| `--tracker` | —                            | Path to tracker results JSON    |
-| `--port`    | `8050`                       | Server port                     |
-| `--host`    | `0.0.0.0`                    | Host to bind to                 |
+| Argument | Default  | Description       |
+|----------|----------|-------------------|
+| `--port` | `8050`   | Server port       |
+| `--host` | `0.0.0.0`| Host to bind to  |
 
 ## Controls
 
 | Action | Input |
 |--------|-------|
-| Orbit 3D view | Left-click drag |
+| Orbit 3D view | Left-click drag (3D mode) |
+| Rotate around Z only | Left-click drag (2D mode) |
 | Zoom | Scroll wheel |
 | Pan | Right-click drag |
-| Step frame | Prev / Next buttons |
-| Auto-play | Play / Pause button |
+| Toggle 2D/3D | 2D/3D button in controls bar |
+| Step frame | ⏮ / ⏭ buttons |
+| Auto-play | ▶ / ⏸ button |
 | Jump to frame | Drag the frame slider |
 | Toggle GT / Tracker | Layer checkboxes (top-left overlay) |
 | Filter categories | Category checkboxes (top-left overlay) |
+| Return to config | ⌂ home button (top-left) |
 
 ## Data Formats
 
@@ -102,7 +114,7 @@ Array of frames, each containing detections in global coordinates:
 ]
 ```
 
-- `translation`: [x, y, z] in global frame (meters)
+- `translation`: [x, y, z] in global frame (meters) — or ego frame for Custom mode
 - `size`: [width, length, height] in meters
 - `yaw`: rotation about z-axis (radians)
 - `instance_token`: unique object identity across frames (drives consistent coloring)
@@ -134,12 +146,12 @@ Array of frames, each containing detections in global coordinates:
 
 ```
 sensorlens/
-  app.py             — Dash application layout and callbacks
+  app.py             — Dash application layout, config page, and callbacks
   data_loader.py     — nuScenes data access, coordinate transforms, category mapping
   scene_builder.py   — 3D figure construction (point cloud, boxes, ego car model)
   image_stitcher.py  — Cylindrical panorama stitching with precomputed remap tables
   assets/
-    style.css        — Checkbox/UI styling
+    style.css        — UI styling (config page, checkboxes, buttons)
     NormalCar2.obj   — 3D ego vehicle model (Blender export)
     NormalCar2.mtl   — Material definitions (7 materials)
 run.py               — CLI entry point
