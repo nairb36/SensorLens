@@ -507,6 +507,7 @@ def _viz_layout():
                     html.Button("\u23ee", id="btn-prev", style=_button_style()),
                     html.Button("\u25b6", id="btn-play", style=_button_style("#1abc9c")),
                     html.Button("\u23ed", id="btn-next", style=_button_style()),
+                    html.Button("3D", id="btn-view-mode", style=_button_style("#8e44ad")),
                     html.Div(
                         style={"flex": "1", "margin": "0 12px"},
                         children=[
@@ -536,6 +537,7 @@ def _viz_layout():
             ),
             dcc.Store(id="store-frame", data=0),
             dcc.Store(id="store-playing", data=False),
+            dcc.Store(id="store-view-mode", data="3d"),
             dcc.Interval(id="play-interval", interval=500, disabled=True),
         ],
     )
@@ -750,6 +752,19 @@ def create_app() -> Dash:
 
         return "viz", ""
 
+    # -- View mode toggle --
+    @app.callback(
+        Output("store-view-mode", "data"),
+        Output("btn-view-mode", "children"),
+        Input("btn-view-mode", "n_clicks"),
+        State("store-view-mode", "data"),
+        prevent_initial_call=True,
+    )
+    def toggle_view_mode(n_clicks, current_mode):
+        new_mode = "2d" if current_mode == "3d" else "3d"
+        return new_mode, new_mode.upper()
+
+
     # -- Viz callbacks --
     @app.callback(
         Output("store-playing", "data"),
@@ -811,8 +826,9 @@ def create_app() -> Dash:
         Input("check-gt-viz", "value"),
         Input("check-trk-viz", "value"),
         Input("check-categories", "value"),
+        Input("store-view-mode", "data"),
     )
-    def render_frame(frame_idx, gt_viz, trk_viz, active_categories):
+    def render_frame(frame_idx, gt_viz, trk_viz, active_categories, view_mode):
         s = _server_state
         if s["num_frames"] == 0:
             return no_update, no_update, no_update, no_update
@@ -897,7 +913,8 @@ def create_app() -> Dash:
 
         fig = build_3d_figure(points, gt_boxes_ego, tracker_boxes_ego,
                               gt_viz=gt_viz, trk_viz=trk_viz,
-                              show_ego_car=(mode != "custom"))
+                              show_ego_car=(mode != "custom"),
+                              top_down=(view_mode == "2d"))
 
         # Panoramas (NuScenes only)
         front_src = ""
