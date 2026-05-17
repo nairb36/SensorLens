@@ -267,6 +267,7 @@ def build_3d_figure(
     gt_viz: set | None = None,
     trk_viz: set | None = None,
     show_ego_car: bool = True,
+    top_down: bool = False,
 ) -> go.Figure:
     gt_viz = gt_viz or set()
     trk_viz = trk_viz or set()
@@ -310,6 +311,21 @@ def build_3d_figure(
             if "center" in trk_viz:
                 fig.add_trace(build_center_trace(translation, color, label))
 
+    if top_down:
+        camera = dict(
+            eye=dict(x=0, y=0, z=2.5),
+            up=dict(x=1, y=0, z=0),
+            center=dict(x=0, y=0, z=0),
+        )
+        dragmode = "turntable"
+    else:
+        camera = dict(
+            eye=dict(x=0, y=0, z=2.0),
+            up=dict(x=1, y=0, z=0),
+            center=dict(x=0, y=0, z=0),
+        )
+        dragmode = "orbit"
+
     fig.update_layout(
         scene=dict(
             xaxis=dict(range=[-x_range, x_range], showbackground=False, showgrid=True, gridcolor="#333", title="", showticklabels=False),
@@ -317,17 +333,14 @@ def build_3d_figure(
             zaxis=dict(range=[-5, 10], showbackground=False, showgrid=False, title="", showticklabels=False),
             aspectmode="manual",
             aspectratio=dict(x=1, y=1, z=0.15),
-            camera=dict(
-                eye=dict(x=0, y=0, z=2.0),
-                up=dict(x=1, y=0, z=0),
-                center=dict(x=0, y=0, z=0),
-            ),
+            camera=camera,
+            dragmode=dragmode,
             bgcolor="#1a1a2e",
         ),
         paper_bgcolor="#0f0f23",
         margin=dict(l=0, r=0, t=0, b=0),
         autosize=True,
-        uirevision="constant",
+        uirevision="2d" if top_down else "3d",
     )
 
     return fig
