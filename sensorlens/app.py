@@ -912,7 +912,17 @@ def create_app() -> Dash:
     )
     def launch(n_clicks, app_mode, max_dist, dataset_type, dataroot, version,
                gt_upload, gt_upload_name, gt_path, trk_upload, trk_upload_name, trk_path):
+        try:
+            return _do_launch(app_mode, max_dist, dataset_type, dataroot, version,
+                              gt_upload, gt_upload_name, gt_path,
+                              trk_upload, trk_upload_name, trk_path)
+        except Exception as e:
+            logger.exception("Launch failed")
+            return no_update, f"Error: {e}"
 
+    def _do_launch(app_mode, max_dist, dataset_type, dataroot, version,
+                   gt_upload, gt_upload_name, gt_path,
+                   trk_upload, trk_upload_name, trk_path):
         # Validate dataroot for non-custom modes
         if dataset_type != "custom":
             if not dataroot or not dataroot.strip():
