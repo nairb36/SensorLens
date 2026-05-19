@@ -158,6 +158,18 @@ def _config_layout():
                                 className="config-input",
                                 style=_input_style(),
                             ),
+                            _config_label("Evaluate Categories"),
+                            dcc.Checklist(
+                                id="config-eval-categories",
+                                options=[
+                                    {"label": html.Span(
+                                        f" {g}", style={"color": "#ccc", "fontSize": "13px"}
+                                    ), "value": g}
+                                    for g in CATEGORY_GROUPS
+                                ],
+                                value=[g for g in CATEGORY_GROUPS if g in DEFAULT_ON],
+                                style={"marginBottom": "16px"},
+                            ),
                         ],
                     ),
                     # Dataset type
@@ -908,21 +920,25 @@ def create_app() -> Dash:
         State("config-trk-upload", "contents"),
         State("config-trk-upload", "filename"),
         State("config-trk-path", "value"),
+        State("config-eval-categories", "value"),
         prevent_initial_call=True,
     )
     def launch(n_clicks, app_mode, max_dist, dataset_type, dataroot, version,
-               gt_upload, gt_upload_name, gt_path, trk_upload, trk_upload_name, trk_path):
+               gt_upload, gt_upload_name, gt_path, trk_upload, trk_upload_name, trk_path,
+               eval_categories):
         try:
             return _do_launch(app_mode, max_dist, dataset_type, dataroot, version,
                               gt_upload, gt_upload_name, gt_path,
-                              trk_upload, trk_upload_name, trk_path)
+                              trk_upload, trk_upload_name, trk_path,
+                              eval_categories)
         except Exception as e:
             logger.exception("Launch failed")
             return no_update, f"Error: {e}"
 
     def _do_launch(app_mode, max_dist, dataset_type, dataroot, version,
                    gt_upload, gt_upload_name, gt_path,
-                   trk_upload, trk_upload_name, trk_path):
+                   trk_upload, trk_upload_name, trk_path,
+                   eval_categories):
         # Validate dataroot for non-custom modes
         if dataset_type != "custom":
             if not dataroot or not dataroot.strip():
@@ -1057,8 +1073,18 @@ def create_app() -> Dash:
         mot_summary = None
         if app_mode == "debug" and gt_data and tracker_data:
             dist_threshold = max_dist if max_dist and max_dist > 0 else 2.0
+            # Expand selected category groups to specific nuScenes category names
+            allowed_cats = None
+            if eval_categories:
+                allowed_cats = set()
+                for group in eval_categories:
+                    allowed_cats.update(CATEGORY_GROUPS.get(group, []))
             try:
-                mot_acc, mot_id_map = run_evaluation(gt_data, tracker_data, max_dist=dist_threshold)
+                mot_acc, mot_id_map = run_evaluation(
+                    gt_data, tracker_data,
+                    max_dist=dist_threshold,
+                    allowed_categories=allowed_cats,
+                )
                 mot_summary = compute_summary(mot_acc)
             except Exception as e:
                 return no_update, f"Error running MOT evaluation: {e}"
