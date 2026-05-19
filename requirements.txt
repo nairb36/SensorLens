@@ -5,3 +5,4 @@ opencv-python>=4.8.0
 Pillow>=10.0.0
 nuscenes-devkit>=1.1.0
 pyquaternion>=0.9.9
+motmetrics>=1.4.0

@@ -22,6 +22,16 @@ from .data_loader import (
 )
 from .scene_builder import build_3d_figure
 from .image_stitcher import PanoramaStitcher, encode_panorama
+from .mot_evaluator import (
+    run_evaluation,
+    compute_summary,
+    get_frame_events,
+    get_box_error_types,
+    ERROR_COLORS,
+    SWITCH_LINE_WIDTH,
+    METRIC_DISPLAY,
+    format_metric,
+)
 
 FRONT_CAMS = ["CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT"]
 REAR_CAMS = ["CAM_BACK_LEFT", "CAM_BACK", "CAM_BACK_RIGHT"]
@@ -37,6 +47,10 @@ _server_state = {
     "rear_stitcher": None,
     "scene_mismatch": False,
     "origin_offset": None,  # fixed centroid from frame 0 for custom mode
+    "app_mode": "visualization",  # "visualization" or "debug"
+    "mot_accumulator": None,
+    "mot_id_map": None,
+    "mot_summary": None,
 }
 
 
@@ -87,8 +101,64 @@ def _config_layout():
                             "color": "#666",
                             "fontSize": "13px",
                             "textAlign": "center",
-                            "margin": "0 0 28px 0",
+                            "margin": "0 0 20px 0",
                         },
+                    ),
+                    # App mode selector
+                    html.Div(
+                        style={
+                            "display": "flex",
+                            "justifyContent": "center",
+                            "marginBottom": "24px",
+                            "gap": "0",
+                        },
+                        children=[
+                            html.Button(
+                                "Visualization",
+                                id="btn-mode-viz",
+                                style={
+                                    "backgroundColor": "#00d4ff",
+                                    "color": "#0f0f23",
+                                    "border": "1px solid #00d4ff",
+                                    "padding": "8px 24px",
+                                    "borderRadius": "6px 0 0 6px",
+                                    "cursor": "pointer",
+                                    "fontSize": "13px",
+                                    "fontWeight": "600",
+                                },
+                            ),
+                            html.Button(
+                                "Debug",
+                                id="btn-mode-debug",
+                                style={
+                                    "backgroundColor": "transparent",
+                                    "color": "#aaa",
+                                    "border": "1px solid rgba(255,255,255,0.15)",
+                                    "padding": "8px 24px",
+                                    "borderRadius": "0 6px 6px 0",
+                                    "cursor": "pointer",
+                                    "fontSize": "13px",
+                                    "fontWeight": "600",
+                                },
+                            ),
+                        ],
+                    ),
+                    dcc.Store(id="config-app-mode", data="visualization"),
+                    # Debug mode options (hidden by default)
+                    html.Div(
+                        id="config-debug-fields",
+                        style={"display": "none"},
+                        children=[
+                            _config_label("Match Distance Threshold (m)"),
+                            dcc.Input(
+                                id="config-max-dist",
+                                type="number",
+                                value=2.0,
+                                placeholder="Default: 2.0",
+                                className="config-input",
+                                style=_input_style(),
+                            ),
+                        ],
                     ),
                     # Dataset type
                     _config_label("Dataset Type"),
@@ -251,6 +321,8 @@ def _viz_layout():
     num_frames = s["num_frames"]
     scene_mismatch = s["scene_mismatch"]
     mode = s["mode"]
+    app_mode = s["app_mode"]
+    is_debug = app_mode == "debug"
     show_panos = mode != "custom"
 
     gt_viz_options = [
@@ -359,15 +431,9 @@ def _viz_layout():
     )
 
     # Panorama panel (only for NuScenes/Waymo)
-    pano_panel = html.Div(
-        style={
-            "flex": "1",
-            "minWidth": "0",
-            "display": "flex" if show_panos else "none",
-            "flexDirection": "column",
-            "gap": "4px",
-        },
-        children=[
+    pano_children = []
+    if show_panos:
+        pano_children.extend([
             html.Div(
                 style={
                     "backgroundColor": "#16213e",
@@ -422,7 +488,176 @@ def _viz_layout():
                     ),
                 ],
             ),
-        ],
+        ])
+
+    # Debug panel (shown in debug mode)
+    if is_debug:
+        debug_cat_options = [
+            {"label": html.Span(g, style={"color": "#999"}), "value": g}
+            for g in CATEGORY_GROUPS
+        ]
+        debug_cat_defaults = [g for g in CATEGORY_GROUPS if g in DEFAULT_ON]
+
+        # Color legend
+        legend_items = [
+            ("Match", ERROR_COLORS["match"]),
+            ("ID Switch", ERROR_COLORS["switch"]),
+            ("FP", ERROR_COLORS["fp"]),
+            ("Missed", ERROR_COLORS["miss"]),
+        ]
+
+        pano_children.append(
+            html.Div(
+                style={
+                    "backgroundColor": "#16213e",
+                    "borderRadius": "4px",
+                    "padding": "8px 10px",
+                },
+                children=[
+                    html.Div(
+                        style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "marginBottom": "6px"},
+                        children=[
+                            html.Div(
+                                "DEBUG LOG",
+                                style={
+                                    "fontSize": "11px",
+                                    "fontWeight": "600",
+                                    "color": "#ff4444",
+                                    "textTransform": "uppercase",
+                                    "letterSpacing": "1px",
+                                },
+                            ),
+                            html.Div(
+                                style={"display": "flex", "gap": "8px"},
+                                children=[
+                                    html.Span(
+                                        [html.Span("\u25a0 ", style={"color": c}), name],
+                                        style={"fontSize": "10px", "color": "#888"},
+                                    )
+                                    for name, c in legend_items
+                                ],
+                            ),
+                        ],
+                    ),
+                    html.Div(
+                        id="debug-content",
+                        style={
+                            "maxHeight": "180px",
+                            "overflowY": "auto",
+                            "fontSize": "12px",
+                            "color": "#ccc",
+                        },
+                    ),
+                    html.Hr(style={
+                        "border": "none",
+                        "borderTop": "1px solid rgba(255,255,255,0.08)",
+                        "margin": "8px 0",
+                    }),
+                    html.Div(
+                        "Debug Categories",
+                        style={
+                            "fontSize": "10px",
+                            "color": "#666",
+                            "textTransform": "uppercase",
+                            "letterSpacing": "1px",
+                            "marginBottom": "4px",
+                        },
+                    ),
+                    dcc.Checklist(
+                        id="check-debug-categories",
+                        options=debug_cat_options,
+                        value=debug_cat_defaults,
+                    ),
+                ],
+            ),
+        )
+
+    # Metrics panel (collapsible, debug mode only)
+    metrics_section = html.Div(style={"display": "none"})
+    if is_debug and s["mot_summary"]:
+        summary = s["mot_summary"]
+        metrics_rows = []
+        for key, display_name, fmt in METRIC_DISPLAY:
+            val = summary.get(key)
+            if val is not None:
+                metrics_rows.append(
+                    html.Div(
+                        style={"display": "flex", "justifyContent": "space-between", "padding": "3px 0"},
+                        children=[
+                            html.Span(display_name, style={"color": "#aaa", "fontSize": "12px"}),
+                            html.Span(
+                                format_metric(val, fmt),
+                                style={"color": "#00d4ff", "fontSize": "12px", "fontWeight": "600"},
+                            ),
+                        ],
+                    )
+                )
+        metrics_section = html.Div(
+            style={"marginBottom": "8px"},
+            children=[
+                html.Button(
+                    id="btn-metrics",
+                    style={
+                        "width": "100%",
+                        "backgroundColor": "#1a2744",
+                        "color": "#00d4ff",
+                        "border": "1px solid rgba(0,212,255,0.2)",
+                        "borderRadius": "8px",
+                        "padding": "8px 16px",
+                        "cursor": "pointer",
+                        "fontSize": "13px",
+                        "fontWeight": "600",
+                        "textAlign": "left",
+                        "display": "flex",
+                        "justifyContent": "space-between",
+                        "alignItems": "center",
+                    },
+                    children=[
+                        html.Span("Tracking Metrics"),
+                        html.Span("\u25bc", id="metrics-arrow", style={"fontSize": "10px"}),
+                    ],
+                ),
+                html.Div(
+                    id="metrics-panel",
+                    style={
+                        "display": "none",
+                        "backgroundColor": "#1a2744",
+                        "borderRadius": "0 0 8px 8px",
+                        "padding": "8px 16px",
+                        "borderTop": "1px solid rgba(0,212,255,0.15)",
+                    },
+                    children=metrics_rows,
+                ),
+            ],
+        )
+
+    # Hidden placeholders for components that may not exist
+    hidden_placeholders = []
+    if not is_debug:
+        hidden_placeholders.extend([
+            html.Div(id="debug-content", style={"display": "none"}),
+            html.Div(id="check-debug-categories", style={"display": "none"}),
+            html.Div(id="btn-metrics", style={"display": "none"}),
+            html.Div(id="metrics-panel", style={"display": "none"}),
+            html.Div(id="metrics-arrow", style={"display": "none"}),
+        ])
+    if not show_panos:
+        hidden_placeholders.extend([
+            html.Img(id="pano-front", style={"display": "none"}),
+            html.Img(id="pano-rear", style={"display": "none"}),
+        ])
+
+    show_right_panel = show_panos or is_debug
+    pano_panel = html.Div(
+        style={
+            "flex": "1",
+            "minWidth": "0",
+            "display": "flex" if show_right_panel else "none",
+            "flexDirection": "column",
+            "gap": "4px",
+            "overflowY": "auto",
+        },
+        children=pano_children,
     )
 
     main_children = [scene_panel, pano_panel]
@@ -488,6 +723,18 @@ def _viz_layout():
                                     "color": "#00d4ff",
                                 },
                             ),
+                            html.Span(
+                                "DEBUG" if is_debug else "VIZ",
+                                style={
+                                    "backgroundColor": "#ff4444" if is_debug else "#1abc9c",
+                                    "color": "#fff",
+                                    "fontSize": "10px",
+                                    "fontWeight": "700",
+                                    "padding": "2px 8px",
+                                    "borderRadius": "4px",
+                                    "letterSpacing": "1px",
+                                },
+                            ),
                         ],
                     ),
                     html.Div(id="frame-info", style={"fontSize": "14px", "color": "#aaa"}),
@@ -505,7 +752,10 @@ def _viz_layout():
                 },
                 children=[
                     html.Button("\u23ee", id="btn-prev", style=_button_style()),
-                    html.Button("\u25b6", id="btn-play", style=_button_style("#1abc9c")),
+                    html.Button(
+                        "\u25b6", id="btn-play",
+                        style={**_button_style("#1abc9c"), "display": "none" if is_debug else "inline-block"},
+                    ),
                     html.Button("\u23ed", id="btn-next", style=_button_style()),
                     html.Button("3D", id="btn-view-mode", style=_button_style("#8e44ad")),
                     html.Div(
@@ -527,11 +777,12 @@ def _viz_layout():
                     ),
                 ],
             ),
+            metrics_section,
             html.Div(
                 style={
                     "display": "flex",
                     "gap": "8px",
-                    "height": "calc(100vh - 130px)",
+                    "height": "calc(100vh - 130px)" if not is_debug else "calc(100vh - 170px)",
                 },
                 children=main_children,
             ),
@@ -539,6 +790,7 @@ def _viz_layout():
             dcc.Store(id="store-playing", data=False),
             dcc.Store(id="store-view-mode", data="3d"),
             dcc.Interval(id="play-interval", interval=500, disabled=True),
+            *hidden_placeholders,
         ],
     )
 
@@ -569,6 +821,49 @@ def create_app() -> Dash:
     )
     def go_home(n_clicks):
         return "config"
+
+    # -- App mode toggle buttons --
+    @app.callback(
+        Output("config-app-mode", "data"),
+        Output("btn-mode-viz", "style"),
+        Output("btn-mode-debug", "style"),
+        Output("config-debug-fields", "style"),
+        Input("btn-mode-viz", "n_clicks"),
+        Input("btn-mode-debug", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def toggle_app_mode(viz_clicks, debug_clicks):
+        ctx = callback_context
+        if not ctx.triggered:
+            return no_update, no_update, no_update, no_update
+        trigger = ctx.triggered[0]["prop_id"].split(".")[0]
+
+        active_style = {
+            "backgroundColor": "#00d4ff",
+            "color": "#0f0f23",
+            "border": "1px solid #00d4ff",
+            "padding": "8px 24px",
+            "cursor": "pointer",
+            "fontSize": "13px",
+            "fontWeight": "600",
+        }
+        inactive_style = {
+            "backgroundColor": "transparent",
+            "color": "#aaa",
+            "border": "1px solid rgba(255,255,255,0.15)",
+            "padding": "8px 24px",
+            "cursor": "pointer",
+            "fontSize": "13px",
+            "fontWeight": "600",
+        }
+        viz_left = {**active_style, "borderRadius": "6px 0 0 6px"}
+        viz_left_off = {**inactive_style, "borderRadius": "6px 0 0 6px"}
+        debug_right = {**active_style, "borderRadius": "0 6px 6px 0"}
+        debug_right_off = {**inactive_style, "borderRadius": "0 6px 6px 0"}
+
+        if trigger == "btn-mode-debug":
+            return "debug", viz_left_off, debug_right, {"display": "block"}
+        return "visualization", viz_left, debug_right_off, {"display": "none"}
 
     # -- Show/hide dataset fields based on type --
     @app.callback(
@@ -602,6 +897,8 @@ def create_app() -> Dash:
         Output("app-phase", "data"),
         Output("config-error-msg", "children"),
         Input("btn-launch", "n_clicks"),
+        State("config-app-mode", "data"),
+        State("config-max-dist", "value"),
         State("config-dataset-type", "value"),
         State("config-dataroot", "value"),
         State("config-version", "value"),
@@ -613,8 +910,8 @@ def create_app() -> Dash:
         State("config-trk-path", "value"),
         prevent_initial_call=True,
     )
-    def launch(n_clicks, dataset_type, dataroot, version, gt_upload, gt_upload_name,
-               gt_path, trk_upload, trk_upload_name, trk_path):
+    def launch(n_clicks, app_mode, max_dist, dataset_type, dataroot, version,
+               gt_upload, gt_upload_name, gt_path, trk_upload, trk_upload_name, trk_path):
 
         # Validate dataroot for non-custom modes
         if dataset_type != "custom":
@@ -629,6 +926,14 @@ def create_app() -> Dash:
         has_trk = bool(trk_upload) or bool(trk_path and trk_path.strip())
         if not has_gt and not has_trk:
             return no_update, "Provide at least one of GT or Tracker file."
+
+        # Debug mode requires both GT and tracker
+        if app_mode == "debug" and (not has_gt or not has_trk):
+            return no_update, "Debug mode requires both GT and Tracker files."
+
+        # Debug mode only for NuScenes/Waymo (not custom)
+        if app_mode == "debug" and dataset_type == "custom":
+            return no_update, "Debug mode is not available for Custom datasets."
 
         # Load GT
         gt_data = None
@@ -736,6 +1041,18 @@ def create_app() -> Dash:
             if translations:
                 origin_offset = np.mean(translations, axis=0)
 
+        # Run MOT evaluation for debug mode
+        mot_acc = None
+        mot_id_map = None
+        mot_summary = None
+        if app_mode == "debug" and gt_data and tracker_data:
+            dist_threshold = max_dist if max_dist and max_dist > 0 else 2.0
+            try:
+                mot_acc, mot_id_map = run_evaluation(gt_data, tracker_data, max_dist=dist_threshold)
+                mot_summary = compute_summary(mot_acc)
+            except Exception as e:
+                return no_update, f"Error running MOT evaluation: {e}"
+
         # Populate server state
         _server_state.update({
             "mode": dataset_type,
@@ -748,6 +1065,10 @@ def create_app() -> Dash:
             "rear_stitcher": rear_stitcher,
             "scene_mismatch": scene_mismatch,
             "origin_offset": origin_offset,
+            "app_mode": app_mode,
+            "mot_accumulator": mot_acc,
+            "mot_id_map": mot_id_map,
+            "mot_summary": mot_summary,
         })
 
         return "viz", ""
@@ -822,16 +1143,19 @@ def create_app() -> Dash:
         Output("pano-front", "src"),
         Output("pano-rear", "src"),
         Output("frame-info", "children"),
+        Output("debug-content", "children"),
         Input("store-frame", "data"),
         Input("check-gt-viz", "value"),
         Input("check-trk-viz", "value"),
         Input("check-categories", "value"),
         Input("store-view-mode", "data"),
+        Input("check-debug-categories", "value"),
     )
-    def render_frame(frame_idx, gt_viz, trk_viz, active_categories, view_mode):
+    def render_frame(frame_idx, gt_viz, trk_viz, active_categories, view_mode,
+                     debug_categories):
         s = _server_state
         if s["num_frames"] == 0:
-            return no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update
 
         mode = s["mode"]
         nusc_loader = s["nusc_loader"]
@@ -841,9 +1165,12 @@ def create_app() -> Dash:
         num_frames = s["num_frames"]
         front_stitcher = s["front_stitcher"]
         rear_stitcher = s["rear_stitcher"]
+        is_debug = s["app_mode"] == "debug"
+        mot_acc = s["mot_accumulator"]
+        mot_id_map = s["mot_id_map"]
 
         if frame_idx is None or frame_idx < 0 or frame_idx >= num_frames:
-            return no_update, no_update, no_update, no_update
+            return no_update, no_update, no_update, no_update, no_update
 
         gt_viz = set(gt_viz or [])
         trk_viz = set(trk_viz or [])
@@ -852,6 +1179,12 @@ def create_app() -> Dash:
         def category_visible(cat_name):
             group = CATEGORY_TO_GROUP.get(cat_name)
             return group is not None and group in active_groups
+
+        # Get debug error types for this frame
+        gt_errors = {}
+        trk_errors = {}
+        if is_debug and mot_acc and mot_id_map is not None:
+            gt_errors, trk_errors = get_box_error_types(mot_acc, frame_idx, mot_id_map)
 
         # Get point cloud and ego pose (NuScenes) or empty (custom)
         if mode == "custom":
@@ -878,13 +1211,17 @@ def create_app() -> Dash:
                 else:
                     pos, yaw = global_to_ego(det["translation"], det["yaw"], ego_pose)
                     pos = pos.tolist()
-                gt_boxes_ego.append({
+                box = {
                     "translation": pos,
                     "size": det["size"],
                     "yaw": yaw,
                     "label": shorten_category(det["category_name"]),
                     "instance_token": det.get("instance_token", ""),
-                })
+                }
+                if is_debug:
+                    err = gt_errors.get(det.get("instance_token", ""), "miss")
+                    box["debug_color"] = ERROR_COLORS[err]
+                gt_boxes_ego.append(box)
             total_objects += len(gt_boxes_ego)
 
         if trk_viz and tracker_data and frame_idx < len(tracker_data):
@@ -899,7 +1236,7 @@ def create_app() -> Dash:
                 else:
                     pos, yaw = global_to_ego(trk["translation"], trk["yaw"], ego_pose)
                     pos = pos.tolist()
-                tracker_boxes_ego.append({
+                box = {
                     "translation": pos,
                     "size": trk["size"],
                     "yaw": yaw,
@@ -908,7 +1245,13 @@ def create_app() -> Dash:
                     "age": trk.get("age", ""),
                     "hits": trk.get("hits", ""),
                     "misses": trk.get("consecutive_misses", ""),
-                })
+                }
+                if is_debug:
+                    err = trk_errors.get(trk.get("id", 0), "fp")
+                    box["debug_color"] = ERROR_COLORS[err]
+                    if err == "switch":
+                        box["debug_line_width"] = SWITCH_LINE_WIDTH
+                tracker_boxes_ego.append(box)
             total_objects += len(tracker_boxes_ego)
 
         fig = build_3d_figure(points, gt_boxes_ego, tracker_boxes_ego,
@@ -941,9 +1284,139 @@ def create_app() -> Dash:
         if timestamp:
             info_text += f"  |  TS: {timestamp}"
 
-        return fig, front_src, rear_src, info_text
+        # Debug panel content
+        debug_content = []
+        if is_debug and mot_acc and mot_id_map is not None:
+            debug_content = _build_debug_panel(
+                mot_acc, frame_idx, gt_data, tracker_data,
+                set(debug_categories or []), mot_id_map
+            )
+
+        return fig, front_src, rear_src, info_text, debug_content
+
+    # -- Metrics panel toggle --
+    @app.callback(
+        Output("metrics-panel", "style"),
+        Output("metrics-arrow", "children"),
+        Input("btn-metrics", "n_clicks"),
+        State("metrics-panel", "style"),
+        prevent_initial_call=True,
+    )
+    def toggle_metrics(n_clicks, current_style):
+        if not current_style:
+            current_style = {}
+        if current_style.get("display") == "none":
+            return {**current_style, "display": "block"}, "\u25b2"
+        return {**current_style, "display": "none"}, "\u25bc"
 
     return app
+
+
+def _build_debug_panel(acc, frame_idx, gt_data, tracker_data, active_debug_groups,
+                       int_to_token):
+    """Build the debug log panel content for a specific frame."""
+    events = get_frame_events(acc, frame_idx, int_to_token)
+
+    # Build category lookup for filtering debug output
+    gt_categories = {}
+    if gt_data and frame_idx < len(gt_data):
+        for det in gt_data[frame_idx].get("detections", []):
+            gt_categories[det["instance_token"]] = det["category_name"]
+
+    trk_categories = {}
+    if tracker_data and frame_idx < len(tracker_data):
+        for trk in tracker_data[frame_idx].get("tracks", []):
+            trk_categories[trk["id"]] = trk["category_name"]
+
+    def debug_cat_visible(gt_id=None, trk_id=None):
+        cat = None
+        if gt_id is not None:
+            cat = gt_categories.get(gt_id)
+        if cat is None and trk_id is not None:
+            cat = trk_categories.get(trk_id)
+        if cat is None:
+            return True
+        group = CATEGORY_TO_GROUP.get(cat)
+        return group is not None and group in active_debug_groups
+
+    children = []
+    line_style = {"padding": "2px 0", "borderBottom": "1px solid rgba(255,255,255,0.04)"}
+
+    # Matches
+    matches = [m for m in events["matches"]
+               if debug_cat_visible(gt_id=m["gt_id"], trk_id=m["trk_id"])]
+    children.append(html.Div(
+        f"\u2713 {len(matches)} Matches",
+        style={**line_style, "color": ERROR_COLORS["match"], "fontWeight": "600"},
+    ))
+
+    # ID Switches
+    switches = [s for s in events["switches"]
+                if debug_cat_visible(gt_id=s["gt_id"], trk_id=s["trk_id"])]
+    if switches:
+        switch_items = [
+            html.Div(
+                f"\u2713 GT ...{s['gt_id'][-6:]} \u2194 T{s['trk_id']}",
+                style={"paddingLeft": "12px", "color": "#ddd", "fontSize": "11px"},
+            )
+            for s in switches
+        ]
+        children.append(html.Div([
+            html.Div(
+                f"\u26a1 {len(switches)} ID Switches",
+                style={**line_style, "color": ERROR_COLORS["switch"], "fontWeight": "600"},
+            ),
+            *switch_items,
+        ]))
+    else:
+        children.append(html.Div(
+            "\u26a1 0 ID Switches",
+            style={**line_style, "color": "#666"},
+        ))
+
+    # False Positives
+    fps = [fp for fp in events["false_positives"]
+           if debug_cat_visible(trk_id=fp["trk_id"])]
+    if fps:
+        fp_ids = ", ".join(f"T{fp['trk_id']}" for fp in fps)
+        children.append(html.Div([
+            html.Div(
+                f"\u2717 {len(fps)} False Positives",
+                style={**line_style, "color": ERROR_COLORS["fp"], "fontWeight": "600"},
+            ),
+            html.Div(
+                fp_ids,
+                style={"paddingLeft": "12px", "color": "#ddd", "fontSize": "11px"},
+            ),
+        ]))
+    else:
+        children.append(html.Div(
+            "\u2717 0 False Positives",
+            style={**line_style, "color": "#666"},
+        ))
+
+    # Misses
+    misses = [m for m in events["misses"]
+              if debug_cat_visible(gt_id=m["gt_id"])]
+    if misses:
+        miss_ids = ", ".join(f"...{m['gt_id'][-6:]}" for m in misses)
+        children.append(html.Div([
+            html.Div(
+                f"\u25cb {len(misses)} Missed Detections",
+                style={**line_style, "color": ERROR_COLORS["miss"], "fontWeight": "600"},
+            ),
+            html.Div(
+                miss_ids,
+                style={"paddingLeft": "12px", "color": "#ddd", "fontSize": "11px"},
+            ),
+        ]))
+    else:
+        children.append(html.Div(
+            "\u25cb 0 Missed Detections",
+            style={**line_style, "color": "#666"},
+        ))
+
+    return children
 
 
 def _parse_upload(contents: str) -> list[dict]:
