@@ -12,7 +12,7 @@ ERROR_COLORS = {
 SWITCH_LINE_WIDTH = 6
 
 
-def _build_id_map(gt_data, tracker_data):
+def _build_id_map(gt_data, tracker_data, allowed_categories=None):
     """Build a mapping from string instance_tokens to integer IDs.
 
     motmetrics requires numeric IDs internally.
@@ -25,6 +25,8 @@ def _build_id_map(gt_data, tracker_data):
     num_frames = min(len(gt_data), len(tracker_data))
     for i in range(num_frames):
         for det in gt_data[i].get("detections", []):
+            if allowed_categories and det["category_name"] not in allowed_categories:
+                continue
             tok = det["instance_token"]
             if tok not in token_to_int:
                 token_to_int[tok] = counter
@@ -33,19 +35,26 @@ def _build_id_map(gt_data, tracker_data):
     return token_to_int, int_to_token
 
 
-def preprocess_frame(gt_frame, tracker_frame, token_to_int):
+def preprocess_frame(gt_frame, tracker_frame, token_to_int, allowed_categories=None):
     """Extract object IDs and 2D positions from a GT/tracker frame pair."""
     gt_ids = []
     gt_positions = []
     if gt_frame:
         for det in gt_frame.get("detections", []):
-            gt_ids.append(token_to_int[det["instance_token"]])
+            if allowed_categories and det["category_name"] not in allowed_categories:
+                continue
+            tok = det["instance_token"]
+            if tok not in token_to_int:
+                continue
+            gt_ids.append(token_to_int[tok])
             gt_positions.append(det["translation"][:2])
 
     trk_ids = []
     trk_positions = []
     if tracker_frame:
         for trk in tracker_frame.get("tracks", []):
+            if allowed_categories and trk["category_name"] not in allowed_categories:
+                continue
             trk_ids.append(trk["id"])
             trk_positions.append(trk["translation"][:2])
 
@@ -55,22 +64,33 @@ def preprocess_frame(gt_frame, tracker_frame, token_to_int):
     return gt_ids, gt_pos, trk_ids, trk_pos
 
 
-def run_evaluation(gt_data, tracker_data, max_dist=2.0):
+def run_evaluation(gt_data, tracker_data, max_dist=2.0, allowed_categories=None):
     """Run CLEAR MOT evaluation across all frames.
+
+    Args:
+        gt_data: list of GT frame dicts
+        tracker_data: list of tracker frame dicts
+        max_dist: matching distance threshold in meters
+        allowed_categories: set of nuScenes category names to evaluate on,
+                            or None for all categories
 
     Returns (accumulator, int_to_token) tuple.
     """
-    token_to_int, int_to_token = _build_id_map(gt_data, tracker_data)
+    token_to_int, int_to_token = _build_id_map(
+        gt_data, tracker_data, allowed_categories
+    )
     acc = mm.MOTAccumulator(auto_id=True)
     num_frames = min(len(gt_data), len(tracker_data))
 
     for i in range(num_frames):
         gt_ids, gt_pos, trk_ids, trk_pos = preprocess_frame(
-            gt_data[i], tracker_data[i], token_to_int
+            gt_data[i], tracker_data[i], token_to_int, allowed_categories
         )
+        # Compute squared distances for threshold check, then sqrt for correct MOTP
         dists = mm.distances.norm2squared_matrix(
             gt_pos, trk_pos, max_d2=max_dist ** 2
         )
+        dists = np.sqrt(dists)
         acc.update(gt_ids, trk_ids, dists)
 
     return acc, int_to_token
