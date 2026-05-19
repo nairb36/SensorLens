@@ -130,27 +130,30 @@ def build_center_trace(
 
 
 def build_point_cloud_trace(
-    points: np.ndarray, max_points: int = 50000
+    points: np.ndarray, max_points: int = 50000, white: bool = False
 ) -> go.Scatter3d:
     if len(points) > max_points:
         idx = np.random.choice(len(points), max_points, replace=False)
         points = points[idx]
 
-    z_vals = points[:, 2]
+    if white:
+        marker = dict(size=1.2, color="white", opacity=0.5)
+    else:
+        marker = dict(
+            size=1.2,
+            color=points[:, 2],
+            colorscale="Turbo",
+            cmin=-3.0,
+            cmax=8.0,
+            opacity=0.6,
+        )
 
     return go.Scatter3d(
         x=points[:, 0],
         y=points[:, 1],
         z=points[:, 2],
         mode="markers",
-        marker=dict(
-            size=1.2,
-            color=z_vals,
-            colorscale="Turbo",
-            cmin=-3.0,
-            cmax=8.0,
-            opacity=0.6,
-        ),
+        marker=marker,
         hoverinfo="skip",
         showlegend=False,
     )
@@ -268,13 +271,14 @@ def build_3d_figure(
     trk_viz: set | None = None,
     show_ego_car: bool = True,
     top_down: bool = False,
+    white_pc: bool = False,
 ) -> go.Figure:
     gt_viz = gt_viz or set()
     trk_viz = trk_viz or set()
     fig = go.Figure()
 
     if len(points) > 0:
-        fig.add_trace(build_point_cloud_trace(points))
+        fig.add_trace(build_point_cloud_trace(points, white=white_pc))
     if show_ego_car:
         fig.add_traces(build_ego_car())
 
