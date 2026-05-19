@@ -69,7 +69,7 @@ def _hex_to_rgba(hex_color: str, opacity: float) -> str:
 
 
 def build_wireframe_traces(
-    corners: np.ndarray, color: str, label: str, tag: str = ""
+    corners: np.ndarray, color: str, label: str, tag: str = "", line_width: int = 3
 ) -> list[go.Scatter3d]:
     xs, ys, zs = [], [], []
     for i, j in BOX_EDGES:
@@ -80,7 +80,7 @@ def build_wireframe_traces(
     traces = [go.Scatter3d(
         x=xs, y=ys, z=zs,
         mode="lines",
-        line=dict(color=color, width=3),
+        line=dict(color=color, width=line_width),
         hoverinfo="text",
         hovertext=label,
         showlegend=False,
@@ -284,7 +284,7 @@ def build_3d_figure(
             identity = box.get("instance_token", "")
             short_id = identity[-6:] if len(identity) > 6 else identity
             label = f'GT {box["label"]} ({short_id})'
-            color = get_identity_color(identity)
+            color = box.get("debug_color") or get_identity_color(identity)
             if "bbox" in gt_viz:
                 corners = build_box_corners(translation, box["size"], box["yaw"])
                 fig.add_traces(build_solid_box_traces(corners, color, label))
@@ -303,11 +303,12 @@ def build_3d_figure(
             if box.get("misses") != "":
                 hover_lines.append(f'misses: {box["misses"]}')
             label = "<br>".join(hover_lines)
-            color = get_identity_color(track_id)
+            color = box.get("debug_color") or get_identity_color(track_id)
+            line_w = box.get("debug_line_width", 3)
             if "bbox" in trk_viz:
                 corners = build_box_corners(translation, box["size"], box["yaw"])
                 tag = f'{box["label"]}·{track_id}'
-                fig.add_traces(build_wireframe_traces(corners, color, label, tag=tag))
+                fig.add_traces(build_wireframe_traces(corners, color, label, tag=tag, line_width=line_w))
             if "center" in trk_viz:
                 fig.add_trace(build_center_trace(translation, color, label))
 
