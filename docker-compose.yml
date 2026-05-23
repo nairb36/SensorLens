@@ -9,8 +9,8 @@ services:
     ports:
       - "8050:8050"
 
-    # To use nuScenes data, uncomment the volumes section below and set NUSCENES_PATH:
-    #   export NUSCENES_PATH=/path/to/nuscenes/v1.0-mini
+    # To use nuScenes data, uncomment the volumes section below
+    # and create a .env file with NUSCENES_PATH=/path/to/nuscenes/v1.0-mini
     # volumes:
     #   - ${NUSCENES_PATH}:/data/nuscenes:ro
 
