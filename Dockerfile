@@ -12,6 +12,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN pip3 install --upgrade pip && \
+    pip3 install --no-cache-dir "numpy>=1.24,<2" && \
     pip3 install --no-cache-dir -r requirements.txt
 
 COPY docker/patch_motmetrics.py /tmp/patch_motmetrics.py
