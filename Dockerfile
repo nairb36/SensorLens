@@ -10,10 +10,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY requirements.txt docker/constraints.txt ./
 RUN pip3 install --upgrade pip && \
-    pip3 install --no-cache-dir "numpy>=1.24,<2" && \
-    pip3 install --no-cache-dir -r requirements.txt
+    pip3 install --no-cache-dir -c constraints.txt -r requirements.txt
 
 COPY docker/patch_motmetrics.py /tmp/patch_motmetrics.py
 RUN python3 /tmp/patch_motmetrics.py && rm /tmp/patch_motmetrics.py
