@@ -4,17 +4,19 @@ Interactive 3D visualization and debugging tool for multi-object tracking (MOT) 
 
 Built for visual debugging and comparison of tracker output against ground-truth annotations.
 
-![SensorLens Demo](sensorlens/assets/MOT_V1.gif)
-
 ## Two Modes
 
 ### Visualization Mode
 
 Pure playback for inspecting scenes. Load ground-truth detections, tracker output, or both, and explore them frame-by-frame in an interactive 3D scene with LiDAR point clouds, camera panoramas, and bounding box overlays.
 
+![Visualization Mode](sensorlens/assets/MOT_V1.gif)
+
 ### Debug Mode
 
 **The core differentiator.** Debug mode runs a full CLEAR MOT evaluation (via `motmetrics`) when you launch, then overlays the results directly onto the 3D scene:
+
+![Debug Mode](sensorlens/assets/SensorLens_debug_mode.gif)
 
 - **Color-coded boxes** — every GT and tracker box is colored by its MOT event type:
   - Green = correct match
