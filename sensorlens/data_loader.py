@@ -49,6 +49,13 @@ class UniversalLoader:
     def get_timestamp(self, frame_index: int) -> int:
         return self.get_frame_meta(frame_index).get("timestamp", 0)
 
+    def has_gt(self) -> bool:
+        return (self.scene_dir / "gt.json").is_file()
+
+    def load_gt(self) -> list[dict]:
+        with open(self.scene_dir / "gt.json") as f:
+            return json.load(f)
+
 
 def load_gt_json(path: str) -> list[dict]:
     with open(path) as f:

@@ -123,9 +123,13 @@ def convert_scene(dataroot, version, scene_index, output_dir,
     write_meta_json(scene_dir, "nuscenes", scene_name, num_frames,
                     camera_names, category_mapping=cat_mapping)
 
+    embedded_gt = str(Path(scene_dir) / "gt.json")
+    write_gt_json(embedded_gt, gt_frames)
+    print(f"GT embedded in scene: {embedded_gt}")
+
     if gt_output:
         write_gt_json(gt_output, gt_frames)
-        print(f"GT written to {gt_output}")
+        print(f"GT also written to {gt_output}")
 
     print(f"Scene converted to {scene_dir}")
 

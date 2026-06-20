@@ -174,9 +174,13 @@ def convert_log(dataroot, split, log_id, output_dir, gt_output=None,
                     camera_names,
                     category_mapping={k: v for k, v in ARGOVERSE2_CATEGORY_MAP.items() if v})
 
+    embedded_gt = str(Path(scene_dir) / "gt.json")
+    write_gt_json(embedded_gt, gt_frames)
+    print(f"GT embedded in scene: {embedded_gt}")
+
     if gt_output:
         write_gt_json(gt_output, gt_frames)
-        print(f"GT written to {gt_output}")
+        print(f"GT also written to {gt_output}")
 
     print(f"Log converted to {scene_dir}")
 
