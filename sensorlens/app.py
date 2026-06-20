@@ -913,14 +913,16 @@ def create_app() -> Dash:
         # Must have at least one data source
         has_gt = bool(gt_upload) or bool(gt_path and gt_path.strip())
         has_trk = bool(trk_upload) or bool(trk_path and trk_path.strip())
-        if not has_gt and not has_trk and not scene_loader:
+        has_embedded_gt = scene_loader is not None and scene_loader.has_gt()
+        if not has_gt and not has_embedded_gt and not has_trk and not scene_loader:
             return no_update, "Provide a scene directory and/or GT/Tracker file."
 
         # Debug mode requires both GT and tracker
-        if app_mode == "debug" and (not has_gt or not has_trk):
-            return no_update, "Debug mode requires both GT and Tracker files."
+        if app_mode == "debug":
+            if (not has_gt and not has_embedded_gt) or not has_trk:
+                return no_update, "Debug mode requires both GT and Tracker files."
 
-        # Load GT
+        # Load GT (user-provided overrides embedded)
         gt_data = None
         gt_name = None
         try:
@@ -933,6 +935,9 @@ def create_app() -> Dash:
                     return no_update, f"GT file not found: {p}"
                 gt_data = load_gt_json(p)
                 gt_name = Path(p).name
+            elif has_embedded_gt:
+                gt_data = scene_loader.load_gt()
+                gt_name = "gt.json (from scene)"
         except Exception as e:
             return no_update, f"Error loading GT: {e}"
 
