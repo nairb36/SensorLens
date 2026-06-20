@@ -134,20 +134,41 @@ def convert_scene(dataroot, version, scene_index, output_dir,
     print(f"Scene converted to {scene_dir}")
 
 
+def convert_all(dataroot, version, output_dir, max_frames=None, no_images=False):
+    nusc = NuScenes(version=version, dataroot=dataroot, verbose=False)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Converting all {len(nusc.scene)} scenes from {version}")
+    for i, scene in enumerate(nusc.scene):
+        scene_out = str(output_dir / scene["name"])
+        convert_scene(dataroot, version, i, scene_out,
+                      max_frames=max_frames, no_images=no_images)
+    print(f"\nAll {len(nusc.scene)} scenes converted to {output_dir}")
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Convert nuScenes scene to SensorLens format")
+    parser = argparse.ArgumentParser(description="Convert nuScenes scene(s) to SensorLens format")
     parser.add_argument("--dataroot", required=True, help="Path to nuScenes dataset root")
     parser.add_argument("--version", default="v1.0-mini", help="nuScenes version")
-    parser.add_argument("--scene", type=int, default=0, help="Scene index (0-based)")
-    parser.add_argument("--output", required=True, help="Output scene directory")
-    parser.add_argument("--gt-output", help="Output path for GT JSON file")
-    parser.add_argument("--max-frames", type=int, help="Limit number of frames")
+    parser.add_argument("--output", required=True, help="Output directory")
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--scene", type=int, help="Single scene index (0-based)")
+    group.add_argument("--all", action="store_true", help="Convert all scenes")
+
+    parser.add_argument("--gt-output", help="Extra copy of GT JSON (single scene only)")
+    parser.add_argument("--max-frames", type=int, help="Limit number of frames per scene")
     parser.add_argument("--no-images", action="store_true", help="Skip camera images")
     args = parser.parse_args()
 
-    convert_scene(args.dataroot, args.version, args.scene, args.output,
-                  gt_output=args.gt_output, max_frames=args.max_frames,
-                  no_images=args.no_images)
+    if args.all:
+        convert_all(args.dataroot, args.version, args.output,
+                    max_frames=args.max_frames, no_images=args.no_images)
+    else:
+        scene_idx = args.scene if args.scene is not None else 0
+        convert_scene(args.dataroot, args.version, scene_idx, args.output,
+                      gt_output=args.gt_output, max_frames=args.max_frames,
+                      no_images=args.no_images)
 
 
 if __name__ == "__main__":
