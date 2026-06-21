@@ -37,14 +37,6 @@ def _lidar_to_ego(points, calibrated_sensor):
     return pts
 
 
-def _global_to_ego(translation, yaw, ego_pose):
-    ego_trans = np.array(ego_pose["translation"])
-    ego_rot = Quaternion(ego_pose["rotation"])
-    pos = ego_rot.rotation_matrix.T @ (np.array(translation) - ego_trans)
-    ego_yaw = ego_rot.yaw_pitch_roll[0]
-    local_yaw = yaw - ego_yaw
-    return pos, local_yaw
-
 
 def convert_scene(dataroot, version, scene_index, output_dir,
                   gt_output=None, max_frames=None, no_images=False):
@@ -101,13 +93,12 @@ def convert_scene(dataroot, version, scene_index, output_dir,
             if universal_cat is None:
                 continue
             yaw = quaternion_to_yaw(ann["rotation"])
-            pos, local_yaw = _global_to_ego(ann["translation"], yaw, ego_pose)
             detections.append({
                 "instance_token": ann["instance_token"],
                 "category_name": universal_cat,
-                "translation": pos.tolist(),
+                "translation": list(ann["translation"]),
                 "size": ann["size"],
-                "yaw": round(local_yaw, 6),
+                "yaw": round(yaw, 6),
             })
         gt_frames.append({
             "frame_index": frame_idx,
