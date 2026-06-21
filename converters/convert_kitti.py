@@ -28,6 +28,7 @@ from .common import (
 
 
 EARTH_RADIUS = 6378137.0  # WGS84 semi-major axis
+KITTI_VELO_HEIGHT = 1.73  # Velodyne sensor height above ground (meters)
 
 
 def _parse_oxts(oxts_path):
@@ -199,15 +200,9 @@ def _label_to_global(obj, cam_rect_to_velo, Tr_imu_velo, ego_pose):
     # IMU → global
     center_global = ego_pose @ center_imu
 
-    # Yaw: rotation_y is around camera Y-axis (down), measured from camera Z-axis (forward).
-    # In velodyne frame: camera Z → velo X, camera X → velo -Y
-    # So object heading in velo frame: yaw_velo = -(rotation_y - pi/2) ... but simpler:
-    # rotation_y=0 means facing camera Z = velo X. In velo frame that's yaw=0.
-    # rotation_y rotates CW in camera top-view = CW when looking down Z.
-    # In velo frame (X-fwd, Y-left), CW from above = negative yaw.
-    # But we also need to account for the rotation between velo and cam frames.
-    # The clean way: transform a heading vector.
-    heading_cam = np.array([np.sin(obj["rotation_y"]), 0, np.cos(obj["rotation_y"]), 0])
+    # KITTI rotation_y: rotation around camera Y (down). At ry=0 object faces +X (right).
+    # R_y(ry) applied to [1,0,0] gives heading = [cos(ry), 0, -sin(ry)] in camera frame.
+    heading_cam = np.array([np.cos(obj["rotation_y"]), 0, -np.sin(obj["rotation_y"]), 0])
     heading_velo = cam_rect_to_velo @ heading_cam
     heading_imu = velo_to_imu @ heading_velo
     heading_global = ego_pose @ heading_imu
@@ -256,21 +251,23 @@ def convert_sequence(dataroot, sequence_id, output_dir, gt_output=None,
 
     gt_frames = []
 
-    for frame_idx in range(num_frames):
-        ego_pose = poses[frame_idx]
-        ego_dict = _pose_to_ego_dict(ego_pose)
+    velo_to_imu = np.linalg.inv(Tr_imu_velo)
 
-        # Point cloud (velodyne frame → keep as-is, it's ego frame)
+    for frame_idx in range(num_frames):
+        imu_pose = poses[frame_idx]
+        # Ego frame = ground-projected velodyne (velodyne shifted down by sensor height).
+        # Ego pose in global: velodyne global pose with z lowered by sensor height.
+        velo_pose = imu_pose @ velo_to_imu
+        ego_pose_global = velo_pose.copy()
+        ego_pose_global[2, 3] -= KITTI_VELO_HEIGHT
+        ego_dict = _pose_to_ego_dict(ego_pose_global)
+
+        # Point cloud: raw velodyne with z shifted up by sensor height (ground → z≈0)
         velo_path = velo_dir / f"{frame_idx:06d}.bin"
         if velo_path.is_file():
             points = np.fromfile(str(velo_path), dtype=np.float32).reshape(-1, 4)
-            # Transform points from velodyne to global frame
-            velo_to_imu = np.linalg.inv(Tr_imu_velo)
-            pts_hom = np.column_stack([points[:, :3], np.ones(len(points))])
-            pts_imu = (velo_to_imu @ pts_hom.T).T
-            pts_global = (ego_pose @ pts_imu.T).T
-            points_out = np.column_stack([pts_global[:, :3].astype(np.float32),
-                                          points[:, 3:4]])
+            points_out = points.copy()
+            points_out[:, 2] += KITTI_VELO_HEIGHT
         else:
             points_out = np.empty((0, 4), dtype=np.float32)
         write_pointcloud(scene_dir, frame_idx, points_out)
@@ -298,7 +295,7 @@ def convert_sequence(dataroot, sequence_id, output_dir, gt_output=None,
                 continue
 
             center_global, yaw_global = _label_to_global(
-                obj, cam_rect_to_velo, Tr_imu_velo, ego_pose
+                obj, cam_rect_to_velo, Tr_imu_velo, imu_pose
             )
             # KITTI dimensions: h, w, l → universal size: [w, l, h]
             detections.append({
