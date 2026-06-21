@@ -46,6 +46,9 @@ class UniversalLoader:
                 result[cam_name] = str(full)
         return result
 
+    def get_ego_pose(self, frame_index: int) -> dict | None:
+        return self.get_frame_meta(frame_index).get("ego_pose")
+
     def get_timestamp(self, frame_index: int) -> int:
         return self.get_frame_meta(frame_index).get("timestamp", 0)
 

@@ -1139,27 +1139,50 @@ def create_app() -> Dash:
         if is_debug and mot_acc and mot_id_map is not None:
             gt_errors, trk_errors = get_box_error_types(mot_acc, frame_idx, mot_id_map)
 
-        # Point cloud
+        # Point cloud (already in ego frame)
         if scene_loader:
             points = scene_loader.get_pointcloud(frame_idx)
         else:
             points = np.empty((0, 3), dtype=np.float32)
 
+        # Ego pose for global→ego transform
+        ego_trans = np.zeros(3)
+        ego_yaw = 0.0
+        ego_rot_inv = np.eye(3)
+        if scene_loader:
+            ego_pose = scene_loader.get_ego_pose(frame_idx)
+            if ego_pose:
+                ego_trans = np.array(ego_pose["translation"])
+                r = ego_pose["rotation"]  # [w, x, y, z]
+                w, x, y, z = r[0], r[1], r[2], r[3]
+                ego_yaw = np.arctan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
+                rot = np.array([
+                    [1 - 2*(y*y + z*z), 2*(x*y - w*z), 2*(x*z + w*y)],
+                    [2*(x*y + w*z), 1 - 2*(x*x + z*z), 2*(y*z - w*x)],
+                    [2*(x*z - w*y), 2*(y*z + w*x), 1 - 2*(x*x + y*y)],
+                ])
+                ego_rot_inv = rot.T
+
+        def global_to_ego(translation, yaw):
+            pos = ego_rot_inv @ (np.array(translation) - ego_trans)
+            return pos.tolist(), yaw - ego_yaw
+
         gt_boxes_ego = None
         tracker_boxes_ego = None
         total_objects = 0
 
-        # Boxes are already in ego frame — use translations directly
+        # Boxes are in global frame — transform to ego for rendering
         if gt_viz and gt_data and frame_idx < len(gt_data):
             frame = gt_data[frame_idx]
             gt_boxes_ego = []
             for det in frame.get("detections", []):
                 if not category_visible(det["category_name"]):
                     continue
+                pos, local_yaw = global_to_ego(det["translation"], det["yaw"])
                 box = {
-                    "translation": det["translation"],
+                    "translation": pos,
                     "size": det["size"],
-                    "yaw": det["yaw"],
+                    "yaw": local_yaw,
                     "label": shorten_category(det["category_name"]),
                     "instance_token": det.get("instance_token", ""),
                 }
@@ -1175,10 +1198,11 @@ def create_app() -> Dash:
             for trk in frame.get("tracks", []):
                 if not category_visible(trk["category_name"]):
                     continue
+                pos, local_yaw = global_to_ego(trk["translation"], trk["yaw"])
                 box = {
-                    "translation": trk["translation"],
+                    "translation": pos,
                     "size": trk["size"],
-                    "yaw": trk["yaw"],
+                    "yaw": local_yaw,
                     "label": shorten_category(trk["category_name"]),
                     "id": trk.get("id", 0),
                     "age": trk.get("age", ""),
