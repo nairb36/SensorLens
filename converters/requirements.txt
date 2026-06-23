@@ -2,13 +2,12 @@
 # Install only what you need:
 #   pip install -r converters/requirements.txt  # installs everything
 #   pip install nuscenes-devkit pyquaternion     # nuScenes only
+#   pip install pyarrow pandas                   # Waymo / Argoverse 2 only
 
 # nuScenes
 nuscenes-devkit>=1.1.0
 pyquaternion>=0.9.9
 
-# Argoverse 2
-# av2
-
-# Waymo (requires TensorFlow)
-# waymo-open-dataset-tf-2-11-0
+# Waymo Open Dataset v2 and Argoverse 2
+pyarrow>=12.0
+pandas>=2.0

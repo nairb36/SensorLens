@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Convert an Argoverse 2 sensor log to the SensorLens universal format.
 
-Requires: pip install av2
+Requires: pip install pyarrow pandas
 
 Expects the Argoverse 2 sensor dataset layout:
   {dataroot}/
