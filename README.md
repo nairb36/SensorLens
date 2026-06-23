@@ -195,13 +195,120 @@ The converter works with just labels + calib + oxts (annotations only). When vel
 
 **Note:** KITTI only annotates objects visible in the front-facing camera (~90 degree FOV), so ground-truth boxes only appear in front of the ego vehicle.
 
-### Waymo Open Dataset
+### Waymo Open Dataset (v2)
 
-Coming soon.
+Full support — TOP + 4 side LiDARs, 5 cameras, and 3D LiDAR box annotations. Uses the v2 Parquet format directly — no TensorFlow or `waymo-open-dataset` package required.
+
+```bash
+# Convert all segments in a download directory
+python3 -m converters.convert_waymo \
+  --dataroot /path/to/waymo_v2 \
+  --all \
+  --output /path/to/sensorlens_scenes/waymo/
+
+# Convert a single segment
+python3 -m converters.convert_waymo \
+  --dataroot /path/to/waymo_v2 \
+  --segment 10017090168044687777_6380_000_6400_000 \
+  --output /path/to/sensorlens_scenes/waymo/10017090168044687777_6380_000_6400_000
+
+# Fast conversion: TOP lidar only, skip camera images
+python3 -m converters.convert_waymo \
+  --dataroot /path/to/waymo_v2 \
+  --segment 10017090168044687777_6380_000_6400_000 \
+  --output /path/to/output \
+  --top-lidar-only --no-images
+```
+
+**Required data (Waymo v2 Parquet components per segment):**
+- `lidar_box` — 3D LiDAR box annotations
+- `vehicle_pose` — ego vehicle pose (world_from_vehicle 4x4 matrix)
+- `lidar` — range images for all 5 LiDARs
+- `lidar_calibration` — per-LiDAR extrinsic and beam inclinations
+
+**Optional data:**
+- `camera_image` — 5 camera images (front, front_left, front_right, side_left, side_right)
+
+Download individual components using `gsutil`:
+```bash
+gsutil -m cp -r \
+  "gs://waymo_open_dataset_v_2_0_1/training/lidar_box/10017090168044687777_6380_000_6400_000.parquet" \
+  /path/to/waymo_v2/lidar_box/
+# Repeat for vehicle_pose, lidar, lidar_calibration, camera_image
+```
+
+Place the downloaded Parquet files at:
+```
+{dataroot}/
+  lidar_box/{segment_name}.parquet
+  vehicle_pose/{segment_name}.parquet
+  lidar/{segment_name}.parquet
+  lidar_calibration/{segment_name}.parquet
+  camera_image/{segment_name}.parquet        (optional)
+```
+
+**What you get:** combined point cloud from all 5 LiDARs (~170k points/frame), 5 camera views, full 3D annotated ground truth with tracked object identities
+
+**Converter dependencies:** `pyarrow`, `pandas` (no TensorFlow, no Waymo SDK)
 
 ### Argoverse 2
 
-Coming soon.
+Full support — LiDAR, 7 ring cameras, and 3D annotations. Reads Feather/Parquet files directly.
+
+```bash
+# Convert all logs in a split
+python3 -m converters.convert_argoverse2 \
+  --dataroot /path/to/argoverse2 \
+  --split val \
+  --all \
+  --output /path/to/sensorlens_scenes/argoverse2/
+
+# Convert a single log
+python3 -m converters.convert_argoverse2 \
+  --dataroot /path/to/argoverse2 \
+  --split val \
+  --log-id 02678d04-cc9f-3148-9f95-1ba66347dff9 \
+  --output /path/to/sensorlens_scenes/argoverse2/02678d04
+
+# Include stereo cameras (ring cameras included by default)
+python3 -m converters.convert_argoverse2 \
+  --dataroot /path/to/argoverse2 \
+  --split val \
+  --log-id 02678d04-cc9f-3148-9f95-1ba66347dff9 \
+  --output /path/to/output \
+  --include-stereo
+```
+
+**Required data:** Argoverse 2 sensor dataset logs (Feather format), each containing:
+```
+{dataroot}/{split}/{log_id}/
+  sensors/
+    lidar/{timestamp_ns}.feather
+    cameras/
+      ring_front_center/
+      ring_front_left/
+      ring_front_right/
+      ring_side_left/
+      ring_side_right/
+      ring_rear_left/
+      ring_rear_right/
+  annotations.feather
+  city_SE3_egovehicle.feather
+```
+
+Download individual logs using the Argoverse 2 CLI:
+```bash
+pip install av2
+python3 -m av2.utils.io download \
+  --dest /path/to/argoverse2 \
+  --name sensor \
+  --split val \
+  --log-ids 02678d04-cc9f-3148-9f95-1ba66347dff9
+```
+
+**What you get:** LiDAR point clouds, 7 camera views (360 degree ring coverage), full 3D annotated ground truth with tracked object identities
+
+**Converter dependencies:** `pyarrow`, `pandas`
 
 ## Data Formats
 
@@ -286,6 +393,7 @@ pip install -r converters/requirements.txt
 #### Converter Dependencies (install as needed)
 
 - `nuscenes-devkit` / `pyquaternion` — nuScenes converter
+- `pyarrow` / `pandas` — Waymo and Argoverse 2 converters
 
 ### Docker
 
@@ -363,8 +471,8 @@ Project_SensorLens/
     common.py          -- Shared utilities: category maps, file writers, coordinate helpers
     convert_nuscenes.py -- nuScenes → universal format
     convert_kitti.py   -- KITTI tracking → universal format
-    convert_waymo.py   -- Waymo Open Dataset → universal format (coming soon)
-    convert_argoverse2.py -- Argoverse 2 → universal format (coming soon)
+    convert_waymo.py   -- Waymo Open Dataset → universal format
+    convert_argoverse2.py -- Argoverse 2 → universal format
     requirements.txt   -- Dataset SDK dependencies for converters
   run.py               -- CLI entry point
   Dockerfile           -- Container image definition
