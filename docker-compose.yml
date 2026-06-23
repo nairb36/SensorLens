@@ -4,15 +4,30 @@ services:
       context: .
       dockerfile: Dockerfile
     image: sensorlens:latest
-    platform: linux/arm64
 
     ports:
       - "8050:8050"
 
-    # To use nuScenes data, uncomment the volumes section below
-    # and create a .env file with NUSCENES_PATH=/path/to/nuscenes/v1.0-mini
-    # volumes:
-    #   - ${NUSCENES_PATH}:/data/nuscenes:ro
+    # Mount your datasets and converted scenes into the container.
+    # Create a .env file with:
+    #   DATASETS_PATH=/path/to/your/datasets
+    #   SCENES_PATH=/path/to/your/sensorlens_scenes
+    #
+    # Dataset layout example:
+    #   /path/to/datasets/
+    #     nuscenes/v1.0-mini/...
+    #     kitti/training/...
+    #     waymo_v2/lidar_box/...
+    #     argoverse2/val/...
+    #
+    # Then run converters inside the container:
+    #   docker exec -it sensorlens-sensorlens-1 \
+    #     python3 -m converters.convert_nuscenes \
+    #       --dataroot /data/datasets/nuscenes/v1.0-mini \
+    #       --version v1.0-mini --all --output /data/scenes/nuscenes
+    volumes:
+      - ${DATASETS_PATH:-./data/datasets}:/data/datasets:ro
+      - ${SCENES_PATH:-./data/scenes}:/data/scenes
 
     stdin_open: true
     tty: true
