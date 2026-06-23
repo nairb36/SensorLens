@@ -11,17 +11,15 @@ from dash import Dash, html, dcc, Input, Output, State, callback_context, no_upd
 logger = logging.getLogger(__name__)
 
 from .data_loader import (
-    NuScenesLoader,
+    UniversalLoader,
     load_gt_json,
     load_tracker_json,
-    global_to_ego,
     shorten_category,
     CATEGORY_GROUPS,
     CATEGORY_TO_GROUP,
     DEFAULT_ON,
 )
 from .scene_builder import build_3d_figure
-from .image_stitcher import PanoramaStitcher, encode_panorama
 from .mot_evaluator import (
     run_evaluation,
     compute_summary,
@@ -33,21 +31,16 @@ from .mot_evaluator import (
     format_metric,
 )
 
-FRONT_CAMS = ["CAM_FRONT_LEFT", "CAM_FRONT", "CAM_FRONT_RIGHT"]
-REAR_CAMS = ["CAM_BACK_LEFT", "CAM_BACK", "CAM_BACK_RIGHT"]
+MAX_CAMERA_SLOTS = 9
 
 _server_state = {
-    "mode": None,  # "nuscenes", "waymo", "custom"
-    "nusc_loader": None,
+    "scene_loader": None,
+    "camera_names": [],
     "gt_data": None,
     "tracker_data": None,
-    "sample_tokens": None,
     "num_frames": 0,
-    "front_stitcher": None,
-    "rear_stitcher": None,
     "scene_mismatch": False,
-    "origin_offset": None,  # fixed centroid from frame 0 for custom mode
-    "app_mode": "visualization",  # "visualization" or "debug"
+    "app_mode": "visualization",
     "mot_accumulator": None,
     "mot_id_map": None,
     "mot_summary": None,
@@ -58,8 +51,6 @@ def _extract_scene_prefix(name: str) -> str | None:
     stem = Path(name).stem
     m = re.match(r"(scene_\d+)", stem)
     return m.group(1) if m else None
-
-
 
 
 def _config_layout():
@@ -172,46 +163,14 @@ def _config_layout():
                             ),
                         ],
                     ),
-                    # Dataset type
-                    _config_label("Dataset Type"),
-                    dcc.Dropdown(
-                        id="config-dataset-type",
-                        options=[
-                            {"label": "NuScenes", "value": "nuscenes"},
-                            {"label": "Waymo Open Dataset", "value": "waymo"},
-                            {"label": "Custom (bounding boxes only)", "value": "custom"},
-                        ],
-                        value="nuscenes",
-                        clearable=False,
-                        style={"marginBottom": "16px"},
-                    ),
-                    # Dataset-specific fields (hidden/shown dynamically)
-                    html.Div(
-                        id="config-dataset-fields",
-                        children=[
-                            # Dataroot
-                            _config_label("Dataroot Path"),
-                            dcc.Input(
-                                id="config-dataroot",
-                                type="text",
-                                placeholder="/path/to/nuscenes",
-                                className="config-input",
-                                style=_input_style(),
-                            ),
-                            # Version
-                            _config_label("Version"),
-                            dcc.Dropdown(
-                                id="config-version",
-                                options=[
-                                    {"label": "v1.0-mini", "value": "v1.0-mini"},
-                                    {"label": "v1.0-trainval", "value": "v1.0-trainval"},
-                                    {"label": "v1.0-test", "value": "v1.0-test"},
-                                ],
-                                value="v1.0-mini",
-                                clearable=False,
-                                style={"marginBottom": "16px"},
-                            ),
-                        ],
+                    # Scene directory
+                    _config_label("Scene Directory (optional)"),
+                    dcc.Input(
+                        id="config-scene-path",
+                        type="text",
+                        placeholder="Path to converted scene (for point cloud + cameras)",
+                        className="config-input",
+                        style=_input_style(),
                     ),
                     # GT file
                     _config_label("GT Detections (JSON)"),
@@ -326,16 +285,29 @@ def _input_style(mb="16px"):
     }
 
 
+def _encode_image(path: str) -> str:
+    img = cv2.imread(path)
+    if img is None:
+        return ""
+    h, w = img.shape[:2]
+    max_w = 800
+    if w > max_w:
+        scale = max_w / w
+        img = cv2.resize(img, (max_w, int(h * scale)))
+    _, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 80])
+    return "data:image/jpeg;base64," + base64.b64encode(buf.tobytes()).decode()
+
+
 def _viz_layout():
     s = _server_state
     gt_data = s["gt_data"]
     tracker_data = s["tracker_data"]
     num_frames = s["num_frames"]
     scene_mismatch = s["scene_mismatch"]
-    mode = s["mode"]
+    camera_names = s["camera_names"]
+    has_scene = s["scene_loader"] is not None
     app_mode = s["app_mode"]
     is_debug = app_mode == "debug"
-    show_panos = mode != "custom"
 
     gt_viz_options = [
         {"label": html.Span("bbox", style={"color": "#999"}), "value": "bbox"},
@@ -442,67 +414,61 @@ def _viz_layout():
         ],
     )
 
-    # Panorama panel (only for NuScenes/Waymo)
-    pano_children = []
-    if show_panos:
-        pano_children.extend([
-            html.Div(
-                style={
-                    "backgroundColor": "#16213e",
-                    "borderRadius": "4px",
-                    "padding": "4px",
-                },
-                children=[
-                    html.Div(
-                        "FRONT",
-                        style={
-                            "fontSize": "11px",
-                            "fontWeight": "600",
-                            "color": "#00d4ff",
-                            "marginBottom": "2px",
-                            "textAlign": "center",
-                        },
-                    ),
-                    html.Img(
-                        id="pano-front",
-                        style={
-                            "width": "100%",
-                            "borderRadius": "2px",
-                            "display": "block",
-                        },
-                    ),
-                ],
-            ),
-            html.Div(
-                style={
-                    "backgroundColor": "#16213e",
-                    "borderRadius": "4px",
-                    "padding": "4px",
-                },
-                children=[
-                    html.Div(
-                        "REAR",
-                        style={
-                            "fontSize": "11px",
-                            "fontWeight": "600",
-                            "color": "#00d4ff",
-                            "marginBottom": "2px",
-                            "textAlign": "center",
-                        },
-                    ),
-                    html.Img(
-                        id="pano-rear",
-                        style={
-                            "width": "100%",
-                            "borderRadius": "2px",
-                            "display": "block",
-                        },
-                    ),
-                ],
-            ),
-        ])
+    # Right panel children: cameras + debug
+    right_children = []
 
-    # Debug panel (shown in debug mode)
+    # Camera grid
+    if camera_names:
+        cam_cells = []
+        for i, cam_name in enumerate(camera_names):
+            if i >= MAX_CAMERA_SLOTS:
+                break
+            cam_cells.append(
+                html.Div(
+                    className="camera-cell",
+                    style={
+                        "backgroundColor": "#16213e",
+                        "borderRadius": "4px",
+                        "padding": "4px",
+                        "flex": "1 1 30%",
+                        "minWidth": "0",
+                    },
+                    children=[
+                        html.Div(
+                            cam_name.upper().replace("_", " "),
+                            style={
+                                "fontSize": "10px",
+                                "fontWeight": "600",
+                                "color": "#00d4ff",
+                                "marginBottom": "2px",
+                                "textAlign": "center",
+                                "letterSpacing": "0.5px",
+                            },
+                        ),
+                        html.Img(
+                            id=f"cam-{i}",
+                            style={
+                                "width": "100%",
+                                "borderRadius": "2px",
+                                "display": "block",
+                            },
+                        ),
+                    ],
+                )
+            )
+        right_children.append(
+            html.Div(
+                className="camera-grid",
+                style={
+                    "display": "flex",
+                    "flexWrap": "wrap",
+                    "gap": "4px",
+                },
+                children=cam_cells,
+            )
+        )
+
+    # Debug panel
     if is_debug:
         debug_cat_options = [
             {"label": html.Span(g, style={"color": "#999"}), "value": g}
@@ -510,7 +476,6 @@ def _viz_layout():
         ]
         debug_cat_defaults = [g for g in CATEGORY_GROUPS if g in DEFAULT_ON]
 
-        # Color legend
         legend_items = [
             ("Match", ERROR_COLORS["match"]),
             ("ID Switch", ERROR_COLORS["switch"]),
@@ -518,7 +483,7 @@ def _viz_layout():
             ("Missed", ERROR_COLORS["miss"]),
         ]
 
-        pano_children.append(
+        right_children.append(
             html.Div(
                 style={
                     "backgroundColor": "#16213e",
@@ -543,7 +508,7 @@ def _viz_layout():
                                 style={"display": "flex", "gap": "8px"},
                                 children=[
                                     html.Span(
-                                        [html.Span("\u25a0 ", style={"color": c}), name],
+                                        [html.Span("■ ", style={"color": c}), name],
                                         style={"fontSize": "10px", "color": "#888"},
                                     )
                                     for name, c in legend_items
@@ -626,7 +591,7 @@ def _viz_layout():
                     },
                     children=[
                         html.Span("Tracking Metrics"),
-                        html.Span("\u25bc", id="metrics-arrow", style={"fontSize": "10px"}),
+                        html.Span("▼", id="metrics-arrow", style={"fontSize": "10px"}),
                     ],
                 ),
                 html.Div(
@@ -653,14 +618,15 @@ def _viz_layout():
             html.Div(id="metrics-panel", style={"display": "none"}),
             html.Div(id="metrics-arrow", style={"display": "none"}),
         ])
-    if not show_panos:
-        hidden_placeholders.extend([
-            html.Img(id="pano-front", style={"display": "none"}),
-            html.Img(id="pano-rear", style={"display": "none"}),
-        ])
+    # Hidden placeholders for unused camera slots
+    num_active_cams = min(len(camera_names), MAX_CAMERA_SLOTS)
+    for i in range(num_active_cams, MAX_CAMERA_SLOTS):
+        hidden_placeholders.append(
+            html.Img(id=f"cam-{i}", style={"display": "none"})
+        )
 
-    show_right_panel = show_panos or is_debug
-    pano_panel = html.Div(
+    show_right_panel = bool(camera_names) or is_debug
+    right_panel = html.Div(
         style={
             "flex": "1",
             "minWidth": "0",
@@ -669,10 +635,10 @@ def _viz_layout():
             "gap": "4px",
             "overflowY": "auto",
         },
-        children=pano_children,
+        children=right_children,
     )
 
-    main_children = [scene_panel, pano_panel]
+    main_children = [scene_panel, right_panel]
 
     return html.Div(
         style={
@@ -712,7 +678,7 @@ def _viz_layout():
                         style={"display": "flex", "alignItems": "center", "gap": "12px"},
                         children=[
                             html.Button(
-                                "\u2302",
+                                "⌂",
                                 id="btn-home",
                                 style={
                                     "backgroundColor": "transparent",
@@ -763,14 +729,14 @@ def _viz_layout():
                     "borderRadius": "8px",
                 },
                 children=[
-                    html.Button("\u23ee", id="btn-prev", style=_button_style()),
+                    html.Button("⏮", id="btn-prev", style=_button_style()),
                     html.Button(
-                        "\u25b6", id="btn-play",
+                        "▶", id="btn-play",
                         style={**_button_style("#1abc9c"), "display": "none" if is_debug else "inline-block"},
                     ),
-                    html.Button("\u23ed", id="btn-next", style=_button_style()),
+                    html.Button("⏭", id="btn-next", style=_button_style()),
                     html.Button("3D", id="btn-view-mode", style=_button_style("#8e44ad")),
-                    html.Button("\u2b24", id="btn-pc-color", title="Toggle point cloud color",
+                    html.Button("⬤", id="btn-pc-color", title="Toggle point cloud color",
                                 style={**_button_style("#555"), "fontSize": "10px"}),
                     html.Div(
                         style={"flex": "1", "margin": "0 12px"},
@@ -880,16 +846,6 @@ def create_app() -> Dash:
             return "debug", viz_left_off, debug_right, {"display": "block"}
         return "visualization", viz_left, debug_right_off, {"display": "none"}
 
-    # -- Show/hide dataset fields based on type --
-    @app.callback(
-        Output("config-dataset-fields", "style"),
-        Input("config-dataset-type", "value"),
-    )
-    def toggle_dataset_fields(dataset_type):
-        if dataset_type == "custom":
-            return {"display": "none"}
-        return {"display": "block"}
-
     # -- Show uploaded filenames --
     @app.callback(
         Output("config-gt-filename", "children"),
@@ -914,9 +870,7 @@ def create_app() -> Dash:
         Input("btn-launch", "n_clicks"),
         State("config-app-mode", "data"),
         State("config-max-dist", "value"),
-        State("config-dataset-type", "value"),
-        State("config-dataroot", "value"),
-        State("config-version", "value"),
+        State("config-scene-path", "value"),
         State("config-gt-upload", "contents"),
         State("config-gt-upload", "filename"),
         State("config-gt-path", "value"),
@@ -926,11 +880,12 @@ def create_app() -> Dash:
         State("config-eval-categories", "value"),
         prevent_initial_call=True,
     )
-    def launch(n_clicks, app_mode, max_dist, dataset_type, dataroot, version,
-               gt_upload, gt_upload_name, gt_path, trk_upload, trk_upload_name, trk_path,
+    def launch(n_clicks, app_mode, max_dist, scene_path,
+               gt_upload, gt_upload_name, gt_path,
+               trk_upload, trk_upload_name, trk_path,
                eval_categories):
         try:
-            return _do_launch(app_mode, max_dist, dataset_type, dataroot, version,
+            return _do_launch(app_mode, max_dist, scene_path,
                               gt_upload, gt_upload_name, gt_path,
                               trk_upload, trk_upload_name, trk_path,
                               eval_categories)
@@ -938,33 +893,36 @@ def create_app() -> Dash:
             logger.exception("Launch failed")
             return no_update, f"Error: {e}"
 
-    def _do_launch(app_mode, max_dist, dataset_type, dataroot, version,
+    def _do_launch(app_mode, max_dist, scene_path,
                    gt_upload, gt_upload_name, gt_path,
                    trk_upload, trk_upload_name, trk_path,
                    eval_categories):
-        # Validate dataroot for non-custom modes
-        if dataset_type != "custom":
-            if not dataroot or not dataroot.strip():
-                return no_update, "Please enter a dataroot path."
-            dataroot = dataroot.strip()
-            if not Path(dataroot).is_dir():
-                return no_update, f"Dataroot not found: {dataroot}"
+        # Load scene directory (optional)
+        scene_loader = None
+        camera_names = []
+        if scene_path and scene_path.strip():
+            scene_path = scene_path.strip()
+            if not Path(scene_path).is_dir():
+                return no_update, f"Scene directory not found: {scene_path}"
+            try:
+                scene_loader = UniversalLoader(scene_path)
+                camera_names = scene_loader.camera_names
+            except Exception as e:
+                return no_update, f"Error loading scene: {e}"
 
-        # Must have at least one data file
+        # Must have at least one data source
         has_gt = bool(gt_upload) or bool(gt_path and gt_path.strip())
         has_trk = bool(trk_upload) or bool(trk_path and trk_path.strip())
-        if not has_gt and not has_trk:
-            return no_update, "Provide at least one of GT or Tracker file."
+        has_embedded_gt = scene_loader is not None and scene_loader.has_gt()
+        if not has_gt and not has_embedded_gt and not has_trk and not scene_loader:
+            return no_update, "Provide a scene directory and/or GT/Tracker file."
 
         # Debug mode requires both GT and tracker
-        if app_mode == "debug" and (not has_gt or not has_trk):
-            return no_update, "Debug mode requires both GT and Tracker files."
+        if app_mode == "debug":
+            if (not has_gt and not has_embedded_gt) or not has_trk:
+                return no_update, "Debug mode requires both GT and Tracker files."
 
-        # Debug mode only for NuScenes/Waymo (not custom)
-        if app_mode == "debug" and dataset_type == "custom":
-            return no_update, "Debug mode is not available for Custom datasets."
-
-        # Load GT
+        # Load GT (user-provided overrides embedded)
         gt_data = None
         gt_name = None
         try:
@@ -977,6 +935,9 @@ def create_app() -> Dash:
                     return no_update, f"GT file not found: {p}"
                 gt_data = load_gt_json(p)
                 gt_name = Path(p).name
+            elif has_embedded_gt:
+                gt_data = scene_loader.load_gt()
+                gt_name = "gt.json (from scene)"
         except Exception as e:
             return no_update, f"Error loading GT: {e}"
 
@@ -1003,72 +964,16 @@ def create_app() -> Dash:
             trk_prefix = _extract_scene_prefix(trk_name)
             if gt_prefix and trk_prefix and gt_prefix != trk_prefix:
                 scene_mismatch = True
-                logger.warning(
-                    "Scene mismatch: GT=%s (%s) vs Tracker=%s (%s)",
-                    gt_name, gt_prefix, trk_name, trk_prefix,
-                )
 
         # Determine frames
-        if gt_data:
+        if scene_loader:
+            num_frames = scene_loader.num_frames
+        elif gt_data:
             num_frames = len(gt_data)
-            sample_tokens = [f.get("sample_token", f"frame_{i}") for i, f in enumerate(gt_data)]
         elif tracker_data:
             num_frames = len(tracker_data)
-            sample_tokens = [f.get("sample_token", f"frame_{i}") for i, f in enumerate(tracker_data)]
         else:
             return no_update, "No data loaded."
-
-        # Mode-specific initialization
-        nusc_loader = None
-        front_stitcher = None
-        rear_stitcher = None
-
-        if dataset_type == "custom":
-            # No NuScenes needed — boxes assumed in ego frame
-            pass
-        elif dataset_type == "waymo":
-            return no_update, "Waymo Open Dataset support coming soon."
-        else:
-            # NuScenes
-            try:
-                nusc_loader = NuScenesLoader(dataroot, version)
-            except Exception as e:
-                return no_update, f"Error loading NuScenes: {e}"
-
-            # If tracker-only with no sample_tokens from data, walk the scene
-            if gt_data is None and tracker_data:
-                scene = nusc_loader.nusc.scene[0]
-                sample_token = scene["first_sample_token"]
-                sample_tokens = []
-                for _ in range(num_frames):
-                    sample_tokens.append(sample_token)
-                    sample = nusc_loader.get_sample(sample_token)
-                    if sample["next"]:
-                        sample_token = sample["next"]
-                    else:
-                        break
-
-            # Build stitchers
-            cals = nusc_loader.get_camera_calibrations(sample_tokens[0])
-            front_stitcher = PanoramaStitcher(
-                [cals[c] for c in FRONT_CAMS], center_yaw=0.0,
-            )
-            rear_stitcher = PanoramaStitcher(
-                [cals[c] for c in REAR_CAMS], center_yaw=np.pi, mirror=True,
-            )
-
-        # Compute fixed origin offset for custom mode (centroid of frame 0)
-        origin_offset = np.zeros(3)
-        if dataset_type == "custom":
-            translations = []
-            if gt_data:
-                for det in gt_data[0].get("detections", []):
-                    translations.append(det["translation"])
-            if tracker_data:
-                for trk in tracker_data[0].get("tracks", []):
-                    translations.append(trk["translation"])
-            if translations:
-                origin_offset = np.mean(translations, axis=0)
 
         # Run MOT evaluation for debug mode
         mot_acc = None
@@ -1076,7 +981,6 @@ def create_app() -> Dash:
         mot_summary = None
         if app_mode == "debug" and gt_data and tracker_data:
             dist_threshold = max_dist if max_dist and max_dist > 0 else 2.0
-            # Expand selected category groups to specific nuScenes category names
             allowed_cats = None
             if eval_categories:
                 allowed_cats = set()
@@ -1094,16 +998,12 @@ def create_app() -> Dash:
 
         # Populate server state
         _server_state.update({
-            "mode": dataset_type,
-            "nusc_loader": nusc_loader,
+            "scene_loader": scene_loader,
+            "camera_names": camera_names,
             "gt_data": gt_data,
             "tracker_data": tracker_data,
-            "sample_tokens": sample_tokens,
             "num_frames": num_frames,
-            "front_stitcher": front_stitcher,
-            "rear_stitcher": rear_stitcher,
             "scene_mismatch": scene_mismatch,
-            "origin_offset": origin_offset,
             "app_mode": app_mode,
             "mot_accumulator": mot_acc,
             "mot_id_map": mot_id_map,
@@ -1137,7 +1037,6 @@ def create_app() -> Dash:
             return "white", {**_button_style("#ccc"), "fontSize": "10px"}
         return "color", {**_button_style("#555"), "fontSize": "10px"}
 
-
     # -- Viz callbacks --
     @app.callback(
         Output("store-playing", "data"),
@@ -1149,7 +1048,7 @@ def create_app() -> Dash:
     )
     def toggle_play(n_clicks, playing):
         new_playing = not playing
-        return new_playing, not new_playing, "\u23f8" if new_playing else "\u25b6"
+        return new_playing, not new_playing, "⏸" if new_playing else "▶"
 
     @app.callback(
         Output("store-frame", "data"),
@@ -1190,10 +1089,12 @@ def create_app() -> Dash:
 
         return new_frame, new_frame
 
+    # Camera output list
+    cam_outputs = [Output(f"cam-{i}", "src") for i in range(MAX_CAMERA_SLOTS)]
+
     @app.callback(
         Output("scene-3d", "figure"),
-        Output("pano-front", "src"),
-        Output("pano-rear", "src"),
+        *cam_outputs,
         Output("frame-info", "children"),
         Output("debug-content", "children"),
         Input("store-frame", "data"),
@@ -1208,22 +1109,21 @@ def create_app() -> Dash:
                      pc_color_mode, debug_categories):
         s = _server_state
         if s["num_frames"] == 0:
-            return no_update, no_update, no_update, no_update, no_update
+            empty_cams = [""] * MAX_CAMERA_SLOTS
+            return no_update, *empty_cams, no_update, no_update
 
-        mode = s["mode"]
-        nusc_loader = s["nusc_loader"]
+        scene_loader = s["scene_loader"]
         gt_data = s["gt_data"]
         tracker_data = s["tracker_data"]
-        sample_tokens = s["sample_tokens"]
         num_frames = s["num_frames"]
-        front_stitcher = s["front_stitcher"]
-        rear_stitcher = s["rear_stitcher"]
+        camera_names = s["camera_names"]
         is_debug = s["app_mode"] == "debug"
         mot_acc = s["mot_accumulator"]
         mot_id_map = s["mot_id_map"]
 
         if frame_idx is None or frame_idx < 0 or frame_idx >= num_frames:
-            return no_update, no_update, no_update, no_update, no_update
+            empty_cams = [""] * MAX_CAMERA_SLOTS
+            return no_update, *empty_cams, no_update, no_update
 
         gt_viz = set(gt_viz or [])
         trk_viz = set(trk_viz or [])
@@ -1239,35 +1139,50 @@ def create_app() -> Dash:
         if is_debug and mot_acc and mot_id_map is not None:
             gt_errors, trk_errors = get_box_error_types(mot_acc, frame_idx, mot_id_map)
 
-        # Get point cloud and ego pose (NuScenes) or empty (custom)
-        if mode == "custom":
-            points = np.empty((0, 3), dtype=np.float32)
-            origin_offset = s["origin_offset"]
+        # Point cloud (already in ego frame)
+        if scene_loader:
+            points = scene_loader.get_pointcloud(frame_idx)
         else:
-            sample_token = sample_tokens[frame_idx]
-            ego_pose = nusc_loader.get_ego_pose(sample_token)
-            points = nusc_loader.get_lidar_points_ego(sample_token)
+            points = np.empty((0, 3), dtype=np.float32)
+
+        # Ego pose for global→ego transform
+        ego_trans = np.zeros(3)
+        ego_yaw = 0.0
+        ego_rot_inv = np.eye(3)
+        if scene_loader:
+            ego_pose = scene_loader.get_ego_pose(frame_idx)
+            if ego_pose:
+                ego_trans = np.array(ego_pose["translation"])
+                r = ego_pose["rotation"]  # [w, x, y, z]
+                w, x, y, z = r[0], r[1], r[2], r[3]
+                ego_yaw = np.arctan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
+                rot = np.array([
+                    [1 - 2*(y*y + z*z), 2*(x*y - w*z), 2*(x*z + w*y)],
+                    [2*(x*y + w*z), 1 - 2*(x*x + z*z), 2*(y*z - w*x)],
+                    [2*(x*z - w*y), 2*(y*z + w*x), 1 - 2*(x*x + y*y)],
+                ])
+                ego_rot_inv = rot.T
+
+        def global_to_ego(translation, yaw):
+            pos = ego_rot_inv @ (np.array(translation) - ego_trans)
+            return pos.tolist(), yaw - ego_yaw
 
         gt_boxes_ego = None
         tracker_boxes_ego = None
         total_objects = 0
 
+        # Boxes are in global frame — transform to ego for rendering
         if gt_viz and gt_data and frame_idx < len(gt_data):
             frame = gt_data[frame_idx]
             gt_boxes_ego = []
             for det in frame.get("detections", []):
                 if not category_visible(det["category_name"]):
                     continue
-                if mode == "custom":
-                    pos = (np.array(det["translation"]) - origin_offset).tolist()
-                    yaw = det["yaw"]
-                else:
-                    pos, yaw = global_to_ego(det["translation"], det["yaw"], ego_pose)
-                    pos = pos.tolist()
+                pos, local_yaw = global_to_ego(det["translation"], det["yaw"])
                 box = {
                     "translation": pos,
                     "size": det["size"],
-                    "yaw": yaw,
+                    "yaw": local_yaw,
                     "label": shorten_category(det["category_name"]),
                     "instance_token": det.get("instance_token", ""),
                 }
@@ -1283,16 +1198,11 @@ def create_app() -> Dash:
             for trk in frame.get("tracks", []):
                 if not category_visible(trk["category_name"]):
                     continue
-                if mode == "custom":
-                    pos = (np.array(trk["translation"]) - origin_offset).tolist()
-                    yaw = trk["yaw"]
-                else:
-                    pos, yaw = global_to_ego(trk["translation"], trk["yaw"], ego_pose)
-                    pos = pos.tolist()
+                pos, local_yaw = global_to_ego(trk["translation"], trk["yaw"])
                 box = {
                     "translation": pos,
                     "size": trk["size"],
-                    "yaw": yaw,
+                    "yaw": local_yaw,
                     "label": shorten_category(trk["category_name"]),
                     "id": trk.get("id", 0),
                     "age": trk.get("age", ""),
@@ -1309,33 +1219,32 @@ def create_app() -> Dash:
 
         fig = build_3d_figure(points, gt_boxes_ego, tracker_boxes_ego,
                               gt_viz=gt_viz, trk_viz=trk_viz,
-                              show_ego_car=(mode != "custom"),
+                              show_ego_car=(scene_loader is not None),
                               top_down=(view_mode == "2d"),
                               white_pc=(pc_color_mode == "white"))
 
-        # Panoramas (NuScenes only)
-        front_src = ""
-        rear_src = ""
-        if mode != "custom" and nusc_loader and front_stitcher and rear_stitcher:
-            sample_token = sample_tokens[frame_idx]
-            cam_paths = nusc_loader.get_camera_paths(sample_token)
-            front_imgs = [cv2.imread(cam_paths[c]) for c in FRONT_CAMS]
-            rear_imgs = [cv2.imread(cam_paths[c]) for c in REAR_CAMS]
-            front_src = encode_panorama(front_stitcher.stitch(front_imgs))
-            rear_src = encode_panorama(rear_stitcher.stitch(rear_imgs))
+        # Camera images
+        cam_srcs = [""] * MAX_CAMERA_SLOTS
+        if scene_loader and camera_names:
+            cam_paths = scene_loader.get_camera_paths(frame_idx)
+            for i, cam_name in enumerate(camera_names):
+                if i >= MAX_CAMERA_SLOTS:
+                    break
+                path = cam_paths.get(cam_name)
+                if path:
+                    cam_srcs[i] = _encode_image(path)
 
         # Frame info
         timestamp = ""
-        if gt_data and frame_idx < len(gt_data):
+        if scene_loader:
+            timestamp = str(scene_loader.get_timestamp(frame_idx))
+        elif gt_data and frame_idx < len(gt_data):
             timestamp = str(gt_data[frame_idx].get("timestamp", ""))
         elif tracker_data and frame_idx < len(tracker_data):
             timestamp = str(tracker_data[frame_idx].get("timestamp", ""))
 
-        token_str = sample_tokens[frame_idx][:8] if sample_tokens else ""
         info_text = f"Frame {frame_idx}/{num_frames - 1}  |  Objects: {total_objects}"
-        if token_str and not token_str.startswith("frame_"):
-            info_text += f"  |  Token: {token_str}..."
-        if timestamp:
+        if timestamp and timestamp != "0":
             info_text += f"  |  TS: {timestamp}"
 
         # Debug panel content
@@ -1346,7 +1255,7 @@ def create_app() -> Dash:
                 set(debug_categories or []), mot_id_map
             )
 
-        return fig, front_src, rear_src, info_text, debug_content
+        return fig, *cam_srcs, info_text, debug_content
 
     # -- Metrics panel toggle --
     @app.callback(
@@ -1360,18 +1269,16 @@ def create_app() -> Dash:
         if not current_style:
             current_style = {}
         if current_style.get("display") == "none":
-            return {**current_style, "display": "block"}, "\u25b2"
-        return {**current_style, "display": "none"}, "\u25bc"
+            return {**current_style, "display": "block"}, "▲"
+        return {**current_style, "display": "none"}, "▼"
 
     return app
 
 
 def _build_debug_panel(acc, frame_idx, gt_data, tracker_data, active_debug_groups,
                        int_to_token):
-    """Build the debug log panel content for a specific frame."""
     events = get_frame_events(acc, frame_idx, int_to_token)
 
-    # Build category lookup for filtering debug output
     gt_categories = {}
     if gt_data and frame_idx < len(gt_data):
         for det in gt_data[frame_idx].get("detections", []):
@@ -1396,46 +1303,43 @@ def _build_debug_panel(acc, frame_idx, gt_data, tracker_data, active_debug_group
     children = []
     line_style = {"padding": "2px 0", "borderBottom": "1px solid rgba(255,255,255,0.04)"}
 
-    # Matches
     matches = [m for m in events["matches"]
                if debug_cat_visible(gt_id=m["gt_id"], trk_id=m["trk_id"])]
     children.append(html.Div(
-        f"\u2713 {len(matches)} Matches",
+        f"✓ {len(matches)} Matches",
         style={**line_style, "color": ERROR_COLORS["match"], "fontWeight": "600"},
     ))
 
-    # ID Switches
     switches = [s for s in events["switches"]
                 if debug_cat_visible(gt_id=s["gt_id"], trk_id=s["trk_id"])]
     if switches:
         switch_items = [
             html.Div(
-                f"\u2713 GT ...{s['gt_id'][-6:]} \u2194 T{s['trk_id']}",
+                f"✓ GT ...{s['gt_id'][-6:]} ↔ T{s['trk_id']}",
                 style={"paddingLeft": "12px", "color": "#ddd", "fontSize": "11px"},
             )
             for s in switches
         ]
         children.append(html.Div([
             html.Div(
-                f"\u26a1 {len(switches)} ID Switches",
+                f"⚡ {len(switches)} ID Switches",
                 style={**line_style, "color": ERROR_COLORS["switch"], "fontWeight": "600"},
             ),
             *switch_items,
         ]))
     else:
         children.append(html.Div(
-            "\u26a1 0 ID Switches",
+            "⚡ 0 ID Switches",
             style={**line_style, "color": "#666"},
         ))
 
-    # False Positives
     fps = [fp for fp in events["false_positives"]
            if debug_cat_visible(trk_id=fp["trk_id"])]
     if fps:
         fp_ids = ", ".join(f"T{fp['trk_id']}" for fp in fps)
         children.append(html.Div([
             html.Div(
-                f"\u2717 {len(fps)} False Positives",
+                f"✗ {len(fps)} False Positives",
                 style={**line_style, "color": ERROR_COLORS["fp"], "fontWeight": "600"},
             ),
             html.Div(
@@ -1445,18 +1349,17 @@ def _build_debug_panel(acc, frame_idx, gt_data, tracker_data, active_debug_group
         ]))
     else:
         children.append(html.Div(
-            "\u2717 0 False Positives",
+            "✗ 0 False Positives",
             style={**line_style, "color": "#666"},
         ))
 
-    # Misses
     misses = [m for m in events["misses"]
               if debug_cat_visible(gt_id=m["gt_id"])]
     if misses:
         miss_ids = ", ".join(f"...{m['gt_id'][-6:]}" for m in misses)
         children.append(html.Div([
             html.Div(
-                f"\u25cb {len(misses)} Missed Detections",
+                f"○ {len(misses)} Missed Detections",
                 style={**line_style, "color": ERROR_COLORS["miss"], "fontWeight": "600"},
             ),
             html.Div(
@@ -1466,7 +1369,7 @@ def _build_debug_panel(acc, frame_idx, gt_data, tracker_data, active_debug_group
         ]))
     else:
         children.append(html.Div(
-            "\u25cb 0 Missed Detections",
+            "○ 0 Missed Detections",
             style={**line_style, "color": "#666"},
         ))
 
