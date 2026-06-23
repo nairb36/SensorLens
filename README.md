@@ -201,7 +201,62 @@ Coming soon.
 
 ### Argoverse 2
 
-Coming soon.
+Full support — LiDAR, 7 ring cameras, and 3D annotations. Reads Feather/Parquet files directly.
+
+```bash
+# Convert all logs in a split
+python3 -m converters.convert_argoverse2 \
+  --dataroot /path/to/argoverse2 \
+  --split val \
+  --all \
+  --output /path/to/sensorlens_scenes/argoverse2/
+
+# Convert a single log
+python3 -m converters.convert_argoverse2 \
+  --dataroot /path/to/argoverse2 \
+  --split val \
+  --log-id 02678d04-cc9f-3148-9f95-1ba66347dff9 \
+  --output /path/to/sensorlens_scenes/argoverse2/02678d04
+
+# Include stereo cameras (ring cameras included by default)
+python3 -m converters.convert_argoverse2 \
+  --dataroot /path/to/argoverse2 \
+  --split val \
+  --log-id 02678d04-cc9f-3148-9f95-1ba66347dff9 \
+  --output /path/to/output \
+  --include-stereo
+```
+
+**Required data:** Argoverse 2 sensor dataset logs (Feather format), each containing:
+```
+{dataroot}/{split}/{log_id}/
+  sensors/
+    lidar/{timestamp_ns}.feather
+    cameras/
+      ring_front_center/
+      ring_front_left/
+      ring_front_right/
+      ring_side_left/
+      ring_side_right/
+      ring_rear_left/
+      ring_rear_right/
+  annotations.feather
+  city_SE3_egovehicle.feather
+```
+
+Download individual logs using the Argoverse 2 CLI:
+```bash
+pip install av2
+python3 -m av2.utils.io download \
+  --dest /path/to/argoverse2 \
+  --name sensor \
+  --split val \
+  --log-ids 02678d04-cc9f-3148-9f95-1ba66347dff9
+```
+
+**What you get:** LiDAR point clouds, 7 camera views (360 degree ring coverage), full 3D annotated ground truth with tracked object identities
+
+**Converter dependencies:** `pyarrow`, `pandas`
 
 ## Data Formats
 
@@ -364,7 +419,7 @@ Project_SensorLens/
     convert_nuscenes.py -- nuScenes → universal format
     convert_kitti.py   -- KITTI tracking → universal format
     convert_waymo.py   -- Waymo Open Dataset → universal format (coming soon)
-    convert_argoverse2.py -- Argoverse 2 → universal format (coming soon)
+    convert_argoverse2.py -- Argoverse 2 → universal format
     requirements.txt   -- Dataset SDK dependencies for converters
   run.py               -- CLI entry point
   Dockerfile           -- Container image definition
