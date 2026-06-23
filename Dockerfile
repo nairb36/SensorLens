@@ -23,4 +23,4 @@ COPY . .
 
 EXPOSE 8050
 
-CMD ["python3", "run.py"]
+CMD ["bash"]
