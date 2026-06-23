@@ -393,6 +393,7 @@ pip install -r converters/requirements.txt
 #### Converter Dependencies (install as needed)
 
 - `nuscenes-devkit` / `pyquaternion` — nuScenes converter
+- `pyarrow` / `pandas` — Waymo and Argoverse 2 converters
 
 ### Docker
 

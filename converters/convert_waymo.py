@@ -26,7 +26,6 @@ from .common import (
     write_frame_json,
     write_pointcloud,
     write_gt_json,
-    quaternion_to_yaw,
 )
 
 CAMERA_NAMES = {
