@@ -63,35 +63,6 @@ CAMERA_NAME_MAP = {
 }
 
 
-def _quat_to_rotation_matrix(qw, qx, qy, qz):
-    return np.array([
-        [1 - 2*(qy*qy + qz*qz), 2*(qx*qy - qw*qz), 2*(qx*qz + qw*qy)],
-        [2*(qx*qy + qw*qz), 1 - 2*(qx*qx + qz*qz), 2*(qy*qz - qw*qx)],
-        [2*(qx*qz - qw*qy), 2*(qy*qz + qw*qx), 1 - 2*(qx*qx + qy*qy)],
-    ])
-
-
-def _nearest_ego_pose(ego_df, timestamp_ns, ego_timestamps):
-    idx = np.argmin(np.abs(ego_timestamps - timestamp_ns))
-    return ego_df.iloc[idx]
-
-
-def _ego_row_to_dict(row):
-    return {
-        "translation": [float(row["tx_m"]), float(row["ty_m"]), float(row["tz_m"])],
-        "rotation": [float(row["qw"]), float(row["qx"]), float(row["qy"]), float(row["qz"])],
-    }
-
-
-def _transform_ego_to_city(translation_ego, yaw_ego, ego_row):
-    qw, qx, qy, qz = ego_row["qw"], ego_row["qx"], ego_row["qy"], ego_row["qz"]
-    t_city = np.array([ego_row["tx_m"], ego_row["ty_m"], ego_row["tz_m"]])
-    R = _quat_to_rotation_matrix(qw, qx, qy, qz)
-    pos_city = R @ np.array(translation_ego) + t_city
-    yaw_city = yaw_ego + quaternion_to_yaw([qw, qx, qy, qz])
-    return pos_city.tolist(), float(yaw_city)
-
-
 def convert_log(dataroot, split, log_id, output_dir, gt_output=None,
                 max_frames=None, no_images=False, include_stereo=False):
     try:
@@ -113,13 +84,6 @@ def convert_log(dataroot, split, log_id, output_dir, gt_output=None,
     if max_frames:
         lidar_files = lidar_files[:max_frames]
     num_frames = len(lidar_files)
-
-    # Load ego poses
-    ego_path = log_dir / "city_SE3_egovehicle.feather"
-    if not ego_path.is_file():
-        raise FileNotFoundError(f"city_SE3_egovehicle.feather not found in {log_dir}")
-    ego_df = pd.read_feather(str(ego_path)).sort_values("timestamp_ns").reset_index(drop=True)
-    ego_timestamps = ego_df["timestamp_ns"].values.astype(np.int64)
 
     # Load annotations
     ann_path = log_dir / "annotations.feather"
@@ -146,10 +110,6 @@ def convert_log(dataroot, split, log_id, output_dir, gt_output=None,
     for frame_idx, lidar_file in enumerate(lidar_files):
         timestamp_ns = int(lidar_file.stem)
 
-        # Ego pose (nearest to this LiDAR timestamp)
-        ego_row = _nearest_ego_pose(ego_df, timestamp_ns, ego_timestamps)
-        ego_dict = _ego_row_to_dict(ego_row)
-
         # Point cloud (already in ego frame)
         lidar_df = pd.read_feather(str(lidar_file))
         x = lidar_df["x"].values.astype(np.float32)
@@ -169,6 +129,7 @@ def convert_log(dataroot, split, log_id, output_dir, gt_output=None,
             for cam in available_cams:
                 universal_name = CAMERA_NAME_MAP[cam]
                 cam_dir = cam_dirs[cam]
+                # Find closest camera image to this LiDAR timestamp
                 cam_images = sorted(cam_dir.glob("*.jpg"))
                 if not cam_images:
                     cam_images = sorted(cam_dir.glob("*.png"))
@@ -181,9 +142,9 @@ def convert_log(dataroot, split, log_id, output_dir, gt_output=None,
                 cam_files[universal_name] = str(src_path)
 
         write_frame_json(scene_dir, frame_idx, timestamp=timestamp_ns,
-                         ego_pose=ego_dict, camera_files=cam_files)
+                         camera_files=cam_files)
 
-        # Annotations: stored in ego frame, transform to city/global frame
+        # Annotations (already in ego frame at each timestamp)
         detections = []
         if annotations is not None:
             frame_anns = annotations[annotations["timestamp_ns"] == timestamp_ns]
@@ -191,15 +152,13 @@ def convert_log(dataroot, split, log_id, output_dir, gt_output=None,
                 cat = ARGOVERSE2_CATEGORY_MAP.get(ann["category"])
                 if cat is None:
                     continue
-                yaw_ego = quaternion_to_yaw([ann["qw"], ann["qx"], ann["qy"], ann["qz"]])
-                pos_ego = [float(ann["tx_m"]), float(ann["ty_m"]), float(ann["tz_m"])]
-                pos_city, yaw_city = _transform_ego_to_city(pos_ego, yaw_ego, ego_row)
+                yaw = quaternion_to_yaw([ann["qw"], ann["qx"], ann["qy"], ann["qz"]])
                 detections.append({
                     "instance_token": ann["track_uuid"],
                     "category_name": cat,
-                    "translation": [round(v, 6) for v in pos_city],
+                    "translation": [float(ann["tx_m"]), float(ann["ty_m"]), float(ann["tz_m"])],
                     "size": [float(ann["width_m"]), float(ann["length_m"]), float(ann["height_m"])],
-                    "yaw": round(yaw_city, 6),
+                    "yaw": round(yaw, 6),
                 })
 
         gt_frames.append({
@@ -226,53 +185,21 @@ def convert_log(dataroot, split, log_id, output_dir, gt_output=None,
     print(f"Log converted to {scene_dir}")
 
 
-def convert_all(dataroot, split, output_dir, max_frames=None, no_images=False,
-                include_stereo=False):
-    split_dir = Path(dataroot) / split
-    if not split_dir.is_dir():
-        raise FileNotFoundError(f"Split directory not found: {split_dir}")
-    log_ids = sorted([d.name for d in split_dir.iterdir() if d.is_dir()])
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Converting all {len(log_ids)} Argoverse 2 logs from {split}")
-    for log_id in log_ids:
-        log_out = str(output_dir / log_id)
-        convert_log(dataroot, split, log_id, log_out,
-                    max_frames=max_frames, no_images=no_images,
-                    include_stereo=include_stereo)
-    print(f"\nAll {len(log_ids)} logs converted to {output_dir}")
-
-
 def main():
     parser = argparse.ArgumentParser(description="Convert Argoverse 2 log to SensorLens format")
     parser.add_argument("--dataroot", required=True, help="Path to Argoverse 2 sensor root")
     parser.add_argument("--split", default="val", help="Split (train/val/test)")
-    parser.add_argument("--output", required=True, help="Output directory")
-
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("--log-id", help="Single log UUID")
-    group.add_argument("--all", action="store_true", help="Convert all logs in split")
-
-    parser.add_argument("--gt-output", help="Extra copy of GT JSON (single log only)")
+    parser.add_argument("--log-id", required=True, help="Log UUID")
+    parser.add_argument("--output", required=True, help="Output scene directory")
+    parser.add_argument("--gt-output", help="Output path for GT JSON file")
     parser.add_argument("--max-frames", type=int, help="Limit number of frames")
     parser.add_argument("--no-images", action="store_true", help="Skip camera images")
     parser.add_argument("--include-stereo", action="store_true", help="Include stereo cameras")
     args = parser.parse_args()
 
-    if args.all:
-        convert_all(args.dataroot, args.split, args.output,
-                    max_frames=args.max_frames, no_images=args.no_images,
-                    include_stereo=args.include_stereo)
-    else:
-        log_id = args.log_id
-        if not log_id:
-            split_dir = Path(args.dataroot) / args.split
-            logs = sorted([d.name for d in split_dir.iterdir() if d.is_dir()])
-            log_id = logs[0]
-            print(f"No --log-id specified, using first log: {log_id}")
-        convert_log(args.dataroot, args.split, log_id, args.output,
-                    gt_output=args.gt_output, max_frames=args.max_frames,
-                    no_images=args.no_images, include_stereo=args.include_stereo)
+    convert_log(args.dataroot, args.split, args.log_id, args.output,
+                gt_output=args.gt_output, max_frames=args.max_frames,
+                no_images=args.no_images, include_stereo=args.include_stereo)
 
 
 if __name__ == "__main__":
