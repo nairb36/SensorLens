@@ -1,0 +1,66 @@
+{
+  "format_version": "1.0",
+  "source_dataset": "nuscenes",
+  "scene_name": "scene-0061",
+  "num_frames": 39,
+  "sensors": {
+    "lidar": {
+      "points_format": "float32",
+      "points_per_row": 4,
+      "channels": [
+        "x",
+        "y",
+        "z",
+        "intensity"
+      ]
+    },
+    "cameras": [
+      {
+        "name": "front_left",
+        "order": 0
+      },
+      {
+        "name": "front",
+        "order": 1
+      },
+      {
+        "name": "front_right",
+        "order": 2
+      },
+      {
+        "name": "back_left",
+        "order": 3
+      },
+      {
+        "name": "back",
+        "order": 4
+      },
+      {
+        "name": "back_right",
+        "order": 5
+      }
+    ]
+  },
+  "category_mapping": {
+    "human.pedestrian.adult": "pedestrian",
+    "human.pedestrian.child": "pedestrian",
+    "human.pedestrian.construction_worker": "pedestrian",
+    "human.pedestrian.personal_mobility": "pedestrian",
+    "human.pedestrian.police_officer": "pedestrian",
+    "human.pedestrian.stroller": "pedestrian",
+    "human.pedestrian.wheelchair": "pedestrian",
+    "vehicle.car": "car",
+    "vehicle.truck": "truck",
+    "vehicle.bus.bendy": "bus",
+    "vehicle.bus.rigid": "bus",
+    "vehicle.construction": "construction_vehicle",
+    "vehicle.motorcycle": "motorcycle",
+    "vehicle.bicycle": "bicycle",
+    "vehicle.trailer": "trailer",
+    "movable_object.barrier": "barrier",
+    "movable_object.trafficcone": "traffic_cone",
+    "movable_object.debris": "barrier",
+    "movable_object.pushable_pullable": "barrier",
+    "static_object.bicycle_rack": "barrier"
+  }
+}

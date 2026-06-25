@@ -1,0 +1,26 @@
+{
+  "frame_index": 33,
+  "timestamp": 1532402944198088,
+  "pointcloud_file": "pointclouds/000033.bin",
+  "camera_files": {
+    "front_left": "cameras/000033/front_left.jpg",
+    "front": "cameras/000033/front.jpg",
+    "front_right": "cameras/000033/front_right.jpg",
+    "back_left": "cameras/000033/back_left.jpg",
+    "back": "cameras/000033/back.jpg",
+    "back_right": "cameras/000033/back_right.jpg"
+  },
+  "ego_pose": {
+    "translation": [
+      414.9639051557455,
+      1106.6522960506688,
+      0.0
+    ],
+    "rotation": [
+      0.9764297074755597,
+      -0.02244210344793738,
+      0.01321097022890105,
+      -0.21425883556492242
+    ]
+  }
+}

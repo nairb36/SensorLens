@@ -285,7 +285,7 @@ def _input_style(mb="16px"):
     }
 
 
-def _encode_image(path: str) -> str:
+def encode_image(path: str) -> str:
     img = cv2.imread(path)
     if img is None:
         return ""
@@ -729,15 +729,15 @@ def _viz_layout():
                     "borderRadius": "8px",
                 },
                 children=[
-                    html.Button("⏮", id="btn-prev", style=_button_style()),
+                    html.Button("⏮", id="btn-prev", style=button_style()),
                     html.Button(
                         "▶", id="btn-play",
-                        style={**_button_style("#1abc9c"), "display": "none" if is_debug else "inline-block"},
+                        style={**button_style("#1abc9c"), "display": "none" if is_debug else "inline-block"},
                     ),
-                    html.Button("⏭", id="btn-next", style=_button_style()),
-                    html.Button("3D", id="btn-view-mode", style=_button_style("#8e44ad")),
+                    html.Button("⏭", id="btn-next", style=button_style()),
+                    html.Button("3D", id="btn-view-mode", style=button_style("#8e44ad")),
                     html.Button("⬤", id="btn-pc-color", title="Toggle point cloud color",
-                                style={**_button_style("#555"), "fontSize": "10px"}),
+                                style={**button_style("#555"), "fontSize": "10px"}),
                     html.Div(
                         style={"flex": "1", "margin": "0 12px"},
                         children=[
@@ -774,6 +774,152 @@ def _viz_layout():
             *hidden_placeholders,
         ],
     )
+
+
+def compute_frame_data(frame_idx, gt_viz, trk_viz, active_categories,
+                       view_mode, pc_color_mode, debug_categories,
+                       is_debug, state):
+    s = state
+    if s["num_frames"] == 0:
+        empty_cams = [""] * MAX_CAMERA_SLOTS
+        return no_update, *empty_cams, no_update, no_update
+
+    scene_loader = s["scene_loader"]
+    gt_data = s["gt_data"]
+    tracker_data = s["tracker_data"]
+    num_frames = s["num_frames"]
+    camera_names = s["camera_names"]
+    mot_acc = s["mot_accumulator"]
+    mot_id_map = s["mot_id_map"]
+
+    if frame_idx is None or frame_idx < 0 or frame_idx >= num_frames:
+        empty_cams = [""] * MAX_CAMERA_SLOTS
+        return no_update, *empty_cams, no_update, no_update
+
+    gt_viz = set(gt_viz or [])
+    trk_viz = set(trk_viz or [])
+    active_groups = set(active_categories or [])
+
+    def category_visible(cat_name):
+        group = CATEGORY_TO_GROUP.get(cat_name)
+        return group is not None and group in active_groups
+
+    gt_errors = {}
+    trk_errors = {}
+    if is_debug and mot_acc and mot_id_map is not None:
+        gt_errors, trk_errors = get_box_error_types(mot_acc, frame_idx, mot_id_map)
+
+    if scene_loader:
+        points = scene_loader.get_pointcloud(frame_idx)
+    else:
+        points = np.empty((0, 3), dtype=np.float32)
+
+    ego_trans = np.zeros(3)
+    ego_yaw = 0.0
+    ego_rot_inv = np.eye(3)
+    if scene_loader:
+        ego_pose = scene_loader.get_ego_pose(frame_idx)
+        if ego_pose:
+            ego_trans = np.array(ego_pose["translation"])
+            r = ego_pose["rotation"]
+            w, x, y, z = r[0], r[1], r[2], r[3]
+            ego_yaw = np.arctan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
+            rot = np.array([
+                [1 - 2*(y*y + z*z), 2*(x*y - w*z), 2*(x*z + w*y)],
+                [2*(x*y + w*z), 1 - 2*(x*x + z*z), 2*(y*z - w*x)],
+                [2*(x*z - w*y), 2*(y*z + w*x), 1 - 2*(x*x + y*y)],
+            ])
+            ego_rot_inv = rot.T
+
+    def global_to_ego(translation, yaw):
+        pos = ego_rot_inv @ (np.array(translation) - ego_trans)
+        return pos.tolist(), yaw - ego_yaw
+
+    gt_boxes_ego = None
+    tracker_boxes_ego = None
+    total_objects = 0
+
+    if gt_viz and gt_data and frame_idx < len(gt_data):
+        frame = gt_data[frame_idx]
+        gt_boxes_ego = []
+        for det in frame.get("detections", []):
+            if not category_visible(det["category_name"]):
+                continue
+            pos, local_yaw = global_to_ego(det["translation"], det["yaw"])
+            box = {
+                "translation": pos,
+                "size": det["size"],
+                "yaw": local_yaw,
+                "label": shorten_category(det["category_name"]),
+                "instance_token": det.get("instance_token", ""),
+            }
+            if is_debug:
+                err = gt_errors.get(det.get("instance_token", ""), "miss")
+                box["debug_color"] = ERROR_COLORS[err]
+            gt_boxes_ego.append(box)
+        total_objects += len(gt_boxes_ego)
+
+    if trk_viz and tracker_data and frame_idx < len(tracker_data):
+        frame = tracker_data[frame_idx]
+        tracker_boxes_ego = []
+        for trk in frame.get("tracks", []):
+            if not category_visible(trk["category_name"]):
+                continue
+            pos, local_yaw = global_to_ego(trk["translation"], trk["yaw"])
+            box = {
+                "translation": pos,
+                "size": trk["size"],
+                "yaw": local_yaw,
+                "label": shorten_category(trk["category_name"]),
+                "id": trk.get("id", 0),
+                "age": trk.get("age", ""),
+                "hits": trk.get("hits", ""),
+                "misses": trk.get("consecutive_misses", ""),
+            }
+            if is_debug:
+                err = trk_errors.get(trk.get("id", 0), "fp")
+                box["debug_color"] = ERROR_COLORS[err]
+                if err == "switch":
+                    box["debug_line_width"] = SWITCH_LINE_WIDTH
+            tracker_boxes_ego.append(box)
+        total_objects += len(tracker_boxes_ego)
+
+    fig = build_3d_figure(points, gt_boxes_ego, tracker_boxes_ego,
+                          gt_viz=gt_viz, trk_viz=trk_viz,
+                          show_ego_car=(scene_loader is not None),
+                          top_down=(view_mode == "2d"),
+                          white_pc=(pc_color_mode == "white"))
+
+    cam_srcs = [""] * MAX_CAMERA_SLOTS
+    if scene_loader and camera_names:
+        cam_paths = scene_loader.get_camera_paths(frame_idx)
+        for i, cam_name in enumerate(camera_names):
+            if i >= MAX_CAMERA_SLOTS:
+                break
+            path = cam_paths.get(cam_name)
+            if path:
+                cam_srcs[i] = encode_image(path)
+
+    timestamp = ""
+    if scene_loader:
+        timestamp = str(scene_loader.get_timestamp(frame_idx))
+    elif gt_data and frame_idx < len(gt_data):
+        timestamp = str(gt_data[frame_idx].get("timestamp", ""))
+    elif tracker_data and frame_idx < len(tracker_data):
+        timestamp = str(tracker_data[frame_idx].get("timestamp", ""))
+
+    info_text = f"Frame {frame_idx}/{num_frames - 1}  |  Objects: {total_objects}"
+    if timestamp and timestamp != "0":
+        info_text += f"  |  TS: {timestamp}"
+
+    debug_content = []
+    if is_debug and mot_acc and mot_id_map is not None:
+        debug_content = build_debug_panel(
+            mot_acc, frame_idx, gt_data, tracker_data,
+            set(debug_categories or []), mot_id_map
+        )
+
+    return fig, *cam_srcs, info_text, debug_content
 
 
 def create_app() -> Dash:
@@ -1034,8 +1180,8 @@ def create_app() -> Dash:
     )
     def toggle_pc_color(n_clicks, current):
         if current == "color":
-            return "white", {**_button_style("#ccc"), "fontSize": "10px"}
-        return "color", {**_button_style("#555"), "fontSize": "10px"}
+            return "white", {**button_style("#ccc"), "fontSize": "10px"}
+        return "color", {**button_style("#555"), "fontSize": "10px"}
 
     # -- Viz callbacks --
     @app.callback(
@@ -1107,155 +1253,12 @@ def create_app() -> Dash:
     )
     def render_frame(frame_idx, gt_viz, trk_viz, active_categories, view_mode,
                      pc_color_mode, debug_categories):
-        s = _server_state
-        if s["num_frames"] == 0:
-            empty_cams = [""] * MAX_CAMERA_SLOTS
-            return no_update, *empty_cams, no_update, no_update
-
-        scene_loader = s["scene_loader"]
-        gt_data = s["gt_data"]
-        tracker_data = s["tracker_data"]
-        num_frames = s["num_frames"]
-        camera_names = s["camera_names"]
-        is_debug = s["app_mode"] == "debug"
-        mot_acc = s["mot_accumulator"]
-        mot_id_map = s["mot_id_map"]
-
-        if frame_idx is None or frame_idx < 0 or frame_idx >= num_frames:
-            empty_cams = [""] * MAX_CAMERA_SLOTS
-            return no_update, *empty_cams, no_update, no_update
-
-        gt_viz = set(gt_viz or [])
-        trk_viz = set(trk_viz or [])
-        active_groups = set(active_categories or [])
-
-        def category_visible(cat_name):
-            group = CATEGORY_TO_GROUP.get(cat_name)
-            return group is not None and group in active_groups
-
-        # Get debug error types for this frame
-        gt_errors = {}
-        trk_errors = {}
-        if is_debug and mot_acc and mot_id_map is not None:
-            gt_errors, trk_errors = get_box_error_types(mot_acc, frame_idx, mot_id_map)
-
-        # Point cloud (already in ego frame)
-        if scene_loader:
-            points = scene_loader.get_pointcloud(frame_idx)
-        else:
-            points = np.empty((0, 3), dtype=np.float32)
-
-        # Ego pose for global→ego transform
-        ego_trans = np.zeros(3)
-        ego_yaw = 0.0
-        ego_rot_inv = np.eye(3)
-        if scene_loader:
-            ego_pose = scene_loader.get_ego_pose(frame_idx)
-            if ego_pose:
-                ego_trans = np.array(ego_pose["translation"])
-                r = ego_pose["rotation"]  # [w, x, y, z]
-                w, x, y, z = r[0], r[1], r[2], r[3]
-                ego_yaw = np.arctan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
-                rot = np.array([
-                    [1 - 2*(y*y + z*z), 2*(x*y - w*z), 2*(x*z + w*y)],
-                    [2*(x*y + w*z), 1 - 2*(x*x + z*z), 2*(y*z - w*x)],
-                    [2*(x*z - w*y), 2*(y*z + w*x), 1 - 2*(x*x + y*y)],
-                ])
-                ego_rot_inv = rot.T
-
-        def global_to_ego(translation, yaw):
-            pos = ego_rot_inv @ (np.array(translation) - ego_trans)
-            return pos.tolist(), yaw - ego_yaw
-
-        gt_boxes_ego = None
-        tracker_boxes_ego = None
-        total_objects = 0
-
-        # Boxes are in global frame — transform to ego for rendering
-        if gt_viz and gt_data and frame_idx < len(gt_data):
-            frame = gt_data[frame_idx]
-            gt_boxes_ego = []
-            for det in frame.get("detections", []):
-                if not category_visible(det["category_name"]):
-                    continue
-                pos, local_yaw = global_to_ego(det["translation"], det["yaw"])
-                box = {
-                    "translation": pos,
-                    "size": det["size"],
-                    "yaw": local_yaw,
-                    "label": shorten_category(det["category_name"]),
-                    "instance_token": det.get("instance_token", ""),
-                }
-                if is_debug:
-                    err = gt_errors.get(det.get("instance_token", ""), "miss")
-                    box["debug_color"] = ERROR_COLORS[err]
-                gt_boxes_ego.append(box)
-            total_objects += len(gt_boxes_ego)
-
-        if trk_viz and tracker_data and frame_idx < len(tracker_data):
-            frame = tracker_data[frame_idx]
-            tracker_boxes_ego = []
-            for trk in frame.get("tracks", []):
-                if not category_visible(trk["category_name"]):
-                    continue
-                pos, local_yaw = global_to_ego(trk["translation"], trk["yaw"])
-                box = {
-                    "translation": pos,
-                    "size": trk["size"],
-                    "yaw": local_yaw,
-                    "label": shorten_category(trk["category_name"]),
-                    "id": trk.get("id", 0),
-                    "age": trk.get("age", ""),
-                    "hits": trk.get("hits", ""),
-                    "misses": trk.get("consecutive_misses", ""),
-                }
-                if is_debug:
-                    err = trk_errors.get(trk.get("id", 0), "fp")
-                    box["debug_color"] = ERROR_COLORS[err]
-                    if err == "switch":
-                        box["debug_line_width"] = SWITCH_LINE_WIDTH
-                tracker_boxes_ego.append(box)
-            total_objects += len(tracker_boxes_ego)
-
-        fig = build_3d_figure(points, gt_boxes_ego, tracker_boxes_ego,
-                              gt_viz=gt_viz, trk_viz=trk_viz,
-                              show_ego_car=(scene_loader is not None),
-                              top_down=(view_mode == "2d"),
-                              white_pc=(pc_color_mode == "white"))
-
-        # Camera images
-        cam_srcs = [""] * MAX_CAMERA_SLOTS
-        if scene_loader and camera_names:
-            cam_paths = scene_loader.get_camera_paths(frame_idx)
-            for i, cam_name in enumerate(camera_names):
-                if i >= MAX_CAMERA_SLOTS:
-                    break
-                path = cam_paths.get(cam_name)
-                if path:
-                    cam_srcs[i] = _encode_image(path)
-
-        # Frame info
-        timestamp = ""
-        if scene_loader:
-            timestamp = str(scene_loader.get_timestamp(frame_idx))
-        elif gt_data and frame_idx < len(gt_data):
-            timestamp = str(gt_data[frame_idx].get("timestamp", ""))
-        elif tracker_data and frame_idx < len(tracker_data):
-            timestamp = str(tracker_data[frame_idx].get("timestamp", ""))
-
-        info_text = f"Frame {frame_idx}/{num_frames - 1}  |  Objects: {total_objects}"
-        if timestamp and timestamp != "0":
-            info_text += f"  |  TS: {timestamp}"
-
-        # Debug panel content
-        debug_content = []
-        if is_debug and mot_acc and mot_id_map is not None:
-            debug_content = _build_debug_panel(
-                mot_acc, frame_idx, gt_data, tracker_data,
-                set(debug_categories or []), mot_id_map
-            )
-
-        return fig, *cam_srcs, info_text, debug_content
+        is_debug = _server_state["app_mode"] == "debug"
+        return compute_frame_data(
+            frame_idx, gt_viz, trk_viz, active_categories,
+            view_mode, pc_color_mode, debug_categories,
+            is_debug, _server_state
+        )
 
     # -- Metrics panel toggle --
     @app.callback(
@@ -1275,8 +1278,8 @@ def create_app() -> Dash:
     return app
 
 
-def _build_debug_panel(acc, frame_idx, gt_data, tracker_data, active_debug_groups,
-                       int_to_token):
+def build_debug_panel(acc, frame_idx, gt_data, tracker_data, active_debug_groups,
+                      int_to_token):
     events = get_frame_events(acc, frame_idx, int_to_token)
 
     gt_categories = {}
@@ -1382,7 +1385,7 @@ def _parse_upload(contents: str) -> list[dict]:
     return json.loads(decoded)
 
 
-def _button_style(bg="#2c3e50"):
+def button_style(bg="#2c3e50"):
     return {
         "backgroundColor": bg,
         "color": "white",
@@ -1393,3 +1396,267 @@ def _button_style(bg="#2c3e50"):
         "fontSize": "13px",
         "fontWeight": "600",
     }
+
+
+def _demo_landing_layout(scene_name, num_frames, num_cameras):
+    return html.Div(
+        style={
+            "backgroundColor": "#0f0f23",
+            "minHeight": "100vh",
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "center",
+            "fontFamily": "'Segoe UI', 'Roboto', sans-serif",
+        },
+        children=[
+            html.Div(
+                style={
+                    "backgroundColor": "#16213e",
+                    "borderRadius": "12px",
+                    "padding": "36px 40px",
+                    "width": "480px",
+                    "maxWidth": "90vw",
+                    "boxShadow": "0 8px 32px rgba(0,0,0,0.4)",
+                    "border": "1px solid rgba(255,255,255,0.06)",
+                    "textAlign": "center",
+                },
+                children=[
+                    html.H1(
+                        "SensorLens",
+                        style={
+                            "color": "#00d4ff",
+                            "fontSize": "32px",
+                            "fontWeight": "700",
+                            "margin": "0 0 4px 0",
+                        },
+                    ),
+                    html.P(
+                        "3D Multi-Object Tracking Visualizer",
+                        style={
+                            "color": "#666",
+                            "fontSize": "13px",
+                            "margin": "0 0 28px 0",
+                        },
+                    ),
+                    html.Div(
+                        style={
+                            "backgroundColor": "#0f0f23",
+                            "borderRadius": "8px",
+                            "padding": "20px",
+                            "marginBottom": "24px",
+                            "border": "1px solid rgba(255,255,255,0.06)",
+                            "textAlign": "left",
+                        },
+                        children=[
+                            html.Div(
+                                style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "marginBottom": "12px"},
+                                children=[
+                                    html.Span(
+                                        "nuScenes",
+                                        style={
+                                            "color": "#00d4ff",
+                                            "fontSize": "16px",
+                                            "fontWeight": "600",
+                                        },
+                                    ),
+                                    html.Span(
+                                        "VIZ",
+                                        style={
+                                            "backgroundColor": "#1abc9c",
+                                            "color": "#fff",
+                                            "fontSize": "10px",
+                                            "fontWeight": "700",
+                                            "padding": "2px 8px",
+                                            "borderRadius": "4px",
+                                            "letterSpacing": "1px",
+                                        },
+                                    ),
+                                ],
+                            ),
+                            html.Div(
+                                scene_name,
+                                style={"color": "#aaa", "fontSize": "14px", "marginBottom": "8px"},
+                            ),
+                            html.Div(
+                                style={"display": "flex", "gap": "16px"},
+                                children=[
+                                    html.Span(f"{num_frames} frames", style={"color": "#888", "fontSize": "12px"}),
+                                    html.Span(f"{num_cameras} cameras", style={"color": "#888", "fontSize": "12px"}),
+                                    html.Span("LiDAR + GT", style={"color": "#888", "fontSize": "12px"}),
+                                ],
+                            ),
+                        ],
+                    ),
+                    html.Button(
+                        "Launch",
+                        id="btn-demo-launch",
+                        className="launch-btn",
+                    ),
+                    html.Div(
+                        style={"marginTop": "20px"},
+                        children=[
+                            html.A(
+                                "GitHub",
+                                href="https://github.com",
+                                target="_blank",
+                                style={"color": "#555", "fontSize": "12px", "textDecoration": "none"},
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+
+
+def create_demo_app(demo_state: dict) -> Dash:
+    _server_state.update(demo_state)
+
+    app = Dash(
+        __name__,
+        suppress_callback_exceptions=True,
+    )
+
+    scene_name = demo_state.get("scene_name", "")
+    num_frames = demo_state["num_frames"]
+    num_cameras = len(demo_state["camera_names"])
+
+    app.layout = html.Div([
+        dcc.Store(id="app-phase", data="landing"),
+        html.Div(id="page-content"),
+    ])
+
+    @app.callback(
+        Output("page-content", "children"),
+        Input("app-phase", "data"),
+    )
+    def switch_page(phase):
+        if phase == "viz":
+            return _viz_layout()
+        return _demo_landing_layout(scene_name, num_frames, num_cameras)
+
+    @app.callback(
+        Output("app-phase", "data"),
+        Input("btn-demo-launch", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def demo_launch(n_clicks):
+        return "viz"
+
+    @app.callback(
+        Output("app-phase", "data", allow_duplicate=True),
+        Input("btn-home", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def go_home(n_clicks):
+        return "landing"
+
+    @app.callback(
+        Output("store-view-mode", "data"),
+        Output("btn-view-mode", "children"),
+        Input("btn-view-mode", "n_clicks"),
+        State("store-view-mode", "data"),
+        prevent_initial_call=True,
+    )
+    def toggle_view_mode(n_clicks, current_mode):
+        new_mode = "2d" if current_mode == "3d" else "3d"
+        return new_mode, new_mode.upper()
+
+    @app.callback(
+        Output("store-pc-color", "data"),
+        Output("btn-pc-color", "style"),
+        Input("btn-pc-color", "n_clicks"),
+        State("store-pc-color", "data"),
+        prevent_initial_call=True,
+    )
+    def toggle_pc_color(n_clicks, current):
+        if current == "color":
+            return "white", {**button_style("#ccc"), "fontSize": "10px"}
+        return "color", {**button_style("#555"), "fontSize": "10px"}
+
+    @app.callback(
+        Output("store-playing", "data"),
+        Output("play-interval", "disabled"),
+        Output("btn-play", "children"),
+        Input("btn-play", "n_clicks"),
+        State("store-playing", "data"),
+        prevent_initial_call=True,
+    )
+    def toggle_play(n_clicks, playing):
+        new_playing = not playing
+        return new_playing, not new_playing, "⏸" if new_playing else "▶"
+
+    @app.callback(
+        Output("store-frame", "data"),
+        Output("frame-slider", "value"),
+        Input("btn-prev", "n_clicks"),
+        Input("btn-next", "n_clicks"),
+        Input("frame-slider", "value"),
+        Input("play-interval", "n_intervals"),
+        State("store-frame", "data"),
+        State("store-playing", "data"),
+        prevent_initial_call=True,
+    )
+    def update_frame(prev_clicks, next_clicks, slider_val, n_intervals, current_frame, playing):
+        num = _server_state["num_frames"]
+        if num == 0:
+            return no_update, no_update
+        ctx = callback_context
+        if not ctx.triggered:
+            return no_update, no_update
+        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        if trigger_id == "btn-prev":
+            new_frame = max(0, current_frame - 1)
+        elif trigger_id == "btn-next":
+            new_frame = min(num - 1, current_frame + 1)
+        elif trigger_id == "play-interval":
+            if not playing:
+                return no_update, no_update
+            new_frame = current_frame + 1
+            if new_frame >= num:
+                new_frame = 0
+        elif trigger_id == "frame-slider":
+            new_frame = slider_val
+        else:
+            return no_update, no_update
+        return new_frame, new_frame
+
+    cam_outputs = [Output(f"cam-{i}", "src") for i in range(MAX_CAMERA_SLOTS)]
+
+    @app.callback(
+        Output("scene-3d", "figure"),
+        *cam_outputs,
+        Output("frame-info", "children"),
+        Output("debug-content", "children"),
+        Input("store-frame", "data"),
+        Input("check-gt-viz", "value"),
+        Input("check-trk-viz", "value"),
+        Input("check-categories", "value"),
+        Input("store-view-mode", "data"),
+        Input("store-pc-color", "data"),
+        Input("check-debug-categories", "value"),
+    )
+    def render_frame(frame_idx, gt_viz, trk_viz, active_categories, view_mode,
+                     pc_color_mode, debug_categories):
+        is_debug = _server_state["app_mode"] == "debug"
+        return compute_frame_data(
+            frame_idx, gt_viz, trk_viz, active_categories,
+            view_mode, pc_color_mode, debug_categories,
+            is_debug, _server_state
+        )
+
+    @app.callback(
+        Output("metrics-panel", "style"),
+        Output("metrics-arrow", "children"),
+        Input("btn-metrics", "n_clicks"),
+        State("metrics-panel", "style"),
+        prevent_initial_call=True,
+    )
+    def toggle_metrics(n_clicks, current_style):
+        if not current_style:
+            current_style = {}
+        if current_style.get("display") == "none":
+            return {**current_style, "display": "block"}, "▲"
+        return {**current_style, "display": "none"}, "▼"
+
+    return app
