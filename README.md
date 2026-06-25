@@ -30,6 +30,12 @@ Pure playback for inspecting scenes. Load a converted scene directory and explor
 
 This is analogous to running a debugger on your code: instead of just seeing "MOTA = 72%", you can step to the exact frame where an ID switch happened, see which objects were involved, and understand *why* it failed.
 
+## Live Demo
+
+Try SensorLens in your browser without any setup: [**SensorLens on HuggingFace Spaces**](https://huggingface.co/spaces/Bharath371/SensorLens)
+
+This is a minimal demo for trying out the interface with a few pre-loaded scenes. Run locally with Docker for full functionality (custom scenes, file upload, all datasets, live tracker comparison).
+
 ## Features
 
 ### Browser-Based Configuration
