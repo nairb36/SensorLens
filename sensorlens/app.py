@@ -45,6 +45,7 @@ _server_state = {
     "mot_accumulator": None,
     "mot_id_map": None,
     "mot_summary": None,
+    "demo_mode": False,
 }
 
 
@@ -309,6 +310,7 @@ def _viz_layout():
     has_scene = s["scene_loader"] is not None
     app_mode = s["app_mode"]
     is_debug = app_mode == "debug"
+    demo_mode = s.get("demo_mode", False)
 
     gt_viz_options = [
         {"label": html.Span("bbox", style={"color": "#999"}), "value": "bbox"},
@@ -694,7 +696,13 @@ def _viz_layout():
                                 title="Back to config",
                             ),
                             html.H1(
-                                "SensorLens",
+                                [
+                                    "SensorLens",
+                                    html.Span(
+                                        " (Demo)",
+                                        style={"fontSize": "14px", "color": "#888", "fontWeight": "400"},
+                                    ) if demo_mode else None,
+                                ],
                                 style={
                                     "margin": "0",
                                     "fontSize": "24px",
@@ -1399,14 +1407,20 @@ def button_style(bg="#2c3e50"):
     }
 
 
-def _demo_scene_card(scene_key, dataset, scene_name, num_frames, num_cameras):
+def _demo_scene_card(scene_key, dataset, scene_name, num_frames, num_cameras, app_mode):
     has_cameras = num_cameras > 0
+    is_debug = app_mode == "debug"
+    badge_text = "DEBUG" if is_debug else "VIZ"
+    badge_color = "#e74c3c" if is_debug else "#1abc9c"
+
     info_items = [
         html.Span(f"{num_frames} frames", style={"color": "#888", "fontSize": "12px"}),
     ]
     if has_cameras:
         info_items.append(html.Span(f"{num_cameras} cameras", style={"color": "#888", "fontSize": "12px"}))
     info_items.append(html.Span("LiDAR + GT", style={"color": "#888", "fontSize": "12px"}))
+    if is_debug:
+        info_items.append(html.Span("Precomputed tracker comparison", style={"color": "#e74c3c", "fontSize": "12px", "fontWeight": "600"}))
 
     return html.Button(
         id={"type": "btn-scene", "index": scene_key},
@@ -1425,8 +1439,8 @@ def _demo_scene_card(scene_key, dataset, scene_name, num_frames, num_cameras):
                 style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "marginBottom": "8px"},
                 children=[
                     html.Span(dataset, style={"color": "#00d4ff", "fontSize": "15px", "fontWeight": "600"}),
-                    html.Span("VIZ", style={
-                        "backgroundColor": "#1abc9c", "color": "#fff",
+                    html.Span(badge_text, style={
+                        "backgroundColor": badge_color, "color": "#fff",
                         "fontSize": "10px", "fontWeight": "700",
                         "padding": "2px 8px", "borderRadius": "4px", "letterSpacing": "1px",
                     }),
@@ -1444,6 +1458,7 @@ def _demo_landing_layout(demo_scenes):
         scene_cards.append(_demo_scene_card(
             key, s["dataset"], s["scene_name"],
             s["num_frames"], len(s["camera_names"]),
+            s["app_mode"],
         ))
 
     return html.Div(
@@ -1468,13 +1483,46 @@ def _demo_landing_layout(demo_scenes):
                     "textAlign": "center",
                 },
                 children=[
-                    html.H1("SensorLens", style={
+                    html.H1([
+                        "SensorLens ",
+                        html.Span("(Demo)", style={"fontSize": "18px", "color": "#888", "fontWeight": "400"}),
+                    ], style={
                         "color": "#00d4ff", "fontSize": "32px",
                         "fontWeight": "700", "margin": "0 0 4px 0",
                     }),
                     html.P("3D Multi-Object Tracking Visualizer", style={
-                        "color": "#666", "fontSize": "13px", "margin": "0 0 24px 0",
+                        "color": "#666", "fontSize": "13px", "margin": "0 0 20px 0",
                     }),
+                    html.Div(
+                        style={
+                            "backgroundColor": "rgba(255,165,0,0.1)",
+                            "border": "1px solid rgba(255,165,0,0.3)",
+                            "borderRadius": "6px",
+                            "padding": "10px 14px",
+                            "marginBottom": "8px",
+                            "textAlign": "left",
+                        },
+                        children=[
+                            html.Span("This is a limited demo with minimal functionality.", style={
+                                "color": "#e0a030", "fontSize": "12px",
+                            }),
+                        ],
+                    ),
+                    html.Div(
+                        style={
+                            "backgroundColor": "rgba(0,212,255,0.06)",
+                            "border": "1px solid rgba(0,212,255,0.2)",
+                            "borderRadius": "6px",
+                            "padding": "10px 14px",
+                            "marginBottom": "16px",
+                            "textAlign": "left",
+                        },
+                        children=[
+                            html.Span("Run locally with Docker for full functionality.", style={
+                                "color": "#5bb8d0", "fontSize": "12px",
+                            }),
+                        ],
+                    ),
                     html.Div(
                         style={"display": "flex", "flexDirection": "column", "gap": "8px"},
                         children=scene_cards,
@@ -1492,6 +1540,7 @@ def _demo_landing_layout(demo_scenes):
 def create_demo_app(demo_scenes: dict) -> Dash:
     first_key = next(iter(demo_scenes))
     _server_state.update(demo_scenes[first_key])
+    _server_state["demo_mode"] = True
 
     app = Dash(
         __name__,
@@ -1526,6 +1575,7 @@ def create_demo_app(demo_scenes: dict) -> Dash:
         triggered = ctx.triggered[0]["prop_id"]
         scene_key = json.loads(triggered.split(".")[0])["index"]
         _server_state.update(demo_scenes[scene_key])
+        _server_state["demo_mode"] = True
         return "viz", scene_key
 
     @app.callback(
