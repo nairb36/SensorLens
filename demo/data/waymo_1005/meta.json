@@ -1,0 +1,46 @@
+{
+  "format_version": "1.0",
+  "source_dataset": "waymo",
+  "scene_name": "1005081002024129653_5313_150_5333_150",
+  "num_frames": 20,
+  "sensors": {
+    "lidar": {
+      "points_format": "float32",
+      "points_per_row": 4,
+      "channels": [
+        "x",
+        "y",
+        "z",
+        "intensity"
+      ]
+    },
+    "cameras": [
+      {
+        "name": "front",
+        "order": 0
+      },
+      {
+        "name": "front_left",
+        "order": 1
+      },
+      {
+        "name": "front_right",
+        "order": 2
+      },
+      {
+        "name": "side_left",
+        "order": 3
+      },
+      {
+        "name": "side_right",
+        "order": 4
+      }
+    ]
+  },
+  "category_mapping": {
+    "1": "car",
+    "2": "pedestrian",
+    "3": "barrier",
+    "4": "bicycle"
+  }
+}

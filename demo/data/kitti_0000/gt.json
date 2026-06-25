@@ -1,0 +1,1037 @@
+[
+  {
+    "frame_index": 0,
+    "timestamp": 0,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          8.951591,
+          -12.169015,
+          0.060175
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.676389
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          0.518276,
+          -7.119529,
+          -0.064373
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -1.116414
+      },
+      {
+        "instance_token": "kitti_0000_2",
+        "category_name": "pedestrian",
+        "translation": [
+          -2.942239,
+          -11.234304,
+          -0.115841
+        ],
+        "size": [
+          0.767881,
+          0.972283,
+          1.714062
+        ],
+        "yaw": -0.891639
+      }
+    ]
+  },
+  {
+    "frame_index": 1,
+    "timestamp": 1,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          9.406467,
+          -12.465312,
+          0.105366
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.654519
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          0.686678,
+          -7.449024,
+          -0.04882
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -1.11159
+      },
+      {
+        "instance_token": "kitti_0000_2",
+        "category_name": "pedestrian",
+        "translation": [
+          -2.807291,
+          -11.332379,
+          -0.090745
+        ],
+        "size": [
+          0.767881,
+          0.972283,
+          1.714062
+        ],
+        "yaw": -0.889232
+      }
+    ]
+  },
+  {
+    "frame_index": 2,
+    "timestamp": 2,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          9.807561,
+          -12.765254,
+          0.063424
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.636043
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          0.816672,
+          -7.758306,
+          -0.068924
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -1.110141
+      },
+      {
+        "instance_token": "kitti_0000_2",
+        "category_name": "pedestrian",
+        "translation": [
+          -2.737305,
+          -11.405364,
+          -0.110985
+        ],
+        "size": [
+          0.767881,
+          0.972283,
+          1.714062
+        ],
+        "yaw": -0.8902
+      }
+    ]
+  },
+  {
+    "frame_index": 3,
+    "timestamp": 3,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          10.203227,
+          -13.07519,
+          0.046581
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.617463
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          0.939423,
+          -8.084284,
+          -0.057805
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -1.108661
+      },
+      {
+        "instance_token": "kitti_0000_2",
+        "category_name": "pedestrian",
+        "translation": [
+          -2.677699,
+          -11.495294,
+          -0.073128
+        ],
+        "size": [
+          0.767881,
+          0.972283,
+          1.714062
+        ],
+        "yaw": -0.891101
+      }
+    ]
+  },
+  {
+    "frame_index": 4,
+    "timestamp": 4,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          10.616516,
+          -13.395041,
+          0.042953
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.597423
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          1.080063,
+          -8.432725,
+          -0.002486
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -1.105703
+      },
+      {
+        "instance_token": "kitti_0000_2",
+        "category_name": "pedestrian",
+        "translation": [
+          -2.59803,
+          -11.618436,
+          -0.071739
+        ],
+        "size": [
+          0.767881,
+          0.972283,
+          1.714062
+        ],
+        "yaw": -0.890541
+      }
+    ]
+  },
+  {
+    "frame_index": 5,
+    "timestamp": 5,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          11.02657,
+          -13.668897,
+          0.068942
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.578814
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          1.276073,
+          -8.729714,
+          0.009648
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -1.069772
+      },
+      {
+        "instance_token": "kitti_0000_2",
+        "category_name": "pedestrian",
+        "translation": [
+          -2.526671,
+          -11.685687,
+          -0.052482
+        ],
+        "size": [
+          0.767881,
+          0.972283,
+          1.714062
+        ],
+        "yaw": -0.891416
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.888723,
+          -35.099123,
+          0.167537
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.688781
+      }
+    ]
+  },
+  {
+    "frame_index": 6,
+    "timestamp": 6,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          11.443439,
+          -13.899908,
+          0.132428
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.564942
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          1.474305,
+          -9.001901,
+          -0.000858
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -1.033868
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.879336,
+          -35.064931,
+          0.115235
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.689014
+      }
+    ]
+  },
+  {
+    "frame_index": 7,
+    "timestamp": 7,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          11.890092,
+          -14.140774,
+          0.162076
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.550148
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          1.697398,
+          -9.299513,
+          0.005048
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.997081
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.915479,
+          -35.042163,
+          0.105764
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.690122
+      }
+    ]
+  },
+  {
+    "frame_index": 8,
+    "timestamp": 8,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          12.29461,
+          -14.354816,
+          0.164859
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.537124
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          1.886559,
+          -9.557385,
+          0.021705
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.962067
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.868622,
+          -35.034386,
+          0.080318
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.689443
+      }
+    ]
+  },
+  {
+    "frame_index": 9,
+    "timestamp": 9,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          12.708432,
+          -14.586465,
+          0.171207
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.524211
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          2.084584,
+          -9.83509,
+          0.026825
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.927166
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.824756,
+          -35.058953,
+          -0.055843
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.688632
+      }
+    ]
+  },
+  {
+    "frame_index": 10,
+    "timestamp": 10,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          13.155807,
+          -14.819062,
+          0.183853
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.510294
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          2.342857,
+          -10.158583,
+          0.074085
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.912313
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.833834,
+          -35.086066,
+          0.081299
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.688863
+      }
+    ]
+  },
+  {
+    "frame_index": 11,
+    "timestamp": 11,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          13.556451,
+          -15.039675,
+          0.208887
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.495546
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          2.581108,
+          -10.478034,
+          0.074028
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.898068
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.841689,
+          -35.042206,
+          0.16702
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.689022
+      }
+    ]
+  },
+  {
+    "frame_index": 12,
+    "timestamp": 12,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          13.94876,
+          -15.27066,
+          0.152403
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.481574
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          2.814906,
+          -10.802176,
+          0.038726
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.884568
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.822138,
+          -35.030159,
+          0.036665
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.688444
+      }
+    ]
+  },
+  {
+    "frame_index": 13,
+    "timestamp": 13,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          14.365123,
+          -15.514391,
+          0.118899
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.466372
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          3.068084,
+          -11.155937,
+          0.035491
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.869855
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.846078,
+          -35.027813,
+          -0.042676
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.689049
+      }
+    ]
+  },
+  {
+    "frame_index": 14,
+    "timestamp": 14,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          14.774652,
+          -15.711583,
+          0.166565
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.451703
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          3.318112,
+          -11.460617,
+          0.059283
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.855686
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.84913,
+          -34.998749,
+          0.06922
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.689136
+      }
+    ]
+  },
+  {
+    "frame_index": 15,
+    "timestamp": 15,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          15.184144,
+          -15.895401,
+          0.215381
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.437151
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          3.60096,
+          -11.75954,
+          0.060039
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.81781
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.845998,
+          -34.970121,
+          0.180443
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.689089
+      }
+    ]
+  },
+  {
+    "frame_index": 16,
+    "timestamp": 16,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          15.602568,
+          -16.110589,
+          0.278193
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.431661
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          3.909123,
+          -12.100245,
+          0.024723
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.77983
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.85665,
+          -34.995948,
+          -0.000391
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.689093
+      }
+    ]
+  },
+  {
+    "frame_index": 17,
+    "timestamp": 17,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          15.991286,
+          -16.311765,
+          0.267211
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.42723
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          4.194817,
+          -12.420862,
+          0.048908
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.742928
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.816033,
+          -35.036107,
+          0.161455
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.688057
+      }
+    ]
+  },
+  {
+    "frame_index": 18,
+    "timestamp": 18,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          16.380271,
+          -16.523931,
+          0.286418
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.422454
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          4.491853,
+          -12.734423,
+          0.093655
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.70569
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.788835,
+          -35.06232,
+          0.264872
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.687348
+      }
+    ]
+  },
+  {
+    "frame_index": 19,
+    "timestamp": 19,
+    "detections": [
+      {
+        "instance_token": "kitti_0000_0",
+        "category_name": "car",
+        "translation": [
+          16.783533,
+          -16.716106,
+          0.293374
+        ],
+        "size": [
+          1.823255,
+          4.433886,
+          2.0
+        ],
+        "yaw": -0.417114
+      },
+      {
+        "instance_token": "kitti_0000_1",
+        "category_name": "bicycle",
+        "translation": [
+          4.801413,
+          -13.03527,
+          0.125482
+        ],
+        "size": [
+          0.824591,
+          1.785241,
+          1.739063
+        ],
+        "yaw": -0.667885
+      },
+      {
+        "instance_token": "kitti_0000_3",
+        "category_name": "car",
+        "translation": [
+          26.784004,
+          -35.074331,
+          0.310605
+        ],
+        "size": [
+          1.895275,
+          5.530314,
+          2.195312
+        ],
+        "yaw": 1.687195
+      }
+    ]
+  }
+]

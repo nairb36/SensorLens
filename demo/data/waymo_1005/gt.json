@@ -1,0 +1,4802 @@
+[
+  {
+    "frame_index": 0,
+    "timestamp": 1510593600140139,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9253.187351,
+          9472.227865,
+          -194.49022
+        ],
+        "size": [
+          1.9828961125840503,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.007121
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9323.66592,
+          9469.851133,
+          -194.16022
+        ],
+        "size": [
+          2.0181655979297246,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.010977
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.311862,
+          9490.430687,
+          -190.937049
+        ],
+        "size": [
+          0.6350746870643111,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023093
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.852535,
+          9491.413846,
+          -192.909634
+        ],
+        "size": [
+          0.44778073852526173,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101587
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9290.997941,
+          9469.131829,
+          -194.260097
+        ],
+        "size": [
+          1.938452972176517,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.012529
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9332.880634,
+          9473.541622,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336556262,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.015063
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9306.086883,
+          9466.003162,
+          -194.31002
+        ],
+        "size": [
+          2.035441412504151,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.015409
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.463094,
+          9490.406505,
+          -192.170653
+        ],
+        "size": [
+          0.7494751501653812,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -2.3e-05
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.43562,
+          9461.535458,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801868,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.135013
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.849674,
+          9491.41121,
+          -192.289634
+        ],
+        "size": [
+          0.9429254809122641,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101587
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9257.008184,
+          9487.791914,
+          -194.34022
+        ],
+        "size": [
+          2.329990018183631,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.114428
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.846964,
+          9491.426298,
+          -191.719634
+        ],
+        "size": [
+          0.8375734288811504,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101587
+      }
+    ]
+  },
+  {
+    "frame_index": 1,
+    "timestamp": 1510593600240120,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9255.229601,
+          9472.253495,
+          -194.488823
+        ],
+        "size": [
+          1.9828961125843019,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.007477
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9328.388174,
+          9466.479441,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458098145,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.01727
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9325.449803,
+          9469.870757,
+          -194.153553
+        ],
+        "size": [
+          2.01816559792925,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.009311
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.311139,
+          9490.420472,
+          -190.936049
+        ],
+        "size": [
+          0.6350746870643087,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023196
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.85075,
+          9491.40506,
+          -192.913119
+        ],
+        "size": [
+          0.44778073852526484,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101484
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9292.766521,
+          9469.154029,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721756185,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.012519
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9334.704497,
+          9473.569139,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336550867,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.011527
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9307.795845,
+          9466.027013,
+          -194.31002
+        ],
+        "size": [
+          2.0354414125054943,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.01516
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.463945,
+          9490.403012,
+          -192.166109
+        ],
+        "size": [
+          0.7494751501653794,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000125
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435587,
+          9461.534335,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801866,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.134911
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.847994,
+          9491.402092,
+          -192.29327
+        ],
+        "size": [
+          0.9429254809122631,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101484
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9255.559984,
+          9487.743542,
+          -194.342936
+        ],
+        "size": [
+          2.329990018184208,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.115825
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.845449,
+          9491.41664,
+          -191.72327
+        ],
+        "size": [
+          0.8375734288811522,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101484
+      }
+    ]
+  },
+  {
+    "frame_index": 2,
+    "timestamp": 1510593600340101,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9257.271846,
+          9472.279124,
+          -194.487426
+        ],
+        "size": [
+          1.9828961125870297,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.007863
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9330.129929,
+          9466.509743,
+          -194.290904
+        ],
+        "size": [
+          1.92425444580789,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.017966
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9327.250609,
+          9469.884961,
+          -194.146887
+        ],
+        "size": [
+          2.01816559793149,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.010763
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.310415,
+          9490.410256,
+          -190.93505
+        ],
+        "size": [
+          0.6350746870643107,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023267
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.848965,
+          9491.396274,
+          -192.916604
+        ],
+        "size": [
+          0.4477807385252643,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101413
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9294.535097,
+          9469.176228,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721730943,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.01254
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9336.528355,
+          9473.596656,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336541796,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.008022
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9309.504804,
+          9466.050863,
+          -194.31002
+        ],
+        "size": [
+          2.0354414125053877,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.014942
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.464795,
+          9490.399518,
+          -192.161565
+        ],
+        "size": [
+          0.7494751501653805,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000197
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435554,
+          9461.533213,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801875,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.134839
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.846313,
+          9491.392974,
+          -192.296907
+        ],
+        "size": [
+          0.9429254809122658,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101413
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9254.111781,
+          9487.69517,
+          -194.345653
+        ],
+        "size": [
+          2.329990018182759,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.11719
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.843934,
+          9491.406982,
+          -191.726907
+        ],
+        "size": [
+          0.8375734288811516,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101413
+      }
+    ]
+  },
+  {
+    "frame_index": 3,
+    "timestamp": 1510593600440091,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9259.314281,
+          9472.304756,
+          -194.486028
+        ],
+        "size": [
+          1.9828961125867595,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.008311
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9331.871843,
+          9466.540048,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458075777,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.018722
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9329.051582,
+          9469.899167,
+          -194.14022
+        ],
+        "size": [
+          2.0181655979309574,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.012277
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.309692,
+          9490.400039,
+          -190.93405
+        ],
+        "size": [
+          0.635074687064314,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023277
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.847179,
+          9491.387487,
+          -192.920088
+        ],
+        "size": [
+          0.44778073852526085,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101403
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9296.303837,
+          9469.19843,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721741244,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.012623
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9338.352387,
+          9473.624175,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336549295,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.004578
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9311.213921,
+          9466.074716,
+          -194.31002
+        ],
+        "size": [
+          2.0354414125058833,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.014785
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.465646,
+          9490.396024,
+          -192.157021
+        ],
+        "size": [
+          0.7494751501653808,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000207
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435522,
+          9461.53209,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801867,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.134829
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.844633,
+          9491.383856,
+          -192.300543
+        ],
+        "size": [
+          0.9429254809122652,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101403
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9252.58865,
+          9487.670434,
+          -194.339408
+        ],
+        "size": [
+          2.3299900181825404,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.115645
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.842419,
+          9491.397324,
+          -191.730543
+        ],
+        "size": [
+          0.8375734288811563,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101403
+      }
+    ]
+  },
+  {
+    "frame_index": 4,
+    "timestamp": 1510593600540080,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9261.356692,
+          9472.330387,
+          -194.484631
+        ],
+        "size": [
+          1.9828961125851459,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.008752
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9333.613736,
+          9466.570352,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458098612,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.019472
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9330.827898,
+          9469.92962,
+          -194.141052
+        ],
+        "size": [
+          2.0181655979306927,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.012363
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.308968,
+          9490.389823,
+          -190.933051
+        ],
+        "size": [
+          0.6350746870643145,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023294
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.845394,
+          9491.378701,
+          -192.923573
+        ],
+        "size": [
+          0.4477807385252642,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101386
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9298.072557,
+          9469.220631,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721760617,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.012699
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9340.207085,
+          9473.657487,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336548369,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.006523
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9312.923018,
+          9466.098568,
+          -194.31002
+        ],
+        "size": [
+          2.035441412504236,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.014621
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.466497,
+          9490.392529,
+          -192.152477
+        ],
+        "size": [
+          0.7494751501653789,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000224
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435489,
+          9461.530968,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801869,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.134812
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.842953,
+          9491.374737,
+          -192.304179
+        ],
+        "size": [
+          0.9429254809122654,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101386
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9251.065529,
+          9487.645698,
+          -194.333162
+        ],
+        "size": [
+          2.3299900181835107,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.114107
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.840904,
+          9491.387665,
+          -191.734179
+        ],
+        "size": [
+          0.8375734288811503,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101386
+      }
+    ]
+  },
+  {
+    "frame_index": 5,
+    "timestamp": 1510593600640104,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9263.399818,
+          9472.356028,
+          -194.483234
+        ],
+        "size": [
+          1.9828961125845372,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.009208
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9335.356239,
+          9466.600668,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458079083,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.020237
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9332.604842,
+          9469.960084,
+          -194.141886
+        ],
+        "size": [
+          2.0181655979316218,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.012465
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.308244,
+          9490.379603,
+          -190.932051
+        ],
+        "size": [
+          0.6350746870643103,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023296
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.843608,
+          9491.369911,
+          -192.927059
+        ],
+        "size": [
+          0.4477807385252637,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101384
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9299.841896,
+          9469.24284,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721748465,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.01279
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9342.062438,
+          9473.690811,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336558771,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.008485
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9314.632722,
+          9466.122429,
+          -194.31002
+        ],
+        "size": [
+          2.0354414125024696,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.014473
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.467348,
+          9490.389034,
+          -192.147931
+        ],
+        "size": [
+          0.7494751501653796,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000225
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435456,
+          9461.529845,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801875,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.134811
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.841272,
+          9491.365616,
+          -192.307817
+        ],
+        "size": [
+          0.9429254809122641,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101384
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9249.541868,
+          9487.620954,
+          -194.326915
+        ],
+        "size": [
+          2.3299900181834348,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.112553
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.839389,
+          9491.378004,
+          -191.737817
+        ],
+        "size": [
+          0.837573428881154,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101384
+      }
+    ]
+  },
+  {
+    "frame_index": 6,
+    "timestamp": 1510593600740100,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9265.442375,
+          9472.381661,
+          -194.481836
+        ],
+        "size": [
+          1.98289611258448,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.009786
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9337.098252,
+          9466.630974,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458106783,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.021124
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9334.381289,
+          9469.99054,
+          -194.142719
+        ],
+        "size": [
+          2.0181655979289737,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.012688
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.30752,
+          9490.369386,
+          -190.931051
+        ],
+        "size": [
+          0.6350746870643128,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023176
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.841823,
+          9491.361124,
+          -192.930544
+        ],
+        "size": [
+          0.4477807385252654,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101504
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9301.610737,
+          9469.265043,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721728292,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.013003
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.126611,
+          9492.288129,
+          -192.639005
+        ],
+        "size": [
+          1.157701454125715,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.026087
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9343.917273,
+          9473.724126,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336556245,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.010567
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9316.364987,
+          9466.149163,
+          -194.31002
+        ],
+        "size": [
+          2.0354414125041638,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.014838
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.468199,
+          9490.38554,
+          -192.143386
+        ],
+        "size": [
+          0.7494751501653791,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000105
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435424,
+          9461.528722,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801876,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.134931
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.839592,
+          9491.356497,
+          -192.311454
+        ],
+        "size": [
+          0.9429254809122678,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101504
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.127517,
+          9492.287508,
+          -191.787953
+        ],
+        "size": [
+          1.325743968947546,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.026087
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9248.169765,
+          9487.612799,
+          -194.31846
+        ],
+        "size": [
+          2.3299900181830675,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.11271
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.837874,
+          9491.368345,
+          -191.741454
+        ],
+        "size": [
+          0.837573428881152,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101504
+      }
+    ]
+  },
+  {
+    "frame_index": 7,
+    "timestamp": 1510593600840157,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9267.486174,
+          9472.40731,
+          -194.480438
+        ],
+        "size": [
+          1.9828961125873896,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.010374
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.437194,
+          9478.876112,
+          -191.5334
+        ],
+        "size": [
+          1.3595662085829572,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042236
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9338.804902,
+          9466.650317,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458094748,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.020428
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9336.158817,
+          9470.021014,
+          -194.143552
+        ],
+        "size": [
+          2.0181655979302686,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.012922
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.306796,
+          9490.359162,
+          -190.930051
+        ],
+        "size": [
+          0.6350746870643087,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023046
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.840037,
+          9491.352331,
+          -192.934032
+        ],
+        "size": [
+          0.4477807385252646,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101634
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9303.390331,
+          9469.291945,
+          -194.260097
+        ],
+        "size": [
+          1.938452972173827,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.013126
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.124868,
+          9492.2807,
+          -192.646073
+        ],
+        "size": [
+          1.1577014541257147,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.025957
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9345.773236,
+          9473.757461,
+          -194.13022
+        ],
+        "size": [
+          1.878903333656558,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.01266
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.439356,
+          9478.876529,
+          -192.47266
+        ],
+        "size": [
+          1.2439333201552465,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042236
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9318.098314,
+          9466.175914,
+          -194.31002
+        ],
+        "size": [
+          2.035441412505837,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.015213
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.46905,
+          9490.382043,
+          -192.138839
+        ],
+        "size": [
+          0.7494751501653795,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": 2.5e-05
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435391,
+          9461.527599,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801868,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.135061
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.837911,
+          9491.347372,
+          -192.315092
+        ],
+        "size": [
+          0.9429254809122622,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101634
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.125803,
+          9492.280114,
+          -191.794845
+        ],
+        "size": [
+          1.3257439689475505,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.025957
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9246.597082,
+          9487.593239,
+          -194.309999
+        ],
+        "size": [
+          2.329990018184557,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.112856
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.836357,
+          9491.35868,
+          -191.745092
+        ],
+        "size": [
+          0.8375734288811529,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101634
+      }
+    ]
+  },
+  {
+    "frame_index": 8,
+    "timestamp": 1510593600940178,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9269.529242,
+          9472.43295,
+          -194.479041
+        ],
+        "size": [
+          1.9828961125843023,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.010867
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.435036,
+          9478.869212,
+          -191.540884
+        ],
+        "size": [
+          1.359566208582955,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042201
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9340.510939,
+          9466.669652,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458091368,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.019637
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9337.93571,
+          9470.051478,
+          -194.144385
+        ],
+        "size": [
+          2.0181655979312847,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.01306
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.306072,
+          9490.348942,
+          -190.929051
+        ],
+        "size": [
+          0.6350746870643099,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023011
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.838251,
+          9491.343542,
+          -192.937518
+        ],
+        "size": [
+          0.4477807385252628,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101669
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9305.169284,
+          9469.318837,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721738148,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.013155
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.123125,
+          9492.273272,
+          -192.653138
+        ],
+        "size": [
+          1.1577014541257125,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.025922
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9347.628536,
+          9473.790784,
+          -194.13022
+        ],
+        "size": [
+          1.878903333654978,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.014658
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.437117,
+          9478.869638,
+          -192.478849
+        ],
+        "size": [
+          1.2439333201552487,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042201
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9319.831021,
+          9466.202655,
+          -194.31002
+        ],
+        "size": [
+          2.0354414125050573,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.015492
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.469901,
+          9490.378548,
+          -192.134293
+        ],
+        "size": [
+          0.7494751501653834,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": 5.9e-05
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435358,
+          9461.526476,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801872,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.135095
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.83623,
+          9491.338251,
+          -192.31873
+        ],
+        "size": [
+          0.942925480912264,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101669
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.12409,
+          9492.272723,
+          -191.801735
+        ],
+        "size": [
+          1.3257439689475514,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.025922
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9245.307915,
+          9487.506461,
+          -194.308101
+        ],
+        "size": [
+          2.3299900181825106,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.113098
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.834842,
+          9491.349018,
+          -191.74873
+        ],
+        "size": [
+          0.837573428881154,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101669
+      }
+    ]
+  },
+  {
+    "frame_index": 9,
+    "timestamp": 1510593601040199,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9271.572306,
+          9472.45859,
+          -194.477643
+        ],
+        "size": [
+          1.982896112584648,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.011283
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.432878,
+          9478.862312,
+          -191.548368
+        ],
+        "size": [
+          1.3595662085829558,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042243
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9342.216971,
+          9466.688988,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458090747,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.018769
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9339.712598,
+          9470.081941,
+          -194.145218
+        ],
+        "size": [
+          2.018165597930675,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.013121
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.305348,
+          9490.338723,
+          -190.928051
+        ],
+        "size": [
+          0.6350746870643138,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023053
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.836465,
+          9491.334752,
+          -192.941004
+        ],
+        "size": [
+          0.4477807385252639,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101627
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9306.948233,
+          9469.34573,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721751103,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.013107
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.121381,
+          9492.265846,
+          -192.660203
+        ],
+        "size": [
+          1.1577014541257156,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.025964
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9349.48384,
+          9473.824107,
+          -194.13022
+        ],
+        "size": [
+          1.878903333655903,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.016579
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.434878,
+          9478.862747,
+          -192.485038
+        ],
+        "size": [
+          1.2439333201552447,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042243
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9321.563724,
+          9466.229396,
+          -194.31002
+        ],
+        "size": [
+          2.035441412504525,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.015695
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.470752,
+          9490.375053,
+          -192.129748
+        ],
+        "size": [
+          0.749475150165378,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": 1.7e-05
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435326,
+          9461.525353,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801872,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.135053
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.834549,
+          9491.329129,
+          -192.322368
+        ],
+        "size": [
+          0.9429254809122634,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101627
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.122377,
+          9492.265331,
+          -191.808625
+        ],
+        "size": [
+          1.3257439689475508,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.025964
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9243.606596,
+          9487.457277,
+          -194.309433
+        ],
+        "size": [
+          2.3299900181816504,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.121136
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.833326,
+          9491.339357,
+          -191.752368
+        ],
+        "size": [
+          0.8375734288811536,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101627
+      }
+    ]
+  },
+  {
+    "frame_index": 10,
+    "timestamp": 1510593601140266,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9273.616319,
+          9472.484241,
+          -194.476245
+        ],
+        "size": [
+          1.982896112584124,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.011669
+      },
+      {
+        "instance_token": "9oP479zg6gW1ggR_hMie7A",
+        "category_name": "pedestrian",
+        "translation": [
+          9366.687694,
+          9461.848873,
+          -194.1478
+        ],
+        "size": [
+          0.9117072079600709,
+          0.9558650965987667,
+          1.6599999999999966
+        ],
+        "yaw": -0.035009
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.43072,
+          9478.855409,
+          -191.555855
+        ],
+        "size": [
+          1.3595662085829567,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042316
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9343.923792,
+          9466.708332,
+          -194.290904
+        ],
+        "size": [
+          1.924254445807455,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.01787
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9341.490308,
+          9470.112418,
+          -194.146052
+        ],
+        "size": [
+          2.018165597932385,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.013152
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.304624,
+          9490.328498,
+          -190.927051
+        ],
+        "size": [
+          0.6350746870643104,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023126
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.834679,
+          9491.325959,
+          -192.944491
+        ],
+        "size": [
+          0.44778073852526445,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101554
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9308.728005,
+          9469.372634,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721741004,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.013028
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.119638,
+          9492.258415,
+          -192.667272
+        ],
+        "size": [
+          1.157701454125715,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.026037
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9351.322674,
+          9473.845195,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336542527,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.01594
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.432638,
+          9478.855853,
+          -192.491229
+        ],
+        "size": [
+          1.2439333201552474,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042316
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9323.297228,
+          9466.25615,
+          -194.31002
+        ],
+        "size": [
+          2.0354414125026987,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.015868
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.471603,
+          9490.371556,
+          -192.1252
+        ],
+        "size": [
+          0.7494751501653829,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -5.5e-05
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435293,
+          9461.52423,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801874,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.134981
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.832868,
+          9491.320004,
+          -192.326007
+        ],
+        "size": [
+          0.9429254809122611,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101554
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.120663,
+          9492.257936,
+          -191.815517
+        ],
+        "size": [
+          1.3257439689475456,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.026037
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9242.188484,
+          9487.449338,
+          -194.311245
+        ],
+        "size": [
+          2.329990018184729,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.098159
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.83181,
+          9491.329691,
+          -191.756007
+        ],
+        "size": [
+          0.8375734288811505,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101554
+      }
+    ]
+  },
+  {
+    "frame_index": 11,
+    "timestamp": 1510593601240320,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9275.689438,
+          9472.507748,
+          -194.475406
+        ],
+        "size": [
+          1.9828961125858702,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.011931
+      },
+      {
+        "instance_token": "9oP479zg6gW1ggR_hMie7A",
+        "category_name": "pedestrian",
+        "translation": [
+          9366.824659,
+          9461.844084,
+          -194.151783
+        ],
+        "size": [
+          0.9117072079600702,
+          0.9558650965987667,
+          1.6599999999999966
+        ],
+        "yaw": -0.035066
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.428561,
+          9478.848507,
+          -191.563341
+        ],
+        "size": [
+          1.3595662085829554,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042372
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9345.630389,
+          9466.727674,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458075712,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.016988
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9343.267785,
+          9470.142892,
+          -194.146885
+        ],
+        "size": [
+          2.0181655979292894,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.013199
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.3039,
+          9490.318275,
+          -190.92605
+        ],
+        "size": [
+          0.6350746870643124,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023182
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.832892,
+          9491.317166,
+          -192.947978
+        ],
+        "size": [
+          0.4477807385252628,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101498
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9310.507543,
+          9469.399535,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721726673,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.012965
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.117894,
+          9492.250986,
+          -192.674339
+        ],
+        "size": [
+          1.1577014541257153,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.026093
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9353.161276,
+          9473.86628,
+          -194.13022
+        ],
+        "size": [
+          1.878903333656136,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.015318
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.430398,
+          9478.84896,
+          -192.49742
+        ],
+        "size": [
+          1.2439333201552463,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042372
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9325.030505,
+          9466.2829,
+          -194.31002
+        ],
+        "size": [
+          2.035441412502293,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.016056
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.472455,
+          9490.368059,
+          -192.120653
+        ],
+        "size": [
+          0.7494751501653814,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000112
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435261,
+          9461.523107,
+          -192.741162
+        ],
+        "size": [
+          0.591794405780187,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.134924
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.831187,
+          9491.310879,
+          -192.329646
+        ],
+        "size": [
+          0.9429254809122639,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101498
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.11895,
+          9492.250543,
+          -191.822409
+        ],
+        "size": [
+          1.325743968947546,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.026093
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9240.743079,
+          9487.415259,
+          -194.309179
+        ],
+        "size": [
+          2.32999001818168,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.106468
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.830294,
+          9491.320026,
+          -191.759646
+        ],
+        "size": [
+          0.8375734288811492,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101498
+      }
+    ]
+  },
+  {
+    "frame_index": 12,
+    "timestamp": 1510593601340415,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9277.763406,
+          9472.531265,
+          -194.474566
+        ],
+        "size": [
+          1.9828961125867446,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.0122
+      },
+      {
+        "instance_token": "9oP479zg6gW1ggR_hMie7A",
+        "category_name": "pedestrian",
+        "translation": [
+          9366.96168,
+          9461.839292,
+          -194.155768
+        ],
+        "size": [
+          0.9117072079600712,
+          0.9558650965987667,
+          1.6599999999999966
+        ],
+        "yaw": -0.035117
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.426402,
+          9478.841603,
+          -191.57083
+        ],
+        "size": [
+          1.3595662085829558,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042424
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9347.337682,
+          9466.747024,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458092652,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.01611
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9345.045987,
+          9470.173377,
+          -194.147719
+        ],
+        "size": [
+          2.0181655979292565,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.013251
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.303176,
+          9490.308048,
+          -190.92505
+        ],
+        "size": [
+          0.6350746870643145,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023234
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.831105,
+          9491.308371,
+          -192.951467
+        ],
+        "size": [
+          0.44778073852526223,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101446
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9312.287807,
+          9469.426448,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721739676,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.012908
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.11615,
+          9492.243553,
+          -192.68141
+        ],
+        "size": [
+          1.1577014541257113,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.026145
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9355.000626,
+          9473.887374,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336571441,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.0147
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.428158,
+          9478.842064,
+          -192.503614
+        ],
+        "size": [
+          1.2439333201552478,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042424
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9326.764488,
+          9466.309661,
+          -194.31002
+        ],
+        "size": [
+          2.0354414125032934,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.01625
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.470774,
+          9490.362301,
+          -192.119743
+        ],
+        "size": [
+          0.7494751501653804,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000163
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435228,
+          9461.521983,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801878,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.134873
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.829505,
+          9491.301751,
+          -192.333286
+        ],
+        "size": [
+          0.9429254809122624,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101446
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.117235,
+          9492.243146,
+          -191.829304
+        ],
+        "size": [
+          1.32574396894755,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.026145
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9239.297081,
+          9487.381165,
+          -194.307112
+        ],
+        "size": [
+          2.3299900181848794,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.114776
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.828778,
+          9491.310357,
+          -191.763286
+        ],
+        "size": [
+          0.837573428881154,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101446
+      }
+    ]
+  },
+  {
+    "frame_index": 13,
+    "timestamp": 1510593601440478,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9279.836718,
+          9472.554775,
+          -194.473727
+        ],
+        "size": [
+          1.9828961125866493,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.01258
+      },
+      {
+        "instance_token": "9oP479zg6gW1ggR_hMie7A",
+        "category_name": "pedestrian",
+        "translation": [
+          9367.098657,
+          9461.834502,
+          -194.159752
+        ],
+        "size": [
+          0.9117072079600715,
+          0.9558650965987667,
+          1.6599999999999966
+        ],
+        "yaw": -0.035056
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.424243,
+          9478.8347,
+          -191.577207
+        ],
+        "size": [
+          1.3595662085829576,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042363
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9349.044434,
+          9466.766367,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458101987,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.015345
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9346.823625,
+          9470.203853,
+          -194.148553
+        ],
+        "size": [
+          2.0181655979300626,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.013415
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.302452,
+          9490.297824,
+          -190.92405
+        ],
+        "size": [
+          0.6350746870643078,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023173
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.829319,
+          9491.299577,
+          -192.954954
+        ],
+        "size": [
+          0.44778073852526334,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101507
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9314.067506,
+          9469.453351,
+          -194.260097
+        ],
+        "size": [
+          1.938452972174803,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.012962
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.114406,
+          9492.236123,
+          -192.688478
+        ],
+        "size": [
+          1.1577014541257107,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.026084
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9356.839394,
+          9473.908462,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336573056,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.014195
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.425918,
+          9478.83517,
+          -192.509805
+        ],
+        "size": [
+          1.2439333201552483,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042363
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9328.497922,
+          9466.336413,
+          -194.31002
+        ],
+        "size": [
+          2.03544141250288,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.016555
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.469094,
+          9490.356544,
+          -192.118834
+        ],
+        "size": [
+          0.7494751501653819,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000103
+      },
+      {
+        "instance_token": "u6Bac5P-cmLiBogAv6uV6Q",
+        "category_name": "barrier",
+        "translation": [
+          9219.435195,
+          9461.52086,
+          -192.741162
+        ],
+        "size": [
+          0.5917944057801875,
+          0.055870180083619624,
+          0.6999999999999886
+        ],
+        "yaw": 3.134933
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.827823,
+          9491.292626,
+          -192.336925
+        ],
+        "size": [
+          0.9429254809122669,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101507
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.115521,
+          9492.235751,
+          -191.836197
+        ],
+        "size": [
+          1.325743968947548,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.026084
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9237.851544,
+          9487.347082,
+          -194.305046
+        ],
+        "size": [
+          2.3299900181856343,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": -3.12297
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.827261,
+          9491.300692,
+          -191.766925
+        ],
+        "size": [
+          0.8375734288811552,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101507
+      }
+    ]
+  },
+  {
+    "frame_index": 14,
+    "timestamp": 1510593601540535,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9281.909906,
+          9472.578283,
+          -194.472888
+        ],
+        "size": [
+          1.9828961125877695,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.013003
+      },
+      {
+        "instance_token": "9oP479zg6gW1ggR_hMie7A",
+        "category_name": "pedestrian",
+        "translation": [
+          9367.235626,
+          9461.829713,
+          -194.159752
+        ],
+        "size": [
+          0.91170720796042,
+          0.9558650965987667,
+          1.6599999999999966
+        ],
+        "yaw": -0.033893
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.422085,
+          9478.827798,
+          -191.583583
+        ],
+        "size": [
+          1.359566208582957,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.04226
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9350.751085,
+          9466.78571,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458099784,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.014622
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9348.601157,
+          9470.234328,
+          -194.149386
+        ],
+        "size": [
+          2.0181655979297775,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.013622
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.301727,
+          9490.2876,
+          -190.923049
+        ],
+        "size": [
+          0.635074687064311,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023069
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.827533,
+          9491.290785,
+          -192.958442
+        ],
+        "size": [
+          0.4477807385252639,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101611
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9315.8471,
+          9469.480253,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721749288,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.013059
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.112662,
+          9492.228693,
+          -192.695546
+        ],
+        "size": [
+          1.1577014541257151,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.02598
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9358.678053,
+          9473.929548,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336534873,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.013732
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.423678,
+          9478.828276,
+          -192.515996
+        ],
+        "size": [
+          1.243933320155247,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.04226
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9330.231253,
+          9466.363164,
+          -194.31002
+        ],
+        "size": [
+          2.03544141250497,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.016904
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.467414,
+          9490.350787,
+          -192.117924
+        ],
+        "size": [
+          0.7494751501653828,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": 1e-06
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.826142,
+          9491.283501,
+          -192.340564
+        ],
+        "size": [
+          0.9429254809122669,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101611
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.113808,
+          9492.228357,
+          -191.843089
+        ],
+        "size": [
+          1.3257439689475505,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.02598
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9236.323583,
+          9487.293452,
+          -194.301047
+        ],
+        "size": [
+          2.3299900181836084,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": 3.156304
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.825745,
+          9491.291027,
+          -191.770564
+        ],
+        "size": [
+          0.8375734288811517,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101611
+      }
+    ]
+  },
+  {
+    "frame_index": 15,
+    "timestamp": 1510593601640594,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9283.983144,
+          9472.601791,
+          -194.472049
+        ],
+        "size": [
+          1.9828961125839804,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.013288
+      },
+      {
+        "instance_token": "9oP479zg6gW1ggR_hMie7A",
+        "category_name": "pedestrian",
+        "translation": [
+          9367.372598,
+          9461.824923,
+          -194.159752
+        ],
+        "size": [
+          0.911707207959629,
+          0.9558650965987667,
+          1.6599999999999966
+        ],
+        "yaw": -0.032868
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.419926,
+          9478.820896,
+          -191.58996
+        ],
+        "size": [
+          1.3595662085829572,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042294
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9352.457776,
+          9466.805053,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458101076,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.013762
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9350.378732,
+          9470.264803,
+          -194.15022
+        ],
+        "size": [
+          2.0181655979306936,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.013691
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.301003,
+          9490.277377,
+          -190.922049
+        ],
+        "size": [
+          0.6350746870643101,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023104
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.825746,
+          9491.281992,
+          -192.961929
+        ],
+        "size": [
+          0.4477807385252636,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101576
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9317.626735,
+          9469.507156,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721759183,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.013018
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.110918,
+          9492.221264,
+          -192.702614
+        ],
+        "size": [
+          1.157701454125712,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.026015
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9360.516742,
+          9473.950634,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336540961,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.013132
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.421438,
+          9478.821383,
+          -192.522188
+        ],
+        "size": [
+          1.2439333201552487,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042294
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9331.964613,
+          9466.389915,
+          -194.31002
+        ],
+        "size": [
+          2.03544141250602,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.017114
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.465734,
+          9490.345031,
+          -192.117015
+        ],
+        "size": [
+          0.7494751501653838,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -3.4e-05
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.82446,
+          9491.274376,
+          -192.344203
+        ],
+        "size": [
+          0.9429254809122637,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101576
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.112094,
+          9492.220963,
+          -191.849981
+        ],
+        "size": [
+          1.3257439689475508,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.026015
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9234.795589,
+          9487.239821,
+          -194.297049
+        ],
+        "size": [
+          2.3299900181848425,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": 3.152253
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.824229,
+          9491.281362,
+          -191.774203
+        ],
+        "size": [
+          0.8375734288811494,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101576
+      }
+    ]
+  },
+  {
+    "frame_index": 16,
+    "timestamp": 1510593601740657,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9286.040019,
+          9472.640794,
+          -194.466523
+        ],
+        "size": [
+          1.9828961125864306,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.01349
+      },
+      {
+        "instance_token": "9oP479zg6gW1ggR_hMie7A",
+        "category_name": "pedestrian",
+        "translation": [
+          9367.509575,
+          9461.820133,
+          -194.159752
+        ],
+        "size": [
+          0.9117072079603065,
+          0.9558650965987667,
+          1.6599999999999966
+        ],
+        "yaw": -0.031925
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.417768,
+          9478.813993,
+          -191.596336
+        ],
+        "size": [
+          1.3595662085829576,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042412
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9354.164515,
+          9466.824396,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458105284,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.012818
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9352.144116,
+          9470.282956,
+          -194.14714
+        ],
+        "size": [
+          2.018165597931814,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.014297
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.300253,
+          9490.275712,
+          -190.922203
+        ],
+        "size": [
+          0.6350746870643137,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023222
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.82396,
+          9491.273199,
+          -192.965416
+        ],
+        "size": [
+          0.4477807385252628,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101458
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9319.411593,
+          9469.524618,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721733812,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.012895
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.109175,
+          9492.213833,
+          -192.709682
+        ],
+        "size": [
+          1.1577014541257136,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.026133
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9362.35551,
+          9473.971721,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336555006,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.012448
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.419198,
+          9478.814489,
+          -192.528379
+        ],
+        "size": [
+          1.243933320155247,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042412
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9333.698043,
+          9466.416668,
+          -194.31002
+        ],
+        "size": [
+          2.0354414125038045,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.017241
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.464054,
+          9490.339274,
+          -192.116106
+        ],
+        "size": [
+          0.7494751501653785,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000152
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.822779,
+          9491.265251,
+          -192.347842
+        ],
+        "size": [
+          0.9429254809122677,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101458
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.11038,
+          9492.213569,
+          -191.856874
+        ],
+        "size": [
+          1.3257439689475492,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.026133
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9233.295659,
+          9487.17713,
+          -194.29659
+        ],
+        "size": [
+          2.3299900181849353,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": 3.154358
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.822713,
+          9491.271696,
+          -191.777842
+        ],
+        "size": [
+          0.8375734288811524,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101458
+      }
+    ]
+  },
+  {
+    "frame_index": 17,
+    "timestamp": 1510593601840724,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9288.096992,
+          9472.679799,
+          -194.460997
+        ],
+        "size": [
+          1.9828961125874232,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.013845
+      },
+      {
+        "instance_token": "9oP479zg6gW1ggR_hMie7A",
+        "category_name": "pedestrian",
+        "translation": [
+          9367.646558,
+          9461.815343,
+          -194.159752
+        ],
+        "size": [
+          0.9117072079598715,
+          0.9558650965987667,
+          1.6599999999999966
+        ],
+        "yaw": -0.030829
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.415609,
+          9478.80709,
+          -191.602713
+        ],
+        "size": [
+          1.3595662085829576,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042376
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9355.871336,
+          9466.843741,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458105983,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.012028
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9353.909584,
+          9470.301111,
+          -194.14406
+        ],
+        "size": [
+          2.0181655979304107,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.015057
+      },
+      {
+        "instance_token": "bXxrIjcrOb1_31l3VaIRiw",
+        "category_name": "barrier",
+        "translation": [
+          9231.299503,
+          9490.274047,
+          -190.922357
+        ],
+        "size": [
+          0.635074687064309,
+          0.09090727433218965,
+          1.1099999999999852
+        ],
+        "yaw": -0.023186
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.822173,
+          9491.264405,
+          -192.968904
+        ],
+        "size": [
+          0.4477807385252605,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101494
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9321.196536,
+          9469.54208,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721752,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.012925
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.107431,
+          9492.206403,
+          -192.71675
+        ],
+        "size": [
+          1.1577014541257151,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.026097
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9364.194352,
+          9473.992809,
+          -194.13022
+        ],
+        "size": [
+          1.878903333653617,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.011918
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.416958,
+          9478.807595,
+          -192.534571
+        ],
+        "size": [
+          1.2439333201552478,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042376
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9335.427649,
+          9466.452567,
+          -194.31002
+        ],
+        "size": [
+          2.03544141250473,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.017535
+      },
+      {
+        "instance_token": "rRGV3Oi40kntWPFhDyPBYw",
+        "category_name": "barrier",
+        "translation": [
+          9231.462374,
+          9490.333517,
+          -192.115196
+        ],
+        "size": [
+          0.7494751501653794,
+          0.12493220006213726,
+          1.0
+        ],
+        "yaw": -0.000115
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.821098,
+          9491.256126,
+          -192.351481
+        ],
+        "size": [
+          0.9429254809122624,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101494
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.108666,
+          9492.206174,
+          -191.863767
+        ],
+        "size": [
+          1.3257439689475476,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.026097
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9231.795662,
+          9487.114436,
+          -194.296132
+        ],
+        "size": [
+          2.3299900181827478,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": 3.156618
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.821197,
+          9491.26203,
+          -191.781481
+        ],
+        "size": [
+          0.8375734288811553,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101494
+      }
+    ]
+  },
+  {
+    "frame_index": 18,
+    "timestamp": 1510593601940746,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9290.153033,
+          9472.718787,
+          -194.455473
+        ],
+        "size": [
+          1.9828961125842217,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.014266
+      },
+      {
+        "instance_token": "9oP479zg6gW1ggR_hMie7A",
+        "category_name": "pedestrian",
+        "translation": [
+          9367.783479,
+          9461.810556,
+          -194.159752
+        ],
+        "size": [
+          0.9117072079586183,
+          0.9558650965987667,
+          1.6599999999999966
+        ],
+        "yaw": -0.029668
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.413451,
+          9478.800191,
+          -191.609087
+        ],
+        "size": [
+          1.359566208582958,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042274
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9357.577385,
+          9466.863076,
+          -194.290904
+        ],
+        "size": [
+          1.92425444580823,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.011304
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9355.674253,
+          9470.319257,
+          -194.140981
+        ],
+        "size": [
+          2.0181655979321165,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.015883
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.820387,
+          9491.255616,
+          -192.97239
+        ],
+        "size": [
+          0.4477807385252625,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101596
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9322.980671,
+          9469.559535,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721757657,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.01302
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.105688,
+          9492.198976,
+          -192.723816
+        ],
+        "size": [
+          1.1577014541257091,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.025995
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9366.032363,
+          9474.013888,
+          -194.13022
+        ],
+        "size": [
+          1.878903333654368,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.011454
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.414719,
+          9478.800704,
+          -192.54076
+        ],
+        "size": [
+          1.243933320155245,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042274
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9337.156469,
+          9466.48845,
+          -194.31002
+        ],
+        "size": [
+          2.0354414125055826,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.017894
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.819417,
+          9491.247004,
+          -192.355118
+        ],
+        "size": [
+          0.9429254809122636,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101596
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.106953,
+          9492.198782,
+          -191.870657
+        ],
+        "size": [
+          1.325743968947547,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.025995
+      },
+      {
+        "instance_token": "wBjgNNft3mbCBlGZuFATbA",
+        "category_name": "car",
+        "translation": [
+          9230.303973,
+          9487.08985,
+          -194.294882
+        ],
+        "size": [
+          2.3299900181844353,
+          5.746904626434512,
+          2.0500000000000114
+        ],
+        "yaw": 3.148967
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.819682,
+          9491.252369,
+          -191.785118
+        ],
+        "size": [
+          0.8375734288811528,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101596
+      }
+    ]
+  },
+  {
+    "frame_index": 19,
+    "timestamp": 1510593602040769,
+    "detections": [
+      {
+        "instance_token": "8EFRSwEXBf9P-SzIDRzx0A",
+        "category_name": "car",
+        "translation": [
+          9292.2091,
+          9472.757775,
+          -194.44995
+        ],
+        "size": [
+          1.9828961125862667,
+          4.760235235989989,
+          1.6800000000000068
+        ],
+        "yaw": 0.014658
+      },
+      {
+        "instance_token": "9oP479zg6gW1ggR_hMie7A",
+        "category_name": "pedestrian",
+        "translation": [
+          9367.920402,
+          9461.805768,
+          -194.159752
+        ],
+        "size": [
+          0.9117072079608031,
+          0.9558650965987667,
+          1.6599999999999966
+        ],
+        "yaw": -0.028537
+      },
+      {
+        "instance_token": "BGTIFancXgcYqs_LFRaPaA",
+        "category_name": "barrier",
+        "translation": [
+          9360.411293,
+          9478.793291,
+          -191.615462
+        ],
+        "size": [
+          1.3595662085829552,
+          0.1769121714722368,
+          1.3300000000000125
+        ],
+        "yaw": -0.042202
+      },
+      {
+        "instance_token": "SZuiBA9DtRCP4uerFvjuUg",
+        "category_name": "car",
+        "translation": [
+          9359.283454,
+          9466.882412,
+          -194.290904
+        ],
+        "size": [
+          1.9242544458098478,
+          4.4930141243689015,
+          1.6200000000000045
+        ],
+        "yaw": 0.010551
+      },
+      {
+        "instance_token": "VJ3F-NiHmRQh0umylCVJmA",
+        "category_name": "car",
+        "translation": [
+          9357.438944,
+          9470.337404,
+          -194.137902
+        ],
+        "size": [
+          2.018165597931927,
+          4.513134775681905,
+          1.7700000000000102
+        ],
+        "yaw": 0.016679
+      },
+      {
+        "instance_token": "dyXgfAJxxJlwK0bb5tSALw",
+        "category_name": "barrier",
+        "translation": [
+          9297.818602,
+          9491.246826,
+          -192.975876
+        ],
+        "size": [
+          0.4477807385252645,
+          0.10154774941012226,
+          0.5500000000000114
+        ],
+        "yaw": 0.101668
+      },
+      {
+        "instance_token": "jT38g8qP7TxoFXreShjseQ",
+        "category_name": "car",
+        "translation": [
+          9324.764827,
+          9469.576989,
+          -194.260097
+        ],
+        "size": [
+          1.9384529721753603,
+          4.27370457474128,
+          1.6899999999999977
+        ],
+        "yaw": 0.013086
+      },
+      {
+        "instance_token": "jk9l1HHOLRgXU2AfZ5ytFg",
+        "category_name": "barrier",
+        "translation": [
+          9355.103944,
+          9492.191549,
+          -192.730881
+        ],
+        "size": [
+          1.1577014541257122,
+          0.09553472330790877,
+          0.4199999999999875
+        ],
+        "yaw": -0.025923
+      },
+      {
+        "instance_token": "jtZkCXXz-CJN7H96lJooeA",
+        "category_name": "car",
+        "translation": [
+          9367.879656,
+          9474.035073,
+          -194.13022
+        ],
+        "size": [
+          1.8789033336557575,
+          4.251596265152163,
+          1.5200000000000102
+        ],
+        "yaw": 0.009881
+      },
+      {
+        "instance_token": "mHrjmjF-2GxcTIpdiESphg",
+        "category_name": "barrier",
+        "translation": [
+          9360.41248,
+          9478.793813,
+          -192.546949
+        ],
+        "size": [
+          1.243933320155249,
+          0.18629736907450403,
+          0.37000000000000455
+        ],
+        "yaw": -0.042202
+      },
+      {
+        "instance_token": "mV--0dAvjt4OyGlzlXvfPw",
+        "category_name": "car",
+        "translation": [
+          9338.885309,
+          9466.524333,
+          -194.31002
+        ],
+        "size": [
+          2.035441412507106,
+          4.307956063242486,
+          1.9099999999999966
+        ],
+        "yaw": 0.018224
+      },
+      {
+        "instance_token": "uPG2HACjwDhEznwpkcJ-SA",
+        "category_name": "barrier",
+        "translation": [
+          9297.817736,
+          9491.237883,
+          -192.358756
+        ],
+        "size": [
+          0.9429254809122636,
+          0.0922711965520758,
+          0.6399999999999864
+        ],
+        "yaw": 0.101668
+      },
+      {
+        "instance_token": "vYEZJATafOSC7xU9nxERWw",
+        "category_name": "barrier",
+        "translation": [
+          9355.10524,
+          9492.191391,
+          -191.877547
+        ],
+        "size": [
+          1.3257439689475503,
+          0.13290627333578775,
+          1.210000000000008
+        ],
+        "yaw": -0.025923
+      },
+      {
+        "instance_token": "xf3Hk5yc_-qRwq793N2Kvw",
+        "category_name": "barrier",
+        "translation": [
+          9297.818166,
+          9491.242707,
+          -191.788756
+        ],
+        "size": [
+          0.8375734288811496,
+          0.0972328046265952,
+          0.4000000000000057
+        ],
+        "yaw": 0.101668
+      }
+    ]
+  }
+]

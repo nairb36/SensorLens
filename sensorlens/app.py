@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import cv2
+import dash
 from dash import Dash, html, dcc, Input, Output, State, callback_context, no_update
 
 logger = logging.getLogger(__name__)
@@ -1398,7 +1399,53 @@ def button_style(bg="#2c3e50"):
     }
 
 
-def _demo_landing_layout(scene_name, num_frames, num_cameras):
+def _demo_scene_card(scene_key, dataset, scene_name, num_frames, num_cameras):
+    has_cameras = num_cameras > 0
+    info_items = [
+        html.Span(f"{num_frames} frames", style={"color": "#888", "fontSize": "12px"}),
+    ]
+    if has_cameras:
+        info_items.append(html.Span(f"{num_cameras} cameras", style={"color": "#888", "fontSize": "12px"}))
+    info_items.append(html.Span("LiDAR + GT", style={"color": "#888", "fontSize": "12px"}))
+
+    return html.Button(
+        id={"type": "btn-scene", "index": scene_key},
+        style={
+            "backgroundColor": "#0f0f23",
+            "borderRadius": "8px",
+            "padding": "16px 20px",
+            "border": "1px solid rgba(255,255,255,0.06)",
+            "textAlign": "left",
+            "cursor": "pointer",
+            "width": "100%",
+            "transition": "border-color 0.2s",
+        },
+        children=[
+            html.Div(
+                style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "marginBottom": "8px"},
+                children=[
+                    html.Span(dataset, style={"color": "#00d4ff", "fontSize": "15px", "fontWeight": "600"}),
+                    html.Span("VIZ", style={
+                        "backgroundColor": "#1abc9c", "color": "#fff",
+                        "fontSize": "10px", "fontWeight": "700",
+                        "padding": "2px 8px", "borderRadius": "4px", "letterSpacing": "1px",
+                    }),
+                ],
+            ),
+            html.Div(scene_name, style={"color": "#aaa", "fontSize": "13px", "marginBottom": "6px"}),
+            html.Div(style={"display": "flex", "gap": "12px"}, children=info_items),
+        ],
+    )
+
+
+def _demo_landing_layout(demo_scenes):
+    scene_cards = []
+    for key, s in demo_scenes.items():
+        scene_cards.append(_demo_scene_card(
+            key, s["dataset"], s["scene_name"],
+            s["num_frames"], len(s["camera_names"]),
+        ))
+
     return html.Div(
         style={
             "backgroundColor": "#0f0f23",
@@ -1414,115 +1461,46 @@ def _demo_landing_layout(scene_name, num_frames, num_cameras):
                     "backgroundColor": "#16213e",
                     "borderRadius": "12px",
                     "padding": "36px 40px",
-                    "width": "480px",
+                    "width": "520px",
                     "maxWidth": "90vw",
                     "boxShadow": "0 8px 32px rgba(0,0,0,0.4)",
                     "border": "1px solid rgba(255,255,255,0.06)",
                     "textAlign": "center",
                 },
                 children=[
-                    html.H1(
-                        "SensorLens",
-                        style={
-                            "color": "#00d4ff",
-                            "fontSize": "32px",
-                            "fontWeight": "700",
-                            "margin": "0 0 4px 0",
-                        },
-                    ),
-                    html.P(
-                        "3D Multi-Object Tracking Visualizer",
-                        style={
-                            "color": "#666",
-                            "fontSize": "13px",
-                            "margin": "0 0 28px 0",
-                        },
-                    ),
+                    html.H1("SensorLens", style={
+                        "color": "#00d4ff", "fontSize": "32px",
+                        "fontWeight": "700", "margin": "0 0 4px 0",
+                    }),
+                    html.P("3D Multi-Object Tracking Visualizer", style={
+                        "color": "#666", "fontSize": "13px", "margin": "0 0 24px 0",
+                    }),
                     html.Div(
-                        style={
-                            "backgroundColor": "#0f0f23",
-                            "borderRadius": "8px",
-                            "padding": "20px",
-                            "marginBottom": "24px",
-                            "border": "1px solid rgba(255,255,255,0.06)",
-                            "textAlign": "left",
-                        },
-                        children=[
-                            html.Div(
-                                style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "marginBottom": "12px"},
-                                children=[
-                                    html.Span(
-                                        "nuScenes",
-                                        style={
-                                            "color": "#00d4ff",
-                                            "fontSize": "16px",
-                                            "fontWeight": "600",
-                                        },
-                                    ),
-                                    html.Span(
-                                        "VIZ",
-                                        style={
-                                            "backgroundColor": "#1abc9c",
-                                            "color": "#fff",
-                                            "fontSize": "10px",
-                                            "fontWeight": "700",
-                                            "padding": "2px 8px",
-                                            "borderRadius": "4px",
-                                            "letterSpacing": "1px",
-                                        },
-                                    ),
-                                ],
-                            ),
-                            html.Div(
-                                scene_name,
-                                style={"color": "#aaa", "fontSize": "14px", "marginBottom": "8px"},
-                            ),
-                            html.Div(
-                                style={"display": "flex", "gap": "16px"},
-                                children=[
-                                    html.Span(f"{num_frames} frames", style={"color": "#888", "fontSize": "12px"}),
-                                    html.Span(f"{num_cameras} cameras", style={"color": "#888", "fontSize": "12px"}),
-                                    html.Span("LiDAR + GT", style={"color": "#888", "fontSize": "12px"}),
-                                ],
-                            ),
-                        ],
+                        style={"display": "flex", "flexDirection": "column", "gap": "8px"},
+                        children=scene_cards,
                     ),
-                    html.Button(
-                        "Launch",
-                        id="btn-demo-launch",
-                        className="launch-btn",
-                    ),
-                    html.Div(
-                        style={"marginTop": "20px"},
-                        children=[
-                            html.A(
-                                "GitHub",
-                                href="https://github.com",
-                                target="_blank",
-                                style={"color": "#555", "fontSize": "12px", "textDecoration": "none"},
-                            ),
-                        ],
-                    ),
+                    html.Div(style={"marginTop": "20px"}, children=[
+                        html.A("GitHub", href="https://github.com", target="_blank",
+                               style={"color": "#555", "fontSize": "12px", "textDecoration": "none"}),
+                    ]),
                 ],
             ),
         ],
     )
 
 
-def create_demo_app(demo_state: dict) -> Dash:
-    _server_state.update(demo_state)
+def create_demo_app(demo_scenes: dict) -> Dash:
+    first_key = next(iter(demo_scenes))
+    _server_state.update(demo_scenes[first_key])
 
     app = Dash(
         __name__,
         suppress_callback_exceptions=True,
     )
 
-    scene_name = demo_state.get("scene_name", "")
-    num_frames = demo_state["num_frames"]
-    num_cameras = len(demo_state["camera_names"])
-
     app.layout = html.Div([
         dcc.Store(id="app-phase", data="landing"),
+        dcc.Store(id="store-scene", data=first_key, storage_type="session"),
         html.Div(id="page-content"),
     ])
 
@@ -1533,15 +1511,22 @@ def create_demo_app(demo_state: dict) -> Dash:
     def switch_page(phase):
         if phase == "viz":
             return _viz_layout()
-        return _demo_landing_layout(scene_name, num_frames, num_cameras)
+        return _demo_landing_layout(demo_scenes)
 
     @app.callback(
         Output("app-phase", "data"),
-        Input("btn-demo-launch", "n_clicks"),
+        Output("store-scene", "data"),
+        Input({"type": "btn-scene", "index": dash.ALL}, "n_clicks"),
         prevent_initial_call=True,
     )
-    def demo_launch(n_clicks):
-        return "viz"
+    def scene_selected(n_clicks_list):
+        ctx = callback_context
+        if not ctx.triggered or not any(n_clicks_list):
+            return no_update, no_update
+        triggered = ctx.triggered[0]["prop_id"]
+        scene_key = json.loads(triggered.split(".")[0])["index"]
+        _server_state.update(demo_scenes[scene_key])
+        return "viz", scene_key
 
     @app.callback(
         Output("app-phase", "data", allow_duplicate=True),

@@ -1,0 +1,33 @@
+{
+  "format_version": "1.0",
+  "source_dataset": "kitti",
+  "scene_name": "sequence_0000",
+  "num_frames": 20,
+  "sensors": {
+    "lidar": {
+      "points_format": "float32",
+      "points_per_row": 4,
+      "channels": [
+        "x",
+        "y",
+        "z",
+        "intensity"
+      ]
+    },
+    "cameras": [
+      {
+        "name": "left",
+        "order": 0
+      }
+    ]
+  },
+  "category_mapping": {
+    "Car": "car",
+    "Van": "car",
+    "Truck": "truck",
+    "Pedestrian": "pedestrian",
+    "Person_sitting": "pedestrian",
+    "Cyclist": "bicycle",
+    "Tram": "bus"
+  }
+}

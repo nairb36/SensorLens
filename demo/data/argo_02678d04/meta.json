@@ -1,0 +1,78 @@
+{
+  "format_version": "1.0",
+  "source_dataset": "argoverse2",
+  "scene_name": "02678d04-cc9f-3148-9f95-1ba66347dff9",
+  "num_frames": 20,
+  "sensors": {
+    "lidar": {
+      "points_format": "float32",
+      "points_per_row": 4,
+      "channels": [
+        "x",
+        "y",
+        "z",
+        "intensity"
+      ]
+    },
+    "cameras": [
+      {
+        "name": "front",
+        "order": 0
+      },
+      {
+        "name": "front_left",
+        "order": 1
+      },
+      {
+        "name": "front_right",
+        "order": 2
+      },
+      {
+        "name": "side_left",
+        "order": 3
+      },
+      {
+        "name": "side_right",
+        "order": 4
+      },
+      {
+        "name": "rear_left",
+        "order": 5
+      },
+      {
+        "name": "rear_right",
+        "order": 6
+      }
+    ]
+  },
+  "category_mapping": {
+    "REGULAR_VEHICLE": "car",
+    "LARGE_VEHICLE": "truck",
+    "BUS": "bus",
+    "BOX_TRUCK": "truck",
+    "TRUCK": "truck",
+    "VEHICULAR_TRAILER": "trailer",
+    "TRUCK_CAB": "truck",
+    "SCHOOL_BUS": "bus",
+    "ARTICULATED_BUS": "bus",
+    "MESSAGE_BOARD_TRAILER": "trailer",
+    "PEDESTRIAN": "pedestrian",
+    "STROLLER": "pedestrian",
+    "WHEELCHAIR": "pedestrian",
+    "OFFICIAL_SIGNALER": "pedestrian",
+    "BICYCLE": "bicycle",
+    "BICYCLIST": "bicycle",
+    "MOTORCYCLE": "motorcycle",
+    "MOTORCYCLIST": "motorcycle",
+    "WHEELED_DEVICE": "bicycle",
+    "WHEELED_RIDER": "bicycle",
+    "DOG": "pedestrian",
+    "BOLLARD": "barrier",
+    "CONSTRUCTION_BARREL": "barrier",
+    "CONSTRUCTION_CONE": "traffic_cone",
+    "SIGN": "barrier",
+    "MOBILE_PEDESTRIAN_CROSSING_SIGN": "barrier",
+    "STOP_SIGN": "barrier",
+    "RAILED_VEHICLE": "bus"
+  }
+}
