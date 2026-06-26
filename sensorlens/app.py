@@ -1528,8 +1528,23 @@ def _demo_landing_layout(demo_scenes):
                         children=scene_cards,
                     ),
                     html.Div(style={"marginTop": "20px"}, children=[
-                        html.A("GitHub", href="https://github.com", target="_blank",
-                               style={"color": "#555", "fontSize": "12px", "textDecoration": "none"}),
+                        html.A(
+                            children=[
+                                html.Img(
+                                    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjODg4Ij48cGF0aCBkPSJNMTIgMEM1LjM3IDAgMCA1LjM3IDAgMTJjMCA1LjMgMy40MzggOS44IDguMjA1IDExLjM4NS42LjExMy44Mi0uMjU4LjgyLS41NzcgMC0uMjg1LS4wMS0xLjA0LS4wMTUtMi4wNC0zLjMzOC43MjQtNC4wNDItMS42MS00LjA0Mi0xLjYxLS41NDYtMS4zODUtMS4zMzUtMS43MjUtMS4zMzUtMS43MjUtMS4wODctLjc0NS4wODQtLjcyOS4wODQtLjcyOSAxLjIwNS4wODQgMS44MzggMS4yMzYgMS44MzggMS4yMzYgMS4wNyAxLjgzNSAyLjgwOSAxLjMwNSAzLjQ5NS45OTguMTA4LS43NzYuNDE3LTEuMzA1Ljc2LTEuNjA1LTIuNjY1LS4zLTUuNDY2LTEuMzMyLTUuNDY2LTUuOTMgMC0xLjMxLjQ2NS0yLjM4IDEuMjM1LTMuMjItLjEzNS0uMzAzLS41NC0xLjUyMy4xMDUtMy4xNzYgMCAwIDEuMDA1LS4zMjIgMy4zIDEuMjMuOTYtLjI2NyAxLjk4LS4zOTkgMy0uNDA1IDEuMDIuMDA2IDIuMDQuMTM4IDMgLjQwNSAyLjI4LTEuNTUyIDMuMjg1LTEuMjMgMy4yODUtMS4yMy42NDUgMS42NTMuMjQgMi44NzMuMTIgMy4xNzYuNzY1Ljg0IDEuMjMgMS45MSAxLjIzIDMuMjIgMCA0LjYxLTIuODA1IDUuNjI1LTUuNDc1IDUuOTIuNDIuMzYuODEgMS4wOTYuODEgMi4yMiAwIDEuNjA1LS4wMTUgMi44OTYtLjAxNSAzLjI4NiAwIC4zMTUuMjEuNjkuODI1LjU3QzIwLjU2NSAyMS43OTYgMjQgMTcuMyAyNCAxMmMwLTYuNjMtNS4zNy0xMi0xMi0xMnoiLz48L3N2Zz4=",
+                                    style={"width": "20px", "height": "20px", "verticalAlign": "middle", "marginRight": "6px"},
+                                ),
+                                html.Span("GitHub", style={"verticalAlign": "middle"}),
+                            ],
+                            href="https://github.com/nairb36/SensorLens",
+                            target="_blank",
+                            style={
+                                "color": "#888", "fontSize": "12px", "textDecoration": "none",
+                                "display": "inline-flex", "alignItems": "center",
+                                "border": "1px solid rgba(255,255,255,0.1)",
+                                "borderRadius": "6px", "padding": "6px 14px",
+                            },
+                        ),
                     ]),
                 ],
             ),
