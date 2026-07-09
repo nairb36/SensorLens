@@ -23,6 +23,7 @@ Pure playback for inspecting scenes. Load a converted scene directory and explor
   - Red = ID switch (thicker wireframe)
   - Yellow = false positive
   - Blue = missed detection
+  - Grey = not evaluated (category excluded from evaluation)
 - **Per-frame debug log** — match counts, ID switch details, false positive IDs, and missed detection IDs
 - **Tracking metrics dashboard** — MOTA, MOTP, IDF1, Recall, Precision, ID Switches, Fragmentations
 - **Configurable evaluation** — set match distance threshold and filter which object categories to evaluate
