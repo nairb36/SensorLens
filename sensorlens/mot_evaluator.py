@@ -7,6 +7,7 @@ ERROR_COLORS = {
     "switch": "#ff4444",
     "fp": "#f1c40f",
     "miss": "#3498db",
+    "unevaluated": "#888888",
 }
 
 SWITCH_LINE_WIDTH = 6

@@ -324,7 +324,12 @@ def _viz_layout():
         {"label": html.Span(g, style={"color": "#999"}), "value": g}
         for g in CATEGORY_GROUPS
     ]
-    cat_defaults = [g for g in CATEGORY_GROUPS if g in DEFAULT_ON]
+    # Debug mode shows all categories by default — unevaluated ones render
+    # grey; the user can still uncheck any group to hide it
+    if is_debug:
+        cat_defaults = list(CATEGORY_GROUPS)
+    else:
+        cat_defaults = [g for g in CATEGORY_GROUPS if g in DEFAULT_ON]
 
     # 3D panel
     scene_panel = html.Div(
@@ -481,6 +486,7 @@ def _viz_layout():
             ("ID Switch", ERROR_COLORS["switch"]),
             ("FP", ERROR_COLORS["fp"]),
             ("Missed", ERROR_COLORS["miss"]),
+            ("Not Evaluated", ERROR_COLORS["unevaluated"]),
         ]
 
         right_children.append(
@@ -1187,7 +1193,9 @@ def create_app() -> Dash:
                     "instance_token": det.get("instance_token", ""),
                 }
                 if is_debug:
-                    err = gt_errors.get(det.get("instance_token", ""), "miss")
+                    # Absent from events == never evaluated (motmetrics emits
+                    # explicit MISS/FP for every box it scored)
+                    err = gt_errors.get(det.get("instance_token", ""), "unevaluated")
                     box["debug_color"] = ERROR_COLORS[err]
                 gt_boxes_ego.append(box)
             total_objects += len(gt_boxes_ego)
@@ -1210,7 +1218,7 @@ def create_app() -> Dash:
                     "misses": trk.get("consecutive_misses", ""),
                 }
                 if is_debug:
-                    err = trk_errors.get(trk.get("id", 0), "fp")
+                    err = trk_errors.get(trk.get("id", 0), "unevaluated")
                     box["debug_color"] = ERROR_COLORS[err]
                     if err == "switch":
                         box["debug_line_width"] = SWITCH_LINE_WIDTH
