@@ -1,8 +1,82 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Secrets / local environment
 .env
-paper/
-.DS_Store
+.env.*
+*.pem
+*.key
+credentials*
+secrets*
+
+# Datasets and converted scenes (never commit dataset assets)
+data/
+datasets/
+sensorlens_scenes/
 demo/data/
+nuscenes/
+kitti/
+waymo*/
+argoverse*/
+
+# Raw sensor data and converted outputs
 *.bin
+*.pcd
+*.tfrecord
+*.parquet
+*.feather
+*.npy
+*.npz
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+
+# Model weights / checkpoints
+*.pth
+*.pt
+*.ckpt
+*.onnx
+checkpoints/
+weights/
+
+# Videos and large generated media
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Logs and caches
+*.log
+logs/
+.cache/
+
+# Build artifacts
+build/
+dist/
+*.egg
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local-only material (not for public release)
+paper/
+quarantine/
+.claude/
