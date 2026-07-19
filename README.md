@@ -4,19 +4,21 @@ Interactive 3D visualization and debugging tool for multi-object tracking (MOT) 
 
 Built for visual debugging and comparison of tracker output against ground-truth annotations.
 
+> **Dataset note:** The demo GIFs below are rendered from SensorLens using the [nuScenes](https://www.nuscenes.org/) dataset for non-commercial academic demonstration purposes. Dataset assets are **not** redistributed with this repository. Users must download nuScenes directly from the official provider and comply with the nuScenes terms of use and license. The same applies to all supported datasets (KITTI, Waymo Open Dataset, Argoverse 2): obtain them from their official providers under their own licenses.
+
 ## Two Modes
 
 ### Visualization Mode
 
 Pure playback for inspecting scenes. Load a converted scene directory and explore frame-by-frame in an interactive 3D view with LiDAR point clouds, camera images, and bounding box overlays.
 
-![Visualization Mode](sensorlens/assets/MOT_V1.gif)
+![Visualization Mode](sensorlens/assets/sensorlens_nuscenes_demo.gif)
 
 ### Debug Mode
 
 **The core differentiator.** Debug mode runs a full CLEAR MOT evaluation (via `motmetrics`) when you launch, then overlays the results directly onto the 3D scene:
 
-![Debug Mode](sensorlens/assets/SensorLens_debug_mode.gif)
+![Debug Mode](sensorlens/assets/sensorlens_nuscenes_debug_demo.gif)
 
 - **Color-coded boxes** — every GT and tracker box is colored by its MOT event type:
   - Green = correct match
@@ -315,20 +317,20 @@ python3 -m av2.utils.io download \
 
 ### GT Detections JSON
 
-Array of frames, each containing detections in **global frame**:
+Array of frames, each containing detections in **global frame** (all values below are synthetic examples):
 
 ```json
 [
   {
     "frame_index": 0,
-    "timestamp": 1532402927647951,
+    "timestamp": 1000000000000000,
     "detections": [
       {
-        "instance_token": "6dd2cbf4c24b4cae...",
+        "instance_token": "obj-001",
         "category_name": "car",
-        "translation": [353.794, 1132.355, 0.602],
-        "size": [2.011, 4.633, 1.573],
-        "yaw": -0.4034
+        "translation": [100.0, 200.0, 0.5],
+        "size": [2.0, 4.5, 1.6],
+        "yaw": -0.4
       }
     ]
   }
@@ -347,14 +349,14 @@ Array of frames, each containing detections in **global frame**:
 [
   {
     "frame_index": 0,
-    "timestamp": 1532402927647951,
+    "timestamp": 1000000000000000,
     "tracks": [
       {
         "id": 0,
         "category_name": "car",
-        "translation": [353.8, 1132.4, 0.6],
-        "size": [2.011, 4.633, 1.573],
-        "yaw": -0.4034,
+        "translation": [100.1, 200.1, 0.5],
+        "size": [2.0, 4.5, 1.6],
+        "yaw": -0.4,
         "tracking_score": 0.95,
         "age": 5,
         "hits": 5,
@@ -375,6 +377,7 @@ Array of frames, each containing detections in **global frame**:
 ```bash
 cd Project_SensorLens
 pip install -r requirements.txt
+python3 patches/patch_motmetrics.py   # one-time numpy>=1.24 compatibility patch for motmetrics
 ```
 
 For running converters, install the converter dependencies:
@@ -479,3 +482,9 @@ Project_SensorLens/
   Dockerfile           -- Container image definition
   docker-compose.yml   -- Docker Compose configuration
 ```
+
+## License
+
+SensorLens is released under the [MIT License](LICENSE).
+
+Supported datasets (nuScenes, KITTI, Waymo Open Dataset, Argoverse 2) are **not** included in or distributed with this repository. Download them from their official providers and use them under their respective licenses and terms.
